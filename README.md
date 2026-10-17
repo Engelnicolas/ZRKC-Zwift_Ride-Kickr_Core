@@ -1,102 +1,106 @@
-# Kick Zwift — app Android
+# ZRKC - Zwift Ride & Kickr Core
 
-App Android autonome qui relie les manettes du Zwift Ride au KICKR CORE : 24 vitesses
-virtuelles, pente libre, parcours GPX ou ERG, musique et volume depuis les manettes.
-Référence : `docs/Spécification technique — app Android Zwift Ride ↔ KICKR CORE.docx` ;
-documentation, protocole du Ride et traces brutes des relevés dans `docs/`.
+Standalone Android app that links the Zwift Ride controllers to the KICKR CORE: 24 virtual
+gears, free grade, GPX route or ERG, music and volume from the controllers.
+Reference: `docs/Spécification technique — app Android Zwift Ride ↔ KICKR CORE.docx`;
+documentation, Ride protocol and raw capture traces in `docs/`.
 
-**Projet indépendant, sans lien avec Zwift Inc. ni Wahoo Fitness.** Les protocoles ont été
-relevés sur le matériel à des fins d'interopérabilité. Utilisation à vos risques.
+**Independent project, not affiliated with Zwift Inc. or Wahoo Fitness.** The protocols were
+captured on the hardware for interoperability purposes. Use at your own risk.
 
-## Matériel testé
+## Tested hardware
 
-| Appareil | Version |
+| Device | Version |
 |---|---|
-| Zwift Ride (deux manettes) | firmware 1.2.0, matériel B.0 |
-| KICKR CORE « 85FF » avec Zwift Cog | firmware 1.5.36 |
-| Google Pixel 10 Pro | Android 17 (API 37) ; minimum de l'app : Android 12 (API 31) |
+| Zwift Ride (two controllers) | firmware 1.2.0, hardware B.0 |
+| KICKR CORE "85FF" with Zwift Cog | firmware 1.5.36 |
+| Google Pixel 10 Pro | Android 17 (API 37); app minimum: Android 12 (API 31) |
 
-Ne pas ouvrir l'app Zwift avec le Ride allumé : à partir du firmware 1.3, Zwift verrouille
-les manettes. L'app lit la version de chaque manette et alerte.
+Do not open the Zwift app while the Ride is on: from firmware 1.3 onwards, Zwift locks the
+controllers. The app reads each controller's version and warns you.
 
-## Utilisation
+## Usage
 
-1. Connexions : autoriser Bluetooth et notifications, exclure l'app de l'optimisation de
-   batterie, « Rechercher », puis « Mémoriser » le pod gauche du Ride (il relaie les deux
-   manettes) et le KICKR. Seuls les appareils mémorisés sont joints ensuite.
-2. Connecter la montre COROS directement au KICKR, en mode Vélo intérieur : c'est elle qui
-   enregistre la sortie.
-3. « Préparer la sortie », choisir le mode, « Démarrer ». Pendant la sortie, tout se pilote
-   aux manettes ; Terminer demande un appui long de 2 s.
+The app's interface is in French; on-screen labels are quoted as they appear.
 
-Correspondance par défaut : Vitesse haut et Vitesse bas des deux manettes pour les vitesses,
-Flèche haut et Flèche bas pour la pente (ou la cible ERG), Flèches gauche et droite pour les
-pistes, A lecture/pause, Y et B volume, Z pause de la sortie. Tout se change dans Réglages.
+1. Connections (« Connexions »): allow Bluetooth and notifications, exclude the app from
+   battery optimisation, tap « Rechercher » (Search), then « Mémoriser » (Remember) the
+   Ride's left pod (it relays both controllers) and the KICKR. Only remembered devices are
+   joined afterwards.
+2. Connect the COROS watch directly to the KICKR, in Indoor Bike mode: the watch records
+   the ride.
+3. « Préparer la sortie » (Prepare the ride), choose the mode, « Démarrer » (Start). During
+   the ride, everything is controlled from the controllers; « Terminer » (Finish) needs a
+   2 s long press.
+
+Default mapping: Vitesse haut and Vitesse bas (shift up/down) on both controllers for gears,
+Flèche haut and Flèche bas (arrow up/down) for grade (or the ERG target), left and right
+arrows for tracks, A play/pause, Y and B volume, Z pause the ride. Everything can be changed
+in « Réglages » (Settings).
 
 ## Modules
 
-    protocol/   Kotlin pur, sans Android : décodeurs du Ride, du KICKR et FTMS, gestes,
-                vitesses, profil de pente, logique de la sortie (RideSession), réglages et
-                leurs codecs, encodeur FIT. Testé sur la JVM avec les trames réelles.
-    ble/        Android : liaisons (DeviceLink, LinkSupervisor, reconnexion), managers Nordic
-                du Ride, du KICKR et du repli FTMS, scan, TrainerWriter (seul écrivain du
-                trainer). Machines de liaison et TrainerWriter testés sur la JVM.
-    app/        Android : RideService (service de premier plan), SessionController, actions
-                téléphone, réglages (DataStore), parcours GPX, journaux, les cinq écrans.
+    protocol/   Pure Kotlin, no Android: Ride, KICKR and FTMS decoders, gestures, gears,
+                grade profile, ride logic (RideSession), settings and their codecs, FIT
+                encoder. Tested on the JVM against real frames.
+    ble/        Android: links (DeviceLink, LinkSupervisor, reconnection), Nordic managers
+                for the Ride, the KICKR and the FTMS fallback, scanning, TrainerWriter (the
+                trainer's only writer). Link state machines and TrainerWriter tested on the JVM.
+    app/        Android: RideService (foreground service), SessionController, phone
+                actions, settings (DataStore), GPX routes, logs, the five screens.
 
-## Construire
+## Building
 
-Prérequis : JDK 17 ou plus récent, SDK Android avec `platforms;android-37.0` et
-`build-tools;36.0.0`, et un `local.properties` contenant `sdk.dir=...` (non versionné).
+Requirements: JDK 17 or newer, Android SDK with `platforms;android-37.0` and
+`build-tools;36.0.0`, and a `local.properties` containing `sdk.dir=...` (not versioned).
 
-    ./gradlew build              # tests, Android Lint, ktlint, detekt, APK debug et release
-    ./gradlew :protocol:test     # logique pure, sans SDK nécessaire à l'exécution
-    ./gradlew ktlintFormat       # remet le code en forme
-    ./gradlew :app:installDebug  # sur le téléphone branché (débogage USB)
+    ./gradlew build              # tests, Android Lint, ktlint, detekt, debug and release APKs
+    ./gradlew :protocol:test     # pure logic, no SDK needed at runtime
+    ./gradlew ktlintFormat       # reformats the code
+    ./gradlew :app:installDebug  # on the connected phone (USB debugging)
 
-Sur la machine de développement :
+On the development machine:
 
     export JAVA_HOME=$HOME/.local/share/jdk-17.0.20.1+1
 
-### APK release signé
+### Signed release APK
 
-La clé reste hors du dépôt. Une fois pour toutes :
+The key stays outside the repository. Once and for all:
 
     keytool -genkeypair -keystore ~/.config/kick-zwift/release.jks -alias kickzwift \
             -keyalg RSA -keysize 4096 -validity 10000
 
-Puis, à chaque version :
+Then, for each release:
 
     export KICKZWIFT_STORE_FILE=~/.config/kick-zwift/release.jks
     export KICKZWIFT_STORE_PASSWORD=... KICKZWIFT_KEY_ALIAS=kickzwift KICKZWIFT_KEY_PASSWORD=...
     ./gradlew :app:assembleRelease
     ~/Android/Sdk/platform-tools/adb install -r app/build/outputs/apk/release/app-release.apk
 
-Sans ces variables, l'APK release (`app-release-unsigned.apk`) est produit non signé.
+Without these variables, the release APK (`app-release-unsigned.apk`) is built unsigned.
 
-## Vecteurs de test
+## Test vectors
 
-Les tests de `:protocol` rejouent les trames capturées sur le Ride et le KICKR
-(`docs/captures/`, `docs/journaux/`). Le résultat attendu vient des noms donnés pendant la
-capture guidée, pas d'un décodeur. Après une nouvelle capture (`../prototype/capture_guidee.py`) :
+The `:protocol` tests replay the frames captured on the Ride and the KICKR
+(`docs/captures/`, `docs/journaux/`). The expected result comes from the names given during
+the guided capture, not from a decoder. After a new capture (`../prototype/capture_guidee.py`):
 
     ../.venv/bin/python ../prototype/export_vectors.py
 
 ## Fuzzing
 
-Cibles Jazzer dans `protocol/src/fuzz` : décodeurs des trames reçues et des fichiers lus.
-La CI nocturne (`.github/workflows/fuzz.yml`) les lance 10 min en tout. En local :
+Jazzer targets in `protocol/src/fuzz`: decoders for received frames and read files.
+The nightly CI (`.github/workflows/fuzz.yml`) runs them for 10 min in total. Locally:
 
     ./gradlew :protocol:writeFuzzClasspath
     jazzer --cp="$(cat protocol/build/fuzz-classpath.txt)" \
            --target_class=dev.kickzwift.protocol.fuzz.RideDecoderFuzz -max_total_time=60
 
-## Dépendances
+## Dependencies
 
-Versions figées dans `gradle/libs.versions.toml`. Chaque artefact est vérifié par
-son empreinte SHA-256 (`gradle/verification-metadata.xml`). Après une montée de
-version :
+Versions pinned in `gradle/libs.versions.toml`. Each artifact is verified by its SHA-256
+checksum (`gradle/verification-metadata.xml`). After a version bump:
 
     ./gradlew --write-verification-metadata sha256 --no-configuration-cache build
 
-puis relire le diff du fichier avant de le valider.
+then review the file's diff before committing it.
