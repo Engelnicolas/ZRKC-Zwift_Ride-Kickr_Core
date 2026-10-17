@@ -28,7 +28,8 @@ data class ModeUi(
     val recent: List<RecentRoute> = emptyList(),
     val route: RouteData? = null,
     val loading: Boolean = false,
-    val error: String? = null,
+    /** Dernier import ou chargement refusé ; l'écran en tire le texte affiché. */
+    val error: Throwable? = null,
     val imperial: Boolean = false,
 ) {
     val canStart: Boolean get() = choice != ModeChoice.ROUTE || route != null
@@ -68,8 +69,9 @@ class ModeViewModel(
         local.update { it.copy(loading = true, error = null) }
         viewModelScope.launch {
             val result = block()
+            result.exceptionOrNull()?.let { c.log.log("parcours refusé : $it") }
             local.update {
-                it.copy(loading = false, route = result.getOrNull() ?: it.route, error = result.exceptionOrNull()?.message)
+                it.copy(loading = false, route = result.getOrNull() ?: it.route, error = result.exceptionOrNull())
             }
         }
     }

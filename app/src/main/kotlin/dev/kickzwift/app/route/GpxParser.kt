@@ -12,10 +12,14 @@ data class GpxTrack(
     val points: List<TrackPoint>,
 )
 
+/** Fichier refusé ; [reason] donne le texte affiché, [limit] la borne dépassée s'il y en a une. */
 class GpxException(
-    message: String,
+    val reason: Reason,
+    val limit: Int = 0,
     cause: Throwable? = null,
-) : Exception(message, cause)
+) : Exception(if (cause == null) reason.name else "${reason.name} : ${cause.message}", cause) {
+    enum class Reason { INVALID, READ, NOT_FOUND, TOO_LARGE, TOO_MANY_POINTS, TOO_FEW_POINTS }
+}
 
 /**
  * Lecteur GPX sur XmlPullParser, sans dépendance (spécification, « Environnement »).
@@ -37,11 +41,11 @@ class GpxParser(
         try {
             read(newParser().apply { setInput(input, null) })
         } catch (e: XmlPullParserException) {
-            throw GpxException("GPX illisible : ${e.message}", e)
+            throw GpxException(GpxException.Reason.INVALID, cause = e)
         } catch (e: IOException) {
-            throw GpxException("lecture impossible : ${e.message}", e)
+            throw GpxException(GpxException.Reason.READ, cause = e)
         } catch (e: RuntimeException) {
-            throw GpxException("GPX illisible : $e", e)
+            throw GpxException(GpxException.Reason.INVALID, cause = e)
         }
 
     private class Builder {
@@ -71,10 +75,10 @@ class GpxParser(
                     if (tag == "rtept") endPoint(b, b.route)
                 }
             }
-            if (b.track.size + b.route.size > maxPoints) throw GpxException("plus de $maxPoints points")
+            if (b.track.size + b.route.size > maxPoints) throw GpxException(GpxException.Reason.TOO_MANY_POINTS, maxPoints)
         }
         val points = b.track.ifEmpty { b.route }
-        if (points.size < 2) throw GpxException("moins de deux points")
+        if (points.size < 2) throw GpxException(GpxException.Reason.TOO_FEW_POINTS)
         return GpxTrack(b.name, points)
     }
 

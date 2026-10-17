@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Kick Zwift</string>
+
+    <!-- Notification du service -->
+    <string name="channel_ride">Sortie</string>
+    <string name="notification_title">Liaisons Bluetooth actives</string>
+    <string name="notification_links">Appareils prêts : %1$d/%2$d</string>
+    <string name="notification_ride">Vitesse %1$d/%2$d · %3$s W</string>
+    <string name="notification_paused">En pause · %1$s</string>
+    <string name="action_pause">Pause</string>
+    <string name="action_resume">Reprendre</string>
+    <string name="action_stop">Arrêter</string>
+
+    <!-- Navigation -->
+    <string name="tab_devices">Connexions</string>
+    <string name="tab_settings">Réglages</string>
+    <string name="back">Retour</string>
+
+    <!-- Préalables -->
+    <string name="links_permissions_needed">Bluetooth et notifications doivent être autorisés pour joindre les appareils.</string>
+    <string name="links_permissions_grant">Autoriser</string>
+    <string name="links_battery_needed">Sans exclusion de l\'optimisation de batterie, Android peut couper les liaisons écran éteint.</string>
+    <string name="links_battery_grant">Exclure de l\'optimisation</string>
+
+    <!-- Écran Connexions -->
+    <string name="devices_title">Connexions</string>
+    <string name="devices_empty">Aucun appareil : lancez une recherche puis mémorisez le pod gauche du Ride et le KICKR.</string>
+    <string name="devices_search">Rechercher</string>
+    <string name="devices_search_stop">Arrêter la recherche</string>
+    <string name="devices_found">Appareils à proximité</string>
+    <string name="devices_trust">Mémoriser</string>
+    <string name="devices_forget_title">Oublier %1$s ?</string>
+    <string name="devices_forget_text">L\'app ne s\'y connectera plus. Il faudra le mémoriser de nouveau.</string>
+    <string name="devices_forget">Oublier</string>
+    <string name="devices_cancel">Annuler</string>
+    <string name="devices_forget_hint">Appui long sur une carte pour oublier l\'appareil.</string>
+    <string name="devices_battery">Batterie %1$d %%</string>
+    <string name="devices_firmware">Firmware %1$s</string>
+    <string name="devices_locked">Firmware 1.3 ou plus : Zwift verrouille le Ride. Ne le mettez plus à jour.</string>
+    <string name="devices_coros">Connectez la montre COROS directement au KICKR, en mode Vélo intérieur.</string>
+    <string name="devices_prepare">Préparer la sortie</string>
+    <string name="devices_prepare_hint">Il faut le KICKR et au moins une manette prêts.</string>
+    <string name="devices_search_failed">Recherche refusée par Android (code %1$d)</string>
+    <string name="devices_search_denied">Recherche impossible : permission Bluetooth retirée</string>
+    <string name="devices_service_start">Démarrer les liaisons</string>
+    <string name="devices_ride_pod">Zwift Ride · manette %1$d</string>
+    <string name="devices_ride_tip">Le pod gauche suffit : il relaie les commandes des deux manettes.</string>
+
+    <string name="kind_ride">Zwift Ride</string>
+    <string name="kind_kickr">KICKR</string>
+    <string name="kind_other">Autre appareil</string>
+
+    <!-- LinkState -->
+    <string name="link_service_off">Service arrêté</string>
+    <string name="link_not_found">Non trouvé</string>
+    <string name="link_scanning">Recherche</string>
+    <string name="link_connecting">Connexion</string>
+    <string name="link_handshake">Poignée de main</string>
+    <string name="link_ready">Prêt</string>
+    <string name="link_reconnecting">Reconnexion</string>
+    <string name="link_lost">Perdu</string>
+
+    <!-- Écran Choix du mode -->
+    <string name="mode_title">Choix du mode</string>
+    <string name="mode_free">Pente libre</string>
+    <string name="mode_route">Parcours GPX</string>
+    <string name="mode_erg">ERG</string>
+    <string name="mode_start_grade">Pente de départ</string>
+    <string name="mode_erg_target">Puissance cible</string>
+    <string name="mode_import">Importer un GPX</string>
+    <string name="mode_recent">Parcours récents</string>
+    <string name="mode_no_route">Aucun parcours choisi.</string>
+    <string name="mode_route_stats">%1$s · D+ %2$s · pente max %3$s</string>
+    <string name="mode_route_error">Parcours illisible : %1$s</string>
+    <string name="mode_start">Démarrer</string>
+    <string name="mode_erg_note">En ERG, les vitesses sont désactivées ; Flèche haut et Flèche bas règlent la cible de 10 W.</string>
+
+    <!-- Erreurs de parcours, après « Parcours illisible : ». La borne de points vaut des milliers : pas de pluriel. -->
+    <string name="route_default_name">Parcours</string>
+    <string name="route_error_invalid">GPX illisible</string>
+    <string name="route_error_read">lecture impossible</string>
+    <string name="route_error_not_found">fichier introuvable</string>
+    <string name="route_error_too_large">fichier de plus de %1$d Mo</string>
+    <string name="route_error_too_many_points" tools:ignore="PluralsCandidate">plus de %1$d points</string>
+    <string name="route_error_too_few_points">moins de deux points</string>
+    <string name="route_error_other">erreur inattendue</string>
+
+    <!-- Écran Sortie -->
+    <string name="ride_gear_of">sur %1$d</string>
+    <string name="ride_power">Puissance</string>
+    <string name="ride_cadence">Cadence</string>
+    <string name="ride_speed">Vitesse</string>
+    <string name="ride_grade">Pente</string>
+    <string name="ride_target">Cible</string>
+    <string name="ride_time">Temps</string>
+    <string name="ride_distance">Distance</string>
+    <string name="ride_remaining">Reste %1$s</string>
+    <string name="ride_pause">Pause</string>
+    <string name="ride_resume">Reprendre</string>
+    <string name="ride_finish">Terminer (appui long)</string>
+    <string name="ride_lost">%1$s perdu</string>
+    <string name="ride_paused_trainer">Pause : KICKR perdu depuis plus de 30 s</string>
+    <string name="ride_paused_route">Parcours terminé : appui long sur Terminer</string>
+    <string name="ride_paused">En pause</string>
+    <string name="ride_minus">Moins</string>
+    <string name="ride_plus">Plus</string>
+    <string name="ride_gear_description">Vitesse engagée : %1$d/%2$d</string>
+    <string name="ride_profile_description">Profil du parcours, position actuelle marquée</string>
+
+    <!-- Actions -->
+    <string name="action_shift">Vitesse %1$+d</string>
+    <string name="action_grade">Pente %1$s</string>
+    <string name="action_play_pause">Lecture / pause</string>
+    <string name="action_next">Piste suivante</string>
+    <string name="action_previous">Piste précédente</string>
+    <string name="action_volume_up">Volume +</string>
+    <string name="action_volume_down">Volume −</string>
+    <string name="action_pause_resume">Pause ou reprise</string>
+    <string name="action_none">Aucune</string>
+
+    <!-- Écran Bilan -->
+    <string name="summary_title">Bilan</string>
+    <string name="summary_duration">Durée</string>
+    <string name="summary_distance">Distance</string>
+    <string name="summary_avg_power">Puissance moyenne</string>
+    <string name="summary_max_power">Puissance maximale</string>
+    <string name="summary_cadence">Cadence moyenne</string>
+    <string name="summary_elevation">Dénivelé</string>
+    <string name="summary_shifts">Changements de vitesse</string>
+    <string name="summary_coros">La sortie est enregistrée sur la montre COROS.</string>
+    <string name="summary_share_fit">Partager le fichier FIT</string>
+    <string name="summary_close">Fermer</string>
+
+    <!-- Écran Réglages -->
+    <string name="settings_title">Réglages</string>
+    <string name="settings_buttons">Boutons</string>
+    <string name="settings_test">Tester</string>
+    <string name="settings_test_hint">Appuyez sur un bouton des manettes : sa ligne s\'éclaire, sans rien déclencher.</string>
+    <string name="settings_reset_mapping">Correspondance par défaut</string>
+    <string name="settings_gears">Vitesses</string>
+    <string name="settings_gear_table">Table des rapports</string>
+    <string name="settings_gear_table_error">Rapports positifs, strictement croissants, séparés par des virgules.</string>
+    <string name="settings_apply">Appliquer</string>
+    <string name="settings_zwift_preset">Préréglage Zwift</string>
+    <string name="settings_start_gear">Rapport de départ</string>
+    <string name="settings_write_interval">Intervalle d\'écriture au trainer</string>
+    <string name="settings_rider">Cycliste</string>
+    <string name="settings_rider_kg">Poids du cycliste</string>
+    <string name="settings_bike_kg">Poids du vélo</string>
+    <string name="settings_display">Affichage</string>
+    <string name="settings_theme">Thème</string>
+    <string name="settings_theme_dark">Sombre</string>
+    <string name="settings_theme_light">Clair</string>
+    <string name="settings_theme_system">Système</string>
+    <string name="settings_orientation">Orientation de l\'écran Sortie</string>
+    <string name="settings_orientation_auto">Auto</string>
+    <string name="settings_orientation_portrait">Portrait</string>
+    <string name="settings_orientation_landscape">Paysage</string>
+    <string name="settings_haptics">Vibration au changement de vitesse</string>
+    <string name="settings_imperial">Unités impériales</string>
+    <string name="settings_advanced">Avancé</string>
+    <string name="settings_firmware">Firmware %1$s : %2$s</string>
+    <string name="settings_firmware_unknown">inconnu</string>
+    <string name="settings_ftms">Repli FTMS pour le KICKR</string>
+    <string name="settings_ftms_hint">S\'applique à la connexion suivante ; les vitesses y sont simulées par la pente.</string>
+    <string name="settings_fit">Export FIT de la sortie</string>
+    <string name="settings_export_log">Exporter le journal</string>
+    <string name="gesture_press">Appui</string>
+    <string name="gesture_long">Appui long</string>
+    <string name="gesture_double">Double appui</string>
+
+    <!-- Noms des commandes du Ride -->
+    <string name="button_up">Flèche haut</string>
+    <string name="button_down">Flèche bas</string>
+    <string name="button_left">Flèche gauche</string>
+    <string name="button_right">Flèche droite</string>
+    <string name="button_shift_up_left">Vitesse haut (gauche)</string>
+    <string name="button_shift_down_left">Vitesse bas (gauche)</string>
+    <string name="button_power_up_left">Power up (gauche)</string>
+    <string name="button_paddle_left">Palette gauche</string>
+    <string name="button_a">A</string>
+    <string name="button_b">B</string>
+    <string name="button_y">Y</string>
+    <string name="button_z">Z</string>
+    <string name="button_shift_up_right">Vitesse haut (droite)</string>
+    <string name="button_shift_down_right">Vitesse bas (droite)</string>
+    <string name="button_power_up_right">Power up (droite)</string>
+    <string name="button_paddle_right">Palette droite</string>
+
+    <string name="share_title">Partager</string>
+    <string name="unit_w">%1$d W</string>
+    <string name="unit_rpm">%1$d tr/min</string>
+</resources>

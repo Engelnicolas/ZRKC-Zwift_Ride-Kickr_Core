@@ -193,24 +193,24 @@ object Format {
         imperial: Boolean,
     ): String =
         if (imperial) {
-            "%.2f mi".format(Locale.FRANCE, m / M_PER_KM / KM_PER_MILE)
+            "%.2f mi".format(Locale.getDefault(), m / M_PER_KM / KM_PER_MILE)
         } else {
-            "%.2f km".format(Locale.FRANCE, m / M_PER_KM)
+            "%.2f km".format(Locale.getDefault(), m / M_PER_KM)
         }
 
     fun speed(
         kmh: Double,
         imperial: Boolean,
-    ): String = if (imperial) "%.1f mph".format(Locale.FRANCE, kmh / KM_PER_MILE) else "%.1f km/h".format(Locale.FRANCE, kmh)
+    ): String = if (imperial) "%.1f mph".format(Locale.getDefault(), kmh / KM_PER_MILE) else "%.1f km/h".format(Locale.getDefault(), kmh)
 
     fun elevation(
         m: Double,
         imperial: Boolean,
-    ): String = if (imperial) "%.0f ft".format(Locale.FRANCE, m * FEET_PER_M) else "%.0f m".format(Locale.FRANCE, m)
+    ): String = if (imperial) "%.0f ft".format(Locale.getDefault(), m * FEET_PER_M) else "%.0f m".format(Locale.getDefault(), m)
 
-    fun pct(value: Double): String = "%.1f %%".format(Locale.FRANCE, value)
+    fun pct(value: Double): String = "%.1f %%".format(Locale.getDefault(), value)
 
-    fun signedPct(value: Double): String = "%+.1f %%".format(Locale.FRANCE, value)
+    fun signedPct(value: Double): String = "%+.1f %%".format(Locale.getDefault(), value)
 
-    fun kg(value: Double): String = "%.1f kg".format(Locale.FRANCE, value)
+    fun kg(value: Double): String = "%.1f kg".format(Locale.getDefault(), value)
 }

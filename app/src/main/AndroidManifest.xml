@@ -34,6 +34,8 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:localeConfig="@xml/locales_config"
+        tools:targetApi="tiramisu"
         android:supportsRtl="true"
         android:theme="@style/Theme.KickZwift">
 

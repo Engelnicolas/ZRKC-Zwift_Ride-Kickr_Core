@@ -33,6 +33,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.kickzwift.app.R
+import dev.kickzwift.app.route.GpxException
 import dev.kickzwift.app.route.RouteData
 import dev.kickzwift.app.ui.common.Format
 import dev.kickzwift.app.ui.common.ProfileChart
@@ -123,7 +124,7 @@ private fun LazyListScope.routeItems(
             OutlinedButton(onClick = onImport) { Text(stringResource(R.string.mode_import)) }
             if (ui.loading) CircularProgressIndicator()
         }
-        ui.error?.let { Text(stringResource(R.string.mode_route_error, it), color = MaterialTheme.colorScheme.error) }
+        ui.error?.let { Text(stringResource(R.string.mode_route_error, routeError(it)), color = MaterialTheme.colorScheme.error) }
     }
     item { RoutePreview(ui.route, ui.imperial) }
     if (ui.recent.isNotEmpty()) item { Text(stringResource(R.string.mode_recent), style = MaterialTheme.typography.titleMedium) }
@@ -136,6 +137,21 @@ private fun LazyListScope.routeItems(
 }
 
 // Les GPX arrivent avec des types MIME variés selon l'app qui les fournit.
+@Composable
+private fun routeError(e: Throwable): String =
+    if (e is GpxException) {
+        when (e.reason) {
+            GpxException.Reason.INVALID -> stringResource(R.string.route_error_invalid)
+            GpxException.Reason.READ -> stringResource(R.string.route_error_read)
+            GpxException.Reason.NOT_FOUND -> stringResource(R.string.route_error_not_found)
+            GpxException.Reason.TOO_LARGE -> stringResource(R.string.route_error_too_large, e.limit)
+            GpxException.Reason.TOO_MANY_POINTS -> stringResource(R.string.route_error_too_many_points, e.limit)
+            GpxException.Reason.TOO_FEW_POINTS -> stringResource(R.string.route_error_too_few_points)
+        }
+    } else {
+        stringResource(R.string.route_error_other)
+    }
+
 private val GPX_TYPES = arrayOf("application/gpx+xml", "application/xml", "text/xml", "application/octet-stream")
 
 @Composable

@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Xml
+import dev.kickzwift.app.R
 import dev.kickzwift.app.data.MemoryStore
 import dev.kickzwift.protocol.grade.GradeProfile
 import dev.kickzwift.protocol.settings.RecentRoute
@@ -14,7 +15,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.IOException
 import java.security.MessageDigest
 
 /** Parcours prêt à rouler et de quoi en dessiner l'aperçu. */
@@ -50,7 +50,7 @@ class RouteLibrary(
             runCatching {
                 val bytes = readLimited(uri)
                 val track = bytes.inputStream().use { parser.parse(it) }
-                val name = track.name ?: displayName(uri) ?: "Parcours"
+                val name = track.name ?: displayName(uri) ?: context.getString(R.string.route_default_name)
                 val file = "${slug(name)}-${digest(bytes)}.gpx"
                 check(RouteFiles.isSafeName(file)) { "nom de fichier refusé" }
                 dir.mkdirs()
@@ -81,7 +81,7 @@ class RouteLibrary(
     }
 
     private fun readLimited(uri: Uri): ByteArray {
-        val input = context.contentResolver.openInputStream(uri) ?: throw IOException("fichier introuvable")
+        val input = context.contentResolver.openInputStream(uri) ?: throw GpxException(GpxException.Reason.NOT_FOUND)
         val out = ByteArrayOutputStream()
         input.use { s ->
             val buffer = ByteArray(BUFFER)
@@ -89,7 +89,7 @@ class RouteLibrary(
                 val n = s.read(buffer)
                 if (n < 0) break
                 out.write(buffer, 0, n)
-                if (out.size() > MAX_BYTES) throw GpxException("fichier de plus de ${MAX_BYTES / MEGA} Mo")
+                if (out.size() > MAX_BYTES) throw GpxException(GpxException.Reason.TOO_LARGE, MAX_BYTES / MEGA)
             }
         }
         return out.toByteArray()

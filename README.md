@@ -21,22 +21,20 @@ controllers. The app reads each controller's version and warns you.
 
 ## Usage
 
-The app's interface is in French; on-screen labels are quoted as they appear.
+The interface is in English, and in French on a French-language phone. On Android 13 and
+later, the language can also be chosen per app in Settings › Apps › Kick Zwift › Language.
 
-1. Connections (« Connexions »): allow Bluetooth and notifications, exclude the app from
-   battery optimisation, tap « Rechercher » (Search), then « Mémoriser » (Remember) the
-   Ride's left pod (it relays both controllers) and the KICKR. Only remembered devices are
-   joined afterwards.
+1. Connections: allow Bluetooth and notifications, exclude the app from battery
+   optimisation, tap Search, then Remember the Ride's left pod (it relays both controllers)
+   and the KICKR. Only remembered devices are joined afterwards.
 2. Connect the COROS watch directly to the KICKR, in Indoor Bike mode: the watch records
    the ride.
-3. « Préparer la sortie » (Prepare the ride), choose the mode, « Démarrer » (Start). During
-   the ride, everything is controlled from the controllers; « Terminer » (Finish) needs a
-   2 s long press.
+3. Prepare the ride, choose the mode, Start. During the ride, everything is controlled from
+   the controllers; Finish needs a 2 s long press.
 
-Default mapping: Vitesse haut and Vitesse bas (shift up/down) on both controllers for gears,
-Flèche haut and Flèche bas (arrow up/down) for grade (or the ERG target), left and right
-arrows for tracks, A play/pause, Y and B volume, Z pause the ride. Everything can be changed
-in « Réglages » (Settings).
+Default mapping: Shift up and Shift down on both controllers for gears, Up arrow and Down
+arrow for grade (or the ERG target), Left and Right arrows for tracks, A play/pause, Y and B
+volume, Z pause the ride. Everything can be changed in Settings.
 
 ## Modules
 
