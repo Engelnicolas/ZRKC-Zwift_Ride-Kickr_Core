@@ -5,9 +5,13 @@ import dev.kickzwift.ble.link.GattLink
 import dev.kickzwift.ble.link.LinkError
 import dev.kickzwift.ble.link.LinkError.Reason
 import dev.kickzwift.ble.link.LinkException
+import dev.kickzwift.ble.link.awaitSilence
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.withTimeoutOrNull
 import no.nordicsemi.android.ble.callback.FailCallback
 import no.nordicsemi.android.ble.exception.BluetoothDisabledException
@@ -39,8 +43,19 @@ class NordicGattLink(
     override suspend fun handshake() = translated { manager.handshake() }
 
     override suspend fun awaitLoss(): LinkError {
-        val lost = connection.filterIsInstance<ConnectionState.Disconnected>().first()
-        return LinkError(
+        val disconnected = connection.filterIsInstance<ConnectionState.Disconnected>().map { lossOf(it) }
+        val silent =
+            manager.silenceTimeout?.let { timeout ->
+                flow {
+                    awaitSilence(manager.beats, timeout)
+                    emit(LinkError(Reason.SILENT))
+                }
+            }
+        return (if (silent == null) disconnected else merge(disconnected, silent)).first()
+    }
+
+    private fun lossOf(lost: ConnectionState.Disconnected): LinkError =
+        LinkError(
             when (lost.reason) {
                 ConnectionState.Disconnected.Reason.LINK_LOSS,
                 ConnectionState.Disconnected.Reason.TIMEOUT,
@@ -50,7 +65,6 @@ class NordicGattLink(
                 else -> Reason.UNKNOWN
             },
         )
-    }
 
     override suspend fun close() {
         // Déconnexion demandée et attendue, puis libération de BluetoothGatt.
@@ -58,6 +72,7 @@ class NordicGattLink(
             withTimeoutOrNull(DISCONNECT_TIMEOUT_MS) { runCatching { manager.disconnect().suspend() } }
         }
         manager.close()
+        manager.released()
     }
 
     private suspend fun translated(block: suspend () -> Unit) {

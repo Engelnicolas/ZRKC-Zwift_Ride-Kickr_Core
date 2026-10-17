@@ -13,6 +13,8 @@ detekt = "2.0.0-alpha.6"
 nordic-ble = "2.11.0"
 nordic-scanner = "1.6.0"
 datastore = "1.2.1"
+navigation = "2.10.2"
+kxml2 = "2.2.2"
 
 [libraries]
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
@@ -27,6 +29,8 @@ androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtim
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastore" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation" }
+kxml2 = { module = "net.sf.kxml:kxml2", version.ref = "kxml2" }
 nordic-ble-ktx = { module = "no.nordicsemi.android:ble-ktx", version.ref = "nordic-ble" }
 nordic-scanner = { module = "no.nordicsemi.android.support.v18:scanner", version.ref = "nordic-scanner" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }

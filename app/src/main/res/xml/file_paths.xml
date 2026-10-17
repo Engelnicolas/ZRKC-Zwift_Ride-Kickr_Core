@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FileProvider : seul le dossier des exports (FIT, journal) est partageable. -->
+<paths>
+    <cache-path
+        name="exports"
+        path="exports/" />
+</paths>

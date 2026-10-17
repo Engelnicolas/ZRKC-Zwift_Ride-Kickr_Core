@@ -1,0 +1,53 @@
+name: Fuzzing nocturne
+
+# Décodeurs des trames reçues et des fichiers lus, 10 min en tout (spécification,
+# « Stratégie de tests »). Cibles : protocol/src/fuzz.
+
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  JAZZER_VERSION: v0.30.0
+  JAZZER_SHA256: 6eeaf0026d75599b07527d93b576593ce847cfca8b337a579971a5a9cdf792d0
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # Actions épinglées par empreinte de commit, comme dans ci.yml.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Cibles et classpath
+        run: ./gradlew :protocol:writeFuzzClasspath --console=plain
+
+      # Exécutable Jazzer épinglé par version et vérifié par empreinte.
+      - name: Jazzer
+        run: |
+          curl -sSL -o jazzer.tar.gz \
+            "https://github.com/CodeIntelligenceTesting/jazzer/releases/download/${JAZZER_VERSION}/jazzer-linux-x86-64.tar.gz"
+          echo "${JAZZER_SHA256}  jazzer.tar.gz" | sha256sum -c -
+          mkdir -p "$RUNNER_TEMP/jazzer" && tar xzf jazzer.tar.gz -C "$RUNNER_TEMP/jazzer"
+
+      - name: Fuzzing, 150 s par cible
+        run: |
+          cp=$(cat protocol/build/fuzz-classpath.txt)
+          mkdir -p fuzz-run && cd fuzz-run
+          for target in RideDecoderFuzz TrainerDecoderFuzz FtmsDecoderFuzz StoredFilesFuzz; do
+            echo "::group::$target"
+            "$RUNNER_TEMP/jazzer/jazzer" --cp="$cp" \
+              --target_class="dev.kickzwift.protocol.fuzz.$target" -max_total_time=150
+            echo "::endgroup::"
+          done

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Une [DeviceLink] par appareil de confiance, et seulement pour eux : un appareil ajouté est
@@ -29,6 +30,24 @@ class LinkSupervisor(
 
     /** État de chaque appareil suivi ; vide quand [run] ne tourne pas. */
     val states: StateFlow<Map<DeviceId, LinkState>> = mutableStates.asStateFlow()
+
+    private val perDevice = ConcurrentHashMap<DeviceId, MutableStateFlow<LinkState>>()
+
+    /**
+     * État d'un appareil, stable d'un [run] à l'autre : NOT_FOUND tant qu'il n'est pas suivi.
+     * C'est le `link` des interfaces Controller et Trainer.
+     */
+    fun stateOf(id: DeviceId): StateFlow<LinkState> = flowOf(id).asStateFlow()
+
+    private fun flowOf(id: DeviceId) = perDevice.getOrPut(id) { MutableStateFlow(LinkState.NOT_FOUND) }
+
+    private fun publish(
+        id: DeviceId,
+        state: LinkState?,
+    ) {
+        mutableStates.update { if (state == null) it - id else it + (id to state) }
+        flowOf(id).value = state ?: LinkState.NOT_FOUND
+    }
 
     private val mutableRunning = MutableStateFlow(false)
     val running: StateFlow<Boolean> = mutableRunning.asStateFlow()
@@ -46,6 +65,7 @@ class LinkSupervisor(
             try {
                 follow(devices)
             } finally {
+                mutableStates.value.keys.forEach { flowOf(it).value = LinkState.NOT_FOUND }
                 mutableStates.value = emptyMap()
                 mutableRunning.value = false
             }
@@ -58,7 +78,7 @@ class LinkSupervisor(
                 val wanted = list.associateBy { it.id }
                 for (id in followed.keys - wanted.keys) {
                     followed.remove(id)?.cancelAndJoin()
-                    mutableStates.update { it - id }
+                    publish(id, null)
                 }
                 for ((id, device) in wanted) {
                     if (id !in followed) followed[id] = launch { followOne(device) }
@@ -70,7 +90,7 @@ class LinkSupervisor(
     private suspend fun followOne(device: KnownDevice) {
         val link = DeviceLink(device.id, policy, { newLink(device) }, log)
         coroutineScope {
-            val mirror = launch { link.state.collect { s -> mutableStates.update { it + (device.id to s) } } }
+            val mirror = launch { link.state.collect { s -> publish(device.id, s) } }
             try {
                 link.run()
             } finally {
@@ -78,6 +98,6 @@ class LinkSupervisor(
             }
         }
         // run() ne rend la main qu'en LOST : l'état reste affiché jusqu'à l'oubli de l'appareil.
-        mutableStates.update { it + (device.id to link.state.value) }
+        publish(device.id, link.state.value)
     }
 }

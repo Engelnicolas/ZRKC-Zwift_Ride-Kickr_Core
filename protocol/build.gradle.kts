@@ -57,3 +57,20 @@ tasks.jacocoTestCoverageVerification {
 tasks.check {
     dependsOn(tasks.jacocoTestCoverageVerification)
 }
+
+// Fuzzing des décodeurs (Jazzer, CI nocturne) : cibles dans src/fuzz, sans dépendance à
+// Jazzer. writeFuzzClasspath écrit le classpath que la CI passe à l'exécutable Jazzer.
+sourceSets {
+    create("fuzz") {
+        compileClasspath += sourceSets["main"].output + sourceSets["main"].compileClasspath
+        runtimeClasspath += sourceSets["main"].output + sourceSets["main"].runtimeClasspath
+    }
+}
+
+tasks.register("writeFuzzClasspath") {
+    val classpath = sourceSets["fuzz"].runtimeClasspath
+    val target = layout.buildDirectory.file("fuzz-classpath.txt")
+    inputs.files(classpath)
+    outputs.file(target)
+    doLast { target.get().asFile.writeText(classpath.files.joinToString(":")) }
+}

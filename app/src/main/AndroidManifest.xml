@@ -47,7 +47,18 @@
             </intent-filter>
         </activity>
 
-        <!-- Porte les liaisons BLE écran éteint (lot 4). Non exporté. -->
+        <!-- Partage des exports (FIT, journal) par le partage Android, sans permission de stockage. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <!-- Porte les liaisons BLE et la sortie écran éteint. Non exporté. -->
         <service
             android:name=".service.RideService"
             android:exported="false"

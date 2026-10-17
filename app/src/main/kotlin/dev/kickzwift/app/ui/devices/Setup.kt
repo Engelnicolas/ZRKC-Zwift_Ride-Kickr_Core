@@ -1,4 +1,4 @@
-package dev.kickzwift.app.ui.links
+package dev.kickzwift.app.ui.devices
 
 import android.Manifest
 import android.annotation.SuppressLint

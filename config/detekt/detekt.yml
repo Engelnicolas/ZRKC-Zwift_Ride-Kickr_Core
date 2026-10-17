@@ -4,6 +4,17 @@ naming:
     ignoreAnnotated: ['Composable']
 
 style:
+  # Une entrée d'énumération nomme déjà ses nombres (champs du profil FIT, par exemple).
+  MagicNumber:
+    ignoreEnums: true
   # Même limite que ktlint (.editorconfig).
   MaxLineLength:
     maxLineLength: 140
+
+complexity:
+  # Les machines à états (RideSession) et les écrans Compose regroupent volontairement
+  # beaucoup de petites fonctions ; 11 par défaut obligerait à les éclater artificiellement.
+  TooManyFunctions:
+    allowedFunctionsPerFile: 25
+    allowedFunctionsPerClass: 25
+    allowedFunctionsPerObject: 25

@@ -15,8 +15,22 @@ android {
         versionName = "0.1.0"
     }
 
+    // Signature de l'APK release : la clé reste hors du dépôt. Sans ces variables, l'APK
+    // release est produit non signé (CI, vérification du manifeste).
+    val storeFile = providers.environmentVariable("KICKZWIFT_STORE_FILE").orNull
+    val release =
+        storeFile?.let { path ->
+            signingConfigs.create("release") {
+                this.storeFile = file(path)
+                storePassword = providers.environmentVariable("KICKZWIFT_STORE_PASSWORD").get()
+                keyAlias = providers.environmentVariable("KICKZWIFT_KEY_ALIAS").get()
+                keyPassword = providers.environmentVariable("KICKZWIFT_KEY_PASSWORD").get()
+            }
+        }
+
     buildTypes {
         release {
+            signingConfig = release
             // R8 activé ; la clé de signature reste hors du dépôt (APK release non signé ici).
             isMinifyEnabled = true
             isShrinkResources = true
@@ -31,6 +45,11 @@ android {
 
     buildFeatures {
         compose = true
+    }
+
+    // Logique de session et lecteur GPX testés sur la JVM.
+    testOptions {
+        unitTests.all { it.useJUnitPlatform() }
     }
 
     lint {
@@ -50,9 +69,17 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.datastore)
+    implementation(libs.androidx.navigation.compose)
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.material3)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
+
+    testImplementation(platform(libs.junit.bom))
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.kotlinx.coroutines.test)
+    // Implémentation de XmlPullParser hors d'Android, pour les tests du lecteur GPX.
+    testImplementation(libs.kxml2)
+    testRuntimeOnly(libs.junit.platform.launcher)
 }

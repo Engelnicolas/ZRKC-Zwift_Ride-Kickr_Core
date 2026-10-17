@@ -2,6 +2,7 @@ package dev.kickzwift.ble.link
 
 import dev.kickzwift.ble.link.FakeLink.Companion.TIMEOUT
 import dev.kickzwift.protocol.DeviceId
+import dev.kickzwift.protocol.LinkState
 import dev.kickzwift.protocol.LinkState.LOST
 import dev.kickzwift.protocol.LinkState.READY
 import dev.kickzwift.protocol.device.DeviceKind
@@ -104,5 +105,25 @@ class LinkSupervisorTest {
             assertEquals(1, created.getValue(ride.id).single().closes)
             assertEquals(mapOf(kickr.id to READY), sup.states.value)
             second.cancelAndJoin()
+        }
+
+    @Test
+    fun `etat par appareil - stable, NOT_FOUND hors suivi`() =
+        runTest {
+            val sup = supervisor()
+            val state = sup.stateOf(ride.id)
+            assertEquals(LinkState.NOT_FOUND, state.value)
+            val trusted = MutableStateFlow(listOf(ride))
+            val job = launch { sup.run(trusted) }
+            advanceUntilIdle()
+            assertEquals(READY, state.value)
+            trusted.value = emptyList()
+            advanceUntilIdle()
+            assertEquals(LinkState.NOT_FOUND, state.value)
+            trusted.value = listOf(ride)
+            advanceUntilIdle()
+            assertEquals(READY, sup.stateOf(ride.id).value)
+            job.cancelAndJoin()
+            assertEquals(LinkState.NOT_FOUND, state.value)
         }
 }

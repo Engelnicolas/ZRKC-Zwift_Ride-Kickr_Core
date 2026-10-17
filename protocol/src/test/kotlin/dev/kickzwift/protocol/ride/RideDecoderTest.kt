@@ -30,7 +30,13 @@ class RideDecoderTest {
     @Test
     fun `les autres types de trame sont reconnus sans commande`() {
         assertEquals(RideFrame.Heartbeat, RideDecoder.decode(byteArrayOf(0x15)))
-        assertEquals(RideFrame.Other(0x19), RideDecoder.decode(hex("19 10 53")))
+        // Relevé du 16 octobre 2026 : 0x53 = 83 %, comme la lecture de 0x2A19 au même moment.
+        assertEquals(RideFrame.Battery(83), RideDecoder.decode(hex("19 10 53")))
+        assertEquals(RideFrame.Battery(86), RideDecoder.decode(hex("19 10 56")))
+        assertTrue(RideDecoder.decode(hex("19")) is RideFrame.Malformed)
+        assertTrue(RideDecoder.decode(hex("19 10 65")) is RideFrame.Malformed)
+        assertTrue(RideDecoder.decode(hex("19 10")) is RideFrame.Malformed)
+        assertEquals(RideFrame.Battery(50), RideDecoder.decode(hex("19 08 01 10 32")))
         assertEquals(RideFrame.Other(0x2a), RideDecoder.decode(hex("2a 08 03")))
     }
 

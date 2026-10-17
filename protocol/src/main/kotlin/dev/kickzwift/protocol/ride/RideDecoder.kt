@@ -27,6 +27,14 @@ sealed interface RideFrame {
     /** 0x15 : battement, toutes les 0,99 s. */
     data object Heartbeat : RideFrame
 
+    /**
+     * 0x19 : niveau de batterie, toutes les 5 s. Champ 2 en pourcentage : `19 10 53`
+     * vaut 83, la valeur lue au même moment sur la caractéristique 0x2A19 (16 octobre 2026).
+     */
+    data class Battery(
+        val percent: Int,
+    ) : RideFrame
+
     /** Autre type connu ou non (0x19, 0x2a…), sans commande. */
     data class Other(
         val type: Int,
@@ -47,6 +55,7 @@ sealed interface RideFrame {
 object RideDecoder {
     const val TYPE_BUTTONS = 0x23
     const val TYPE_HEARTBEAT = 0x15
+    const val TYPE_BATTERY = 0x19
 
     private const val FIELD_BITMAP = 1
     private const val FIELD_AXIS = 3
@@ -54,15 +63,35 @@ object RideDecoder {
     private const val FIELD_AXIS_VALUE = 2
     private const val BITMAP_MASK = 0xFFFF_FFFFL
     private const val AXIS_LIMIT = 100
+    private const val FIELD_BATTERY = 2
+    private const val PERCENT_MAX = 100
 
     fun decode(frame: ByteArray): RideFrame {
         if (frame.isEmpty()) return RideFrame.Malformed("trame vide")
         return when (val type = frame[0].toInt() and 0xFF) {
             TYPE_BUTTONS -> decodeButtons(frame)
             TYPE_HEARTBEAT -> RideFrame.Heartbeat
+            TYPE_BATTERY -> decodeBattery(frame)
             else -> RideFrame.Other(type)
         }
     }
+
+    private fun decodeBattery(frame: ByteArray): RideFrame =
+        try {
+            val reader = ProtoReader(frame, pos = 1)
+            var percent: Long? = null
+            while (reader.hasMore) {
+                val (field, wire) = reader.readTag()
+                if (field == FIELD_BATTERY && wire == ProtoReader.WIRE_VARINT) percent = reader.readVarint() else reader.skip(wire)
+            }
+            when (val p = percent) {
+                null -> RideFrame.Malformed("batterie absente")
+                !in 0..PERCENT_MAX -> RideFrame.Malformed("batterie hors bornes : $p")
+                else -> RideFrame.Battery(p.toInt())
+            }
+        } catch (e: MalformedFrameException) {
+            RideFrame.Malformed(e.message ?: "trame 0x19 invalide")
+        }
 
     private fun decodeButtons(frame: ByteArray): RideFrame =
         try {

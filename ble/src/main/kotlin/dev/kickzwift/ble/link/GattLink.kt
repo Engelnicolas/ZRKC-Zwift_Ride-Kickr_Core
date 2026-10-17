@@ -40,6 +40,9 @@ data class LinkError(
         /** Services attendus absents : ce n'est pas l'appareil prévu. */
         NOT_SUPPORTED,
 
+        /** Poignée de main sans réponse dans le délai. */
+        HANDSHAKE,
+
         BLUETOOTH_OFF,
         NO_PERMISSION,
 
