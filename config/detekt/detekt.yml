@@ -1,0 +1,9 @@
+# Complète la configuration par défaut de detekt (buildUponDefaultConfig).
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']
+
+style:
+  # Même limite que ktlint (.editorconfig).
+  MaxLineLength:
+    maxLineLength: 140

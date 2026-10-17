@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kick Zwift</string>
+    <string name="socle_status">Socle du lot 2 : modules :protocol, :ble et :app reliés.</string>
+    <string name="socle_protocol">Commandes du Ride : %1$d · rapports virtuels : %2$d</string>
+</resources>

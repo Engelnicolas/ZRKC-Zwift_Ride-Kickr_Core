@@ -1,0 +1,149 @@
+{
+  "source": "captures/session_20261017_105340.json",
+  "vectors": [
+    {
+      "button": "PADDLE_LEFT",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 ff ff ff ff 0f 1a 05 08 00 10 c7 01 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "SHIFT_UP_LEFT",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 ff fd ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "SHIFT_DOWN_LEFT",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 ff fb ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "POWER_UP_LEFT",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 ff f7 ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "UP",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 fd ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "RIGHT",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 fb ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "DOWN",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 f7 ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "LEFT",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 fe ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "PADDLE_RIGHT",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 05 08 01 10 c8 01 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "PADDLE_RIGHT",
+      "pod": "F2:DD:0E:DE:3D:BC",
+      "press": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 05 08 01 10 c8 01",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00"
+    },
+    {
+      "button": "SHIFT_UP_RIGHT",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 ff df ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "SHIFT_UP_RIGHT",
+      "pod": "F2:DD:0E:DE:3D:BC",
+      "press": "23 08 ff df ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00"
+    },
+    {
+      "button": "SHIFT_DOWN_RIGHT",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 ff bf ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "SHIFT_DOWN_RIGHT",
+      "pod": "F2:DD:0E:DE:3D:BC",
+      "press": "23 08 ff bf ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00"
+    },
+    {
+      "button": "POWER_UP_RIGHT",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 ff ff fe ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "POWER_UP_RIGHT",
+      "pod": "F2:DD:0E:DE:3D:BC",
+      "press": "23 08 ff ff fe ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00"
+    },
+    {
+      "button": "Y",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 bf ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "Y",
+      "pod": "F2:DD:0E:DE:3D:BC",
+      "press": "23 08 bf ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00"
+    },
+    {
+      "button": "A",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 ef ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "A",
+      "pod": "F2:DD:0E:DE:3D:BC",
+      "press": "23 08 ef ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00"
+    },
+    {
+      "button": "B",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 df ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "B",
+      "pod": "F2:DD:0E:DE:3D:BC",
+      "press": "23 08 df ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00"
+    },
+    {
+      "button": "Z",
+      "pod": "E2:93:3B:6A:0F:BC",
+      "press": "23 08 ff fe ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00"
+    },
+    {
+      "button": "Z",
+      "pod": "F2:DD:0E:DE:3D:BC",
+      "press": "23 08 ff fe ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+      "release": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00"
+    }
+  ]
+}

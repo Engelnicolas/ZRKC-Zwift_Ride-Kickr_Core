@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # Actions épinglées par empreinte de commit (spécification, « Chaîne de build »).
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # Valide aussi l'empreinte du wrapper Gradle.
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Paquets du SDK Android
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;36.0.0"
+
+      # build = tests JVM + Android Lint + ktlint + detekt + APK debug et release (R8),
+      # avec vérification des dépendances (gradle/verification-metadata.xml).
+      - name: Build
+        run: ./gradlew build --console=plain
+
+      - name: Aucune permission INTERNET ni de localisation
+        run: |
+          perms=$("$ANDROID_HOME/build-tools/36.0.0/aapt2" dump permissions app/build/outputs/apk/release/app-release-unsigned.apk)
+          echo "$perms"
+          if echo "$perms" | grep -E "permission.(INTERNET|ACCESS_(FINE|COARSE|BACKGROUND)_LOCATION)"; then
+            echo "Permission interdite par la spécification" >&2
+            exit 1
+          fi
