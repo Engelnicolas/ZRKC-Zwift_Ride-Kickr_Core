@@ -1,0 +1,10 @@
+connecté - appuie et MAINTIENS un bouton le plus longtemps possible, plusieurs fois (70 s)
+  13.3s  Y                tenu   7381 ms
+  17.8s  Y                tenu   3463 ms
+  22.6s  Y                tenu   3803 ms
+  24.8s  Y                tenu    607 ms
+
+=== 4 appui(s) mesuré(s) ===
+plus long maintien : Y = 7381 ms
+appuis >= 1 s : 3 / 4
+-> un appui long EST rapportable, mon affirmation était fausse

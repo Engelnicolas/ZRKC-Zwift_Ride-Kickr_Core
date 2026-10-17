@@ -4,6 +4,7 @@ build/
 local.properties
 .idea/
 *.iml
-captures/
+# Dossier de captures d'Android Studio, à la racine seulement : docs/captures/ est versionné.
+/captures/
 *.jks
 *.keystore

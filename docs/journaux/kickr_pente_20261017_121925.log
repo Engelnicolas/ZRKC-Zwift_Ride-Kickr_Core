@@ -1,0 +1,44 @@
+   0.01s journal : journaux/kickr_pente_20261017_121925.log
+   8.06s scan 1/6 : aucun KICKR - pédale un tour pour le réveiller
+  16.07s trouvé CB:4A:21:C8:69:33 « KICKR CORE 85FF » RSSI -97 services ['00001818-0000-1000-8000-00805f9b34fb', '00001826-0000-1000-8000-00805f9b34fb', '00000001-19ca-4651-86e5-fa29dcdd09d1']
+  27.08s connecté à CB:4A:21:C8:69:33
+  28.57s <- 0002 2a 08 03 12 11 22 0f 41 54 58 20 30 32 2c 20 53 54 58 20 30 30 00  | 0x2a champs=[(1, 3), (2, '22 0f 41 54 58 20 30 32 2c 20 53 54 58 20 30 30 00')]
+  28.95s -> RideOn
+  28.95s === rapport 2.996 ===
+  28.95s -> 0003 04 2a 04 10 88 ea 01  | rapport 2.996 (GearRatioX10000 = 29960)
+  29.17s <- 0002 2a 08 03 12 11 22 0f 41 54 58 20 30 32 2c 20 53 54 58 20 30 32 00  | 0x2a champs=[(1, 3), (2, '22 0f 41 54 58 20 30 32 2c 20 53 54 58 20 30 32 00')]
+  29.40s <- 0002 2a 08 03 12 0d 22 0b 52 49 44 45 5f 4f 4e 28 31 29 00  | 0x2a champs=[(1, 3), (2, '22 0b 52 49 44 45 5f 4f 4e 28 31 29 00')]
+  29.40s <- 0004 52 69 64 65 4f 6e 02 02  | écho RideOn + 2 octets : 02 02
+  29.40s <- 0002 03 08 00 10 00 18 4c 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.76 km/h FC=0 inconnus={5: 0, 6: 29960}
+  30.40s <- 0002 03 08 00 10 00 18 4c 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.76 km/h FC=0 inconnus={5: 0, 6: 29960}
+  31.96s <- 0002 03 08 00 10 00 18 4c 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.76 km/h FC=0 inconnus={5: 0, 6: 29960}
+  33.52s <- 0002 03 08 00 10 00 18 4c 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.76 km/h FC=0 inconnus={5: 0, 6: 29960}
+  33.52s <- 0002 03 08 00 10 00 18 4c 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.76 km/h FC=0 inconnus={5: 0, 6: 29960}
+  33.95s === pente 0 % ===
+  33.95s -> 0003 04 22 0a 08 00 10 00 18 ec 27 20 90 03  | pente +0.0 %
+  34.56s <- 0002 03 08 24 10 00 18 60 20 00 28 9e 38 30 88 ea 01  | 0x03 puissance=36 W cadence=0 rpm vitesse=0.96 km/h FC=0 inconnus={5: 7198, 6: 29960}
+  36.07s <- 0002 03 08 28 10 01 18 70 20 00 28 af 43 30 88 ea 01  | 0x03 puissance=40 W cadence=1 rpm vitesse=1.12 km/h FC=0 inconnus={5: 8623, 6: 29960}
+  36.67s <- 0002 2a 08 03 12 27 22 25 67 61 70 5f 70 61 72 61 6d 73 5f 63 68 61 6e 67 65 28 31 29 3a 20 36 30 2c 20 36 30 2c 20 30 2c 20 36 30 30 00  | 0x2a champs=[(1, 3), (2, '22 25 67 61 70 5f 70 61 72 61 6d 73 5f 63 68 61 6e 67 65 28 31 29 3a 20 36 30 2c 20 36 30 2c 20 30 2c 20 36 30 30 00')]
+  36.82s <- 0002 03 08 44 10 01 18 97 01 20 00 28 e0 57 30 88 ea 01  | 0x03 puissance=68 W cadence=1 rpm vitesse=1.51 km/h FC=0 inconnus={5: 11232, 6: 29960}
+  37.12s <- 0002 03 08 42 10 01 18 b3 01 20 00 28 98 60 30 88 ea 01  | 0x03 puissance=66 W cadence=1 rpm vitesse=1.79 km/h FC=0 inconnus={5: 12312, 6: 29960}
+  38.17s <- 0002 03 08 3a 10 1d 18 cb 01 20 00 28 8f 68 30 88 ea 01  | 0x03 puissance=58 W cadence=29 rpm vitesse=2.03 km/h FC=0 inconnus={5: 13327, 6: 29960}
+  40.27s <- 0002 03 08 3d 10 24 18 de 01 20 00 28 fd 6e 30 88 ea 01  | 0x03 puissance=61 W cadence=36 rpm vitesse=2.22 km/h FC=0 inconnus={5: 14205, 6: 29960}
+  40.35s <- 0002 03 08 37 10 27 18 f4 01 20 00 28 f7 74 30 88 ea 01  | 0x03 puissance=55 W cadence=39 rpm vitesse=2.44 km/h FC=0 inconnus={5: 14967, 6: 29960}
+  41.85s <- 0002 03 08 30 10 2a 18 80 02 20 00 28 d5 76 30 88 ea 01  | 0x03 puissance=48 W cadence=42 rpm vitesse=2.56 km/h FC=0 inconnus={5: 15189, 6: 29960}
+  42.22s <- 0002 03 08 2b 10 31 18 90 02 20 00 28 a5 7a 30 88 ea 01  | 0x03 puissance=43 W cadence=49 rpm vitesse=2.72 km/h FC=0 inconnus={5: 15653, 6: 29960}
+  43.42s <- 0002 03 08 2c 10 33 18 9e 02 20 00 28 94 7d 30 88 ea 01  | 0x03 puissance=44 W cadence=51 rpm vitesse=2.86 km/h FC=0 inconnus={5: 16020, 6: 29960}
+  44.85s <- 0002 03 08 29 10 34 18 a6 02 20 00 28 bd 7e 30 88 ea 01  | 0x03 puissance=41 W cadence=52 rpm vitesse=2.94 km/h FC=0 inconnus={5: 16189, 6: 29960}
+  45.15s <- 0002 03 08 26 10 35 18 ae 02 20 00 28 d3 7e 30 88 ea 01  | 0x03 puissance=38 W cadence=53 rpm vitesse=3.02 km/h FC=0 inconnus={5: 16211, 6: 29960}
+  45.95s === pente +2 % ===
+  45.95s -> 0003 04 22 0b 08 00 10 90 03 18 ec 27 20 90 03  | pente +2.0 %
+  46.20s <- 0002 03 08 2a 10 35 18 b9 02 20 00 28 9a 81 01 30 88 ea 01  | 0x03 puissance=42 W cadence=53 rpm vitesse=3.13 km/h FC=0 inconnus={5: 16538, 6: 29960}
+  47.17s <- 0002 03 08 2c 10 38 18 b3 02 20 00 28 86 84 01 30 88 ea 01  | 0x03 puissance=44 W cadence=56 rpm vitesse=3.07 km/h FC=0 inconnus={5: 16902, 6: 29960}
+  48.15s <- 0002 03 08 2c 10 39 18 a8 02 20 00 28 f2 85 01 30 88 ea 01  | 0x03 puissance=44 W cadence=57 rpm vitesse=2.96 km/h FC=0 inconnus={5: 17138, 6: 29960}
+  49.35s <- 0002 03 08 34 10 3a 18 a2 02 20 00 28 fd 87 01 30 88 ea 01  | 0x03 puissance=52 W cadence=58 rpm vitesse=2.9 km/h FC=0 inconnus={5: 17405, 6: 29960}
+  50.17s <- 0002 03 08 29 10 3a 18 97 02 20 00 28 c7 88 01 30 88 ea 01  | 0x03 puissance=41 W cadence=58 rpm vitesse=2.79 km/h FC=0 inconnus={5: 17479, 6: 29960}
+  51.22s <- 0002 03 08 2b 10 3a 18 8e 02 20 00 28 f7 89 01 30 88 ea 01  | 0x03 puissance=43 W cadence=58 rpm vitesse=2.7 km/h FC=0 inconnus={5: 17655, 6: 29960}
+  52.20s <- 0002 03 08 36 10 3c 18 87 02 20 00 28 aa 8b 01 30 88 ea 01  | 0x03 puissance=54 W cadence=60 rpm vitesse=2.63 km/h FC=0 inconnus={5: 17834, 6: 29960}
+  53.17s <- 0002 03 08 36 10 3c 18 80 02 20 00 28 92 8c 01 30 88 ea 01  | 0x03 puissance=54 W cadence=60 rpm vitesse=2.56 km/h FC=0 inconnus={5: 17938, 6: 29960}
+  59.70s !! liaison perdue
+  65.96s === retour à 0 % ===
+  65.96s -> 0003 04 22 0a 08 00 10 00 18 ec 27 20 90 03  | pente +0.0 %

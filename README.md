@@ -2,7 +2,8 @@
 
 App Android autonome qui relie les manettes du Zwift Ride au KICKR CORE : 24 vitesses
 virtuelles, pente libre, parcours GPX ou ERG, musique et volume depuis les manettes.
-Référence : `../docs/Spécification technique — app Android Zwift Ride ↔ KICKR CORE.docx`.
+Référence : `docs/Spécification technique — app Android Zwift Ride ↔ KICKR CORE.docx` ;
+documentation, protocole du Ride et traces brutes des relevés dans `docs/`.
 
 **Projet indépendant, sans lien avec Zwift Inc. ni Wahoo Fitness.** Les protocoles ont été
 relevés sur le matériel à des fins d'interopérabilité. Utilisation à vos risques.
@@ -75,9 +76,9 @@ Sans ces variables, l'APK release (`app-release-unsigned.apk`) est produit non s
 
 ## Vecteurs de test
 
-Les tests de `:protocol` rejouent les trames capturées sur le Ride et le KICKR. Le résultat
-attendu vient des noms donnés pendant la capture guidée, pas d'un décodeur. Après une
-nouvelle capture (`../prototype/capture_guidee.py`) :
+Les tests de `:protocol` rejouent les trames capturées sur le Ride et le KICKR
+(`docs/captures/`, `docs/journaux/`). Le résultat attendu vient des noms donnés pendant la
+capture guidée, pas d'un décodeur. Après une nouvelle capture (`../prototype/capture_guidee.py`) :
 
     ../.venv/bin/python ../prototype/export_vectors.py
 

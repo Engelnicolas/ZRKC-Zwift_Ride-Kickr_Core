@@ -1,0 +1,832 @@
+{
+  "debut": "2026-10-17T10:53:40",
+  "pods": [
+    "F2:DD:0E:DE:3D:BC",
+    "E2:93:3B:6A:0F:BC"
+  ],
+  "boutons": [
+    {
+      "manette": "gauche",
+      "ordre": 1,
+      "nom": "Palette gauche",
+      "statut": "anomalie_acceptee",
+      "bits": [],
+      "pods": {},
+      "axes": {
+        "0": [
+          -100,
+          0
+        ]
+      },
+      "anomalies": [
+        "aucun bit, seulement un axe {'0': [-100, 0]}"
+      ],
+      "trames": [
+        {
+          "t": 19.281,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 07 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {
+            "0": -4
+          }
+        },
+        {
+          "t": 19.417,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 05 08 00 10 c7 01 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {
+            "0": -100
+          }
+        },
+        {
+          "t": 21.982,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 0d 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {
+            "0": -7
+          }
+        },
+        {
+          "t": 22.117,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "gauche",
+      "ordre": 2,
+      "nom": "Vitesse haut",
+      "statut": "ok",
+      "bits": [
+        8
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          8
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 58.344,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff fd ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xfffffeff",
+          "bits": [
+            8
+          ],
+          "axes": {}
+        },
+        {
+          "t": 58.704,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "gauche",
+      "ordre": 3,
+      "nom": "Vitesse bas",
+      "statut": "ok",
+      "bits": [
+        9
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          9
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 72.295,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff fb ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xfffffdff",
+          "bits": [
+            9
+          ],
+          "axes": {}
+        },
+        {
+          "t": 72.835,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "gauche",
+      "ordre": 4,
+      "nom": "Power up",
+      "statut": "ok",
+      "bits": [
+        10
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          10
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 86.156,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff f7 ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xfffffbff",
+          "bits": [
+            10
+          ],
+          "axes": {}
+        },
+        {
+          "t": 86.673,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "gauche",
+      "ordre": 5,
+      "nom": "Fleche haut",
+      "statut": "ok",
+      "bits": [
+        1
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          1
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 107.037,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 fd ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xfffffffd",
+          "bits": [
+            1
+          ],
+          "axes": {}
+        },
+        {
+          "t": 107.329,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "gauche",
+      "ordre": 6,
+      "nom": "Fleche droit",
+      "statut": "ok",
+      "bits": [
+        2
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          2
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 119.998,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 fb ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xfffffffb",
+          "bits": [
+            2
+          ],
+          "axes": {}
+        },
+        {
+          "t": 120.222,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "gauche",
+      "ordre": 7,
+      "nom": "Fleche bas",
+      "statut": "ok",
+      "bits": [
+        3
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          3
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 132.238,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 f7 ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xfffffff7",
+          "bits": [
+            3
+          ],
+          "axes": {}
+        },
+        {
+          "t": 132.508,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "gauche",
+      "ordre": 8,
+      "nom": "Fleche gauche",
+      "statut": "ok",
+      "bits": [
+        0
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          0
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 143.714,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 fe ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xfffffffe",
+          "bits": [
+            0
+          ],
+          "axes": {}
+        },
+        {
+          "t": 144.119,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "droite",
+      "ordre": 1,
+      "nom": "Palette droite",
+      "statut": "anomalie_acceptee",
+      "bits": [],
+      "pods": {},
+      "axes": {
+        "1": [
+          0,
+          100
+        ]
+      },
+      "anomalies": [
+        "aucun bit, seulement un axe {'1': [0, 100]}"
+      ],
+      "trames": [
+        {
+          "t": 157.618,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 0a",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {
+            "1": 5
+          }
+        },
+        {
+          "t": 157.618,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 0a 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {
+            "1": 5
+          }
+        },
+        {
+          "t": 157.708,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 05 08 01 10 c8 01",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {
+            "1": 100
+          }
+        },
+        {
+          "t": 157.753,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 05 08 01 10 c8 01 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {
+            "1": 100
+          }
+        },
+        {
+          "t": 158.81,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 1e",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {
+            "1": 15
+          }
+        },
+        {
+          "t": 158.834,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 1e 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {
+            "1": 15
+          }
+        },
+        {
+          "t": 158.9,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 04",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {
+            "1": 2
+          }
+        },
+        {
+          "t": 158.99,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        },
+        {
+          "t": 159.014,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 04 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {
+            "1": 2
+          }
+        },
+        {
+          "t": 159.014,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "droite",
+      "ordre": 2,
+      "nom": "Vitesse haut",
+      "statut": "ok",
+      "bits": [
+        12
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          12
+        ],
+        "F2:DD:0E:DE:3D:BC": [
+          12
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 186.172,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff df ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffefff",
+          "bits": [
+            12
+          ],
+          "axes": {}
+        },
+        {
+          "t": 186.196,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff df ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffefff",
+          "bits": [
+            12
+          ],
+          "axes": {}
+        },
+        {
+          "t": 186.599,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        },
+        {
+          "t": 186.6,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "droite",
+      "ordre": 3,
+      "nom": "Vitesse bas",
+      "statut": "ok",
+      "bits": [
+        13
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          13
+        ],
+        "F2:DD:0E:DE:3D:BC": [
+          13
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 203.093,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff bf ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffdfff",
+          "bits": [
+            13
+          ],
+          "axes": {}
+        },
+        {
+          "t": 203.162,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff bf ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffdfff",
+          "bits": [
+            13
+          ],
+          "axes": {}
+        },
+        {
+          "t": 203.61,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        },
+        {
+          "t": 203.658,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "droite",
+      "ordre": 4,
+      "nom": "Power up",
+      "statut": "ok",
+      "bits": [
+        14
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          14
+        ],
+        "F2:DD:0E:DE:3D:BC": [
+          14
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 216.256,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff ff fe ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffbfff",
+          "bits": [
+            14
+          ],
+          "axes": {}
+        },
+        {
+          "t": 216.28,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff fe ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffbfff",
+          "bits": [
+            14
+          ],
+          "axes": {}
+        },
+        {
+          "t": 216.954,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        },
+        {
+          "t": 217.0,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "droite",
+      "ordre": 5,
+      "nom": "y",
+      "statut": "ok",
+      "bits": [
+        6
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          6
+        ],
+        "F2:DD:0E:DE:3D:BC": [
+          6
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 229.509,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 bf ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffffbf",
+          "bits": [
+            6
+          ],
+          "axes": {}
+        },
+        {
+          "t": 229.555,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 bf ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffbf",
+          "bits": [
+            6
+          ],
+          "axes": {}
+        },
+        {
+          "t": 229.757,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        },
+        {
+          "t": 229.78,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "droite",
+      "ordre": 6,
+      "nom": "a",
+      "statut": "ok",
+      "bits": [
+        4
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          4
+        ],
+        "F2:DD:0E:DE:3D:BC": [
+          4
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 244.045,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ef ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffffef",
+          "bits": [
+            4
+          ],
+          "axes": {}
+        },
+        {
+          "t": 244.135,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ef ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffef",
+          "bits": [
+            4
+          ],
+          "axes": {}
+        },
+        {
+          "t": 244.315,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        },
+        {
+          "t": 244.315,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "droite",
+      "ordre": 7,
+      "nom": "b",
+      "statut": "ok",
+      "bits": [
+        5
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          5
+        ],
+        "F2:DD:0E:DE:3D:BC": [
+          5
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 260.426,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 df ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffffdf",
+          "bits": [
+            5
+          ],
+          "axes": {}
+        },
+        {
+          "t": 260.426,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 df ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffdf",
+          "bits": [
+            5
+          ],
+          "axes": {}
+        },
+        {
+          "t": 260.696,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        },
+        {
+          "t": 260.697,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    },
+    {
+      "manette": "droite",
+      "ordre": 8,
+      "nom": "z",
+      "statut": "ok",
+      "bits": [
+        7
+      ],
+      "pods": {
+        "E2:93:3B:6A:0F:BC": [
+          7
+        ],
+        "F2:DD:0E:DE:3D:BC": [
+          7
+        ]
+      },
+      "axes": {},
+      "anomalies": [],
+      "trames": [
+        {
+          "t": 279.012,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff fe ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffff7f",
+          "bits": [
+            7
+          ],
+          "axes": {}
+        },
+        {
+          "t": 279.058,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff fe ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffff7f",
+          "bits": [
+            7
+          ],
+          "axes": {}
+        },
+        {
+          "t": 279.417,
+          "pod": "F2:DD:0E:DE:3D:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        },
+        {
+          "t": 279.417,
+          "pod": "E2:93:3B:6A:0F:BC",
+          "hex": "23 08 ff ff ff ff 0f 1a 04 08 00 10 00 1a 04 08 01 10 00 1a 04 08 02 10 00 1a 04 08 03 10 00",
+          "bitmap": "0xffffffff",
+          "bits": [],
+          "axes": {}
+        }
+      ]
+    }
+  ]
+}

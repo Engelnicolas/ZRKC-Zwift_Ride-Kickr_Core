@@ -1,0 +1,505 @@
+<title>Zwift Ride FC82</title>
+<style>
+  :root {
+    --ground: #f5f6f8;
+    --surface: #ffffff;
+    --surface-2: #eceef2;
+    --line: #d8dce4;
+    --line-soft: #e6e9ef;
+    --ink: #15181e;
+    --ink-2: #474d59;
+    --ink-3: #6d7482;
+    --accent: #2a52c9;
+    --accent-soft: #e4e9fa;
+    --warn: #8a5a00;
+    --warn-soft: #f7ecd6;
+    --ok: #14604a;
+    --ok-soft: #dcefe7;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    --step-0: 1.0625rem;
+    --step-1: 1.25rem;
+    --step-2: 1.75rem;
+    --step-3: 2.5rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0e1116;
+      --surface: #161a21;
+      --surface-2: #1d222b;
+      --line: #2b323d;
+      --line-soft: #222832;
+      --ink: #e7eaf0;
+      --ink-2: #aeb6c4;
+      --ink-3: #828b9b;
+      --accent: #7aa0ff;
+      --accent-soft: #1b2440;
+      --warn: #dda647;
+      --warn-soft: #30260f;
+      --ok: #5fc9a3;
+      --ok-soft: #10281f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0e1116;
+    --surface: #161a21;
+    --surface-2: #1d222b;
+    --line: #2b323d;
+    --line-soft: #222832;
+    --ink: #e7eaf0;
+    --ink-2: #aeb6c4;
+    --ink-3: #828b9b;
+    --accent: #7aa0ff;
+    --accent-soft: #1b2440;
+    --warn: #dda647;
+    --warn-soft: #30260f;
+    --ok: #5fc9a3;
+    --ok-soft: #10281f;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: var(--step-0);
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 1.5rem 6rem;
+  }
+  .wrap { max-width: 56rem; margin: 0 auto; display: flex; flex-direction: column; gap: 3.5rem; }
+  p, li { max-width: 65ch; }
+  a { color: var(--accent); }
+
+  /* ---- en-tête ---- */
+  header { padding-top: 4rem; display: flex; flex-direction: column; gap: 1.25rem; }
+  .kicker {
+    font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  h1 {
+    font-family: var(--mono); font-size: var(--step-3); font-weight: 700;
+    letter-spacing: -0.03em; line-height: 1.05; margin: 0; text-wrap: balance;
+  }
+  h1 .svc { color: var(--accent); }
+  .lede { font-size: var(--step-1); color: var(--ink-2); margin: 0; max-width: 54ch; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 0 2rem; font-family: var(--mono);
+    font-size: 0.8125rem; color: var(--ink-3); border-top: 1px solid var(--line);
+    padding-top: 1rem; font-variant-numeric: tabular-nums;
+  }
+  .meta b { color: var(--ink-2); font-weight: 500; }
+
+  /* ---- sections ---- */
+  section { display: flex; flex-direction: column; gap: 1.25rem; }
+  .shead { display: flex; align-items: baseline; gap: 0.875rem; flex-wrap: wrap; }
+  h2 {
+    font-family: var(--mono); font-size: var(--step-2); font-weight: 700;
+    letter-spacing: -0.02em; margin: 0; text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--mono); font-size: 1rem; font-weight: 700;
+    letter-spacing: 0; margin: 0;
+  }
+  .tag {
+    font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 0.2rem 0.5rem; border-radius: 2px;
+    white-space: nowrap;
+  }
+  .tag.ok { background: var(--ok-soft); color: var(--ok); }
+  .tag.todo { background: var(--warn-soft); color: var(--warn); }
+
+  /* ---- tableaux ---- */
+  .scroll { overflow-x: auto; border: 1px solid var(--line); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.9375rem; }
+  th, td { text-align: left; padding: 0.625rem 0.875rem; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  thead th {
+    font-family: var(--mono); font-size: 0.6875rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-3); font-weight: 500;
+    background: var(--surface-2); border-bottom: 1px solid var(--line);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  td.m, th.m { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.trap td { background: var(--warn-soft); }
+  tr.trap td.m { color: var(--warn); }
+  .note { font-size: 0.875rem; color: var(--ink-3); max-width: 65ch; margin: 0; }
+
+  /* ---- blocs de code ---- */
+  pre {
+    font-family: var(--mono); font-size: 0.8125rem; line-height: 1.7; margin: 0;
+    background: var(--surface); border: 1px solid var(--line);
+    padding: 1rem 1.125rem; overflow-x: auto; color: var(--ink-2);
+  }
+  pre b { color: var(--ink); font-weight: 700; }
+  pre .c { color: var(--accent); }
+  code {
+    font-family: var(--mono); font-size: 0.9em; background: var(--surface-2);
+    padding: 0.1em 0.35em; border-radius: 2px;
+  }
+
+  /* ---- séquence handshake ---- */
+  ol.seq { list-style: none; counter-reset: s; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.875rem; }
+  ol.seq li {
+    counter-increment: s; display: grid; grid-template-columns: 2rem 1fr; gap: 0 1rem;
+    align-items: baseline; max-width: 68ch;
+  }
+  ol.seq li::before {
+    content: counter(s); font-family: var(--mono); font-size: 0.8125rem; font-weight: 700;
+    color: var(--accent); border: 1px solid var(--accent); border-radius: 2px;
+    text-align: center; line-height: 1.6;
+  }
+
+  /* ---- grille de bits ---- */
+  .bits { display: flex; flex-direction: column; gap: 0.5rem; }
+  .bitrow { display: flex; gap: 2px; min-width: max-content; }
+  .bit { width: 1.65rem; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; }
+  .cell {
+    width: 100%; aspect-ratio: 1; display: grid; place-items: center;
+    font-family: var(--mono); font-size: 0.8125rem; font-weight: 700;
+    border: 1px solid var(--line); background: var(--surface); color: var(--ink-3);
+  }
+  .bit.known .cell { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .bit.partial .cell { border-color: var(--warn); background: var(--warn-soft); color: var(--warn); }
+  .idx { font-family: var(--mono); font-size: 0.625rem; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .bit.known .idx, .bit.partial .idx { color: var(--ink-2); }
+  .legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; font-size: 0.8125rem; color: var(--ink-3); }
+  .legend span { display: flex; align-items: center; gap: 0.5rem; }
+  .sw { width: 0.75rem; height: 0.75rem; border: 1px solid var(--line); background: var(--surface); }
+  .sw.k { border-color: var(--accent); background: var(--accent-soft); }
+  .sw.p { border-color: var(--warn); background: var(--warn-soft); }
+
+  /* ---- jauge de direction ---- */
+  .gauge { display: flex; flex-direction: column; gap: 0.5rem; }
+  .track {
+    position: relative; height: 3rem; border: 1px solid var(--line);
+    background: linear-gradient(90deg, var(--accent-soft) 0%, var(--surface) 50%, var(--accent-soft) 100%);
+  }
+  .track .mid { position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--accent); }
+  .track .mid::after {
+    content: "0"; position: absolute; top: 50%; left: 0.4rem; transform: translateY(-50%);
+    font-family: var(--mono); font-size: 0.75rem; color: var(--accent); font-weight: 700;
+  }
+  .track .end {
+    position: absolute; top: 0; bottom: 0; width: 2px; background: var(--accent);
+  }
+  .track .end.l { left: 0; }
+  .track .end.r { right: 0; }
+  .gscale {
+    display: flex; justify-content: space-between; font-family: var(--mono);
+    font-size: 0.8125rem; color: var(--ink-2); font-variant-numeric: tabular-nums;
+  }
+  .gscale b { color: var(--ink); }
+
+  /* ---- cartes pièges ---- */
+  .traps { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1rem; }
+  .trapcard {
+    border: 1px solid var(--line); border-left: 2px solid var(--warn);
+    background: var(--surface); padding: 1rem 1.125rem;
+    display: flex; flex-direction: column; gap: 0.5rem;
+  }
+  .trapcard h3 { font-size: 0.9375rem; }
+  .trapcard p { font-size: 0.875rem; color: var(--ink-2); margin: 0; max-width: none; }
+
+  ul.plain { margin: 0; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  footer {
+    border-top: 1px solid var(--line); padding-top: 1.25rem; font-family: var(--mono);
+    font-size: 0.8125rem; color: var(--ink-3);
+  }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+
+  <header>
+    <div class="kicker">Reverse engineering · sonde BLE</div>
+    <h1>Zwift Ride <span class="svc">0xFC82</span></h1>
+    <p class="lede">Protocole des manettes établi par observation directe : deux périphériques dont un seul voit tout, seize commandes (quatorze boutons sur des bits uniques et deux palettes analogiques), et deux pièges d'encodage invisibles à la lecture des octets.</p>
+    <div class="meta">
+      <span><b>Sessions</b> 16 et 17 oct. 2026</span>
+      <span><b>Commandes</b> 16 / 16 nommées</span>
+      <span><b>Bits</b> 14 attribués, 2 d'origine inconnue</span>
+      <span><b>Répétabilité</b> 16 / 16 identiques</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="shead"><h2>Un pod voit tout, l'autre non</h2><span class="tag ok">confirmé</span></div>
+    <p>Les deux manettes sont <strong>deux périphériques BLE indépendants</strong>, chacune avec son service <code>0xFC82</code> et son propre handshake. Mais leurs flux ne sont pas équivalents : <strong>le pod gauche publie les seize commandes</strong>, ses huit et celles de sa partenaire, tandis que le pod droit ne publie que ses huit.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Pod</th><th class="m">Adresse</th><th class="m">N° série</th><th>Commandes publiées</th><th class="m">Axes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Gauche</strong> — agrégateur</td><td class="m">E2:93:3B:6A:0F:BC</td><td class="m">08-22933B6A0FBC</td><td>Les <strong>16</strong> : ses 8 et les 8 de la droite</td><td class="m">4</td></tr>
+          <tr><td>Droit</td><td class="m">F2:DD:0E:DE:3D:BC</td><td class="m">07-B2DD0EDE3DBC</td><td>Ses 8 seulement</td><td class="m">2</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Conséquence directe : <strong>une seule connexion, au pod gauche, suffit à lire toutes les commandes</strong>, les deux palettes comprises. Tenir les deux liaisons reste possible (vérifié 5 min 38 s sans coupure) et donne une redondance, mais n'est pas nécessaire pour la fonction.</p>
+    <p class="note">L'attribution est mesurée, pas supposée. Pendant la capture guidée du 17 octobre, chaque commande de la manette gauche n'a été rapportée que par <code>E2:93</code> ; chaque commande de la droite est arrivée d'abord sur <code>F2:DD</code>, puis relayée par <code>E2:93</code> quelques dizaines de millisecondes plus tard (jusqu'à 200 ms environ). Le préfixe du numéro de série suit : <code>08-</code> à gauche, <code>07-</code> à droite.</p>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Établir la liaison</h2><span class="tag ok">confirmé</span></div>
+    <ol class="seq">
+      <li>Scanner et filtrer sur un nom commençant par <code>Zwift</code> ou sur le service <code>0xFC82</code>, en collectant <strong>tous</strong> les appareils correspondants : ils annoncent le même nom.</li>
+      <li>Se connecter en GATT, puis s'abonner à <code>…0002</code> (notify) et <code>…0004</code> (indicate) <em>avant</em> d'écrire quoi que ce soit.</li>
+      <li>Écrire les 6 octets <code>52 69 64 65 4f 6e</code> (<code>"RideOn"</code>, rien de plus) sur <code>…0003</code> en <em>write-without-response</em>.</li>
+      <li><code>…0004</code> renvoie <code>52 69 64 65 4f 6e</code> en écho. La liaison est établie : le flux <code>0x23</code> démarre immédiatement.</li>
+    </ol>
+    <p class="note">Aucun keepalive nécessaire : 9 min 36 s en liaison simple et 5 min 38 s en double, sans une écriture après le handshake, zéro déconnexion spontanée. Chaque pod n'accepte qu'une connexion centrale et <strong>cesse d'annoncer dès qu'il se croit connecté</strong> (voir les pièges).</p>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Caractéristiques</h2><span class="tag ok">confirmé</span></div>
+    <p>Mêmes UUID sur les deux pods.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th class="m">UUID (service 0xFC82)</th><th>Propriétés</th><th>Rôle</th></tr></thead>
+        <tbody>
+          <tr><td class="m">00000002-19ca-…</td><td class="m">notify</td><td>Flux d'état : <code>0x23</code> boutons et axes, <code>0x15</code> battement, <code>0x19</code> batterie, <code>0x2a</code> télémétrie</td></tr>
+          <tr><td class="m">00000003-19ca-…</td><td class="m">write-without-response</td><td><strong>Point de contrôle</strong>, destination du handshake</td></tr>
+          <tr><td class="m">00000004-19ca-…</td><td class="m">read, indicate</td><td>Réponse au handshake</td></tr>
+          <tr class="trap"><td class="m">00000006-19ca-…</td><td class="m">read, write, write-without-response, indicate</td><td>Configuration. <strong>Piège</strong> : le handshake écrit ici ne renvoie qu'un octet <code>02</code> et aucun flux ne démarre</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Tous les UUID du service partagent le suffixe <code>-4651-86e5-fa29dcdd09d1</code> : seuls les 8 premiers chiffres les distinguent. Services annexes : <code>0x180F</code> batterie, <code>0x180A</code> info appareil, <code>0x1800</code> / <code>0x1801</code> GAP et GATT.</p>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Trame 0x23</h2><span class="tag ok">confirmé</span></div>
+<pre><b>23</b>  <span class="c">08 ff ff ff ff 0f</span>  <b>1a 04</b> 08 00 10 00  <b>1a 04</b> 08 01 10 00  <b>1a 04</b> 08 02 10 00  <b>1a 04</b> 08 03 10 00
+<b>│</b>   <span class="c">└─ champ 1 : bitmap ─┘</span>  <b>└─ champ 3 : un sous-message par axe (index 0 à 3) ──────────────┘</b>
+<b>└─ type de message</b>
+
+champ 1  varint     bitmap 32 bits, <b>logique inversée</b> : repos = 0xFFFFFFFF, bit à 0 = appuyé
+champ 3  répété     { champ 1 = index d'axe,  champ 2 = valeur <b>sint32 zigzag</b> }</pre>
+    <p class="note">Le pod gauche émet quatre sous-messages d'axe (index 0 à 3), le pod droit deux (index 0 et 1).</p>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Table des commandes</h2><span class="tag ok">16 sur 16</span></div>
+    <p>Relevée le 17 octobre par capture guidée. L'ordre et les libellés ont été dictés par la personne qui tient le matériel, et chaque fenêtre de capture n'a été close que par son « ok » après l'appui. Une seconde session complète a donné un résultat <strong>identique pour les seize commandes</strong> : même bit, même pod émetteur, même axe et même sens, et des trames d'appui identiques octet par octet.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Manette</th><th>Commande</th><th class="m">Bit / axe</th><th class="m">Bitmap appuyé</th><th>Rapportée par</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="8"><strong>Gauche</strong></td><td>Palette gauche</td><td class="m">axe 0 → −100</td><td class="m">inchangé</td><td>gauche</td></tr>
+          <tr><td>Vitesse haut</td><td class="m">bit 8</td><td class="m">0xFFFFFEFF</td><td>gauche</td></tr>
+          <tr><td>Vitesse bas</td><td class="m">bit 9</td><td class="m">0xFFFFFDFF</td><td>gauche</td></tr>
+          <tr><td>Power up</td><td class="m">bit 10</td><td class="m">0xFFFFFBFF</td><td>gauche</td></tr>
+          <tr><td>Flèche haut</td><td class="m">bit 1</td><td class="m">0xFFFFFFFD</td><td>gauche</td></tr>
+          <tr><td>Flèche droite</td><td class="m">bit 2</td><td class="m">0xFFFFFFFB</td><td>gauche</td></tr>
+          <tr><td>Flèche bas</td><td class="m">bit 3</td><td class="m">0xFFFFFFF7</td><td>gauche</td></tr>
+          <tr><td>Flèche gauche</td><td class="m">bit 0</td><td class="m">0xFFFFFFFE</td><td>gauche</td></tr>
+          <tr><td rowspan="8"><strong>Droite</strong></td><td>Palette droite</td><td class="m">axe 1 → +100</td><td class="m">inchangé</td><td>droit, relayée par gauche</td></tr>
+          <tr><td>Vitesse haut</td><td class="m">bit 12</td><td class="m">0xFFFFEFFF</td><td>droit, relayée par gauche</td></tr>
+          <tr><td>Vitesse bas</td><td class="m">bit 13</td><td class="m">0xFFFFDFFF</td><td>droit, relayée par gauche</td></tr>
+          <tr><td>Power up</td><td class="m">bit 14</td><td class="m">0xFFFFBFFF</td><td>droit, relayée par gauche</td></tr>
+          <tr><td>Y</td><td class="m">bit 6</td><td class="m">0xFFFFFFBF</td><td>droit, relayée par gauche</td></tr>
+          <tr><td>A</td><td class="m">bit 4</td><td class="m">0xFFFFFFEF</td><td>droit, relayée par gauche</td></tr>
+          <tr><td>B</td><td class="m">bit 5</td><td class="m">0xFFFFFFDF</td><td>droit, relayée par gauche</td></tr>
+          <tr><td>Z</td><td class="m">bit 7</td><td class="m">0xFFFFFF7F</td><td>droit, relayée par gauche</td></tr>
+          <tr class="trap"><td>?</td><td>non identifiée</td><td class="m">bits 11, 15</td><td class="m">0xFFFFF7FF, 0xFFFF7FFF</td><td>vus le 16 oct., seuls et ensemble ; aucune des 16 commandes</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="scroll" style="padding: 1.125rem;">
+      <div class="bits">
+        <div class="bitrow">
+          <div class="bit "><div class="cell">1</div><div class="idx">31</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">30</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">29</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">28</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">27</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">26</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">25</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">24</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">23</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">22</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">21</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">20</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">19</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">18</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">17</div></div>
+          <div class="bit "><div class="cell">1</div><div class="idx">16</div></div>
+          <div class="bit partial"><div class="cell">1</div><div class="idx">15</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">14</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">13</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">12</div></div>
+          <div class="bit partial"><div class="cell">1</div><div class="idx">11</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">10</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">9</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">8</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">7</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">6</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">5</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">4</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">3</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">2</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">1</div></div>
+          <div class="bit known"><div class="cell">1</div><div class="idx">0</div></div>
+        </div>
+        <div class="legend">
+          <span><i class="sw k"></i> attribué et nommé</span>
+          <span><i class="sw p"></i> observé, origine inconnue</span>
+          <span><i class="sw"></i> jamais observé à 0</span>
+        </div>
+      </div>
+    </div>
+    <p class="note">Le bitmap se range en quatre blocs de quatre bits : flèches de la manette gauche en 0-3, boutons d'action de la droite en 4-7, vitesse haut, vitesse bas et Power up de la gauche en 8-10, les mêmes pour la droite en 12-14. Les bits 11 et 15 tombent exactement à la quatrième place des deux derniers blocs. C'est une piste pour les identifier, pas une attribution.</p>
+    <p class="note">Chaque appui produit exactement deux trames, appui puis relâchement, et <strong>la durée du maintien est fidèlement rapportée</strong> : 7,4 s mesurées sur un maintien délibéré. <code>Gesture.LONG_PRESS</code> se lit donc directement sur l'écart entre les deux trames.</p>
+    <div class="trapcard" style="border-left-color: var(--warn);">
+      <h3>Pourquoi trois tables successives ont été fausses</h3>
+      <p>Le 16 octobre, les index relevés étaient justes à chaque fois ; c'est leur <em>nom</em> qui était faux. Les invites portaient des noms de code (<code>A</code>, <code>PALETTE_DROITE</code>…) choisis par le script, et la correspondance faite côté matériel différait de celle supposée côté script. La méthode qui a tenu : l'ordre et les libellés viennent de la personne qui tient le matériel, et le script n'avance jamais seul, il attend son « ok » pour clore chaque capture.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Les palettes sont des axes</h2><span class="tag ok">confirmé</span></div>
+    <p>Les deux palettes <strong>ne posent aucun bit</strong> : chacune fait varier son propre axe analogique, d'un seul côté du zéro. Un pont qui ne lit que le bitmap ne les verra jamais.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Commande</th><th class="m">Axe</th><th class="m">Course mesurée</th><th>Rapporté par</th></tr></thead>
+        <tbody>
+          <tr><td>Palette gauche</td><td class="m">0</td><td class="m">0 → −100</td><td>pod gauche</td></tr>
+          <tr><td>Palette droite</td><td class="m">1</td><td class="m">0 → +100</td><td>pod droit, relayé par le gauche</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="gauge">
+      <div class="track"><i class="end l"></i><i class="mid"></i><i class="end r"></i></div>
+      <div class="gscale">
+        <span><b>−100</b> · palette gauche à fond (axe 0)</span>
+        <span>repos</span>
+        <span>palette droite à fond (axe 1) · <b>+100</b></span>
+      </div>
+    </div>
+<pre>palette droite, un appui (pod droit)
+  t+0 ms     axe 1 = <b>+5</b>      premier contact
+  t+90 ms    axe 1 = <b>+100</b>    fond de course
+  t+1190 ms  axe 1 = +15     relâchement
+  t+1280 ms  axe 1 = +2
+  t+1370 ms  axe 1 = 0       repos</pre>
+    <p class="note">Les valeurs intermédiaires varient d'un appui à l'autre ; le plateau à ±100 est le même à chaque fois. Un pont doit donc fixer un seuil (par exemple |v| ≥ 50) pour transformer une palette en appui, et le relâcher sous un seuil plus bas pour éviter les rebonds.</p>
+    <h3>Le champ est un sint32 zigzag</h3>
+    <p>Lue en varint brut, la valeur sature à <code>199</code> d'un côté et <code>200</code> de l'autre : deux plateaux presque identiques qui ressemblent à un défaut de capteur.</p>
+<pre>zigzag(n) = (n &gt;&gt; 1) ^ -(n &amp; 1)
+
+raw <b>199</b>  →  (199 &gt;&gt; 1) ^ -(199 &amp; 1)  =  99 ^ -1  =  <b>-100</b>
+raw <b>200</b>  →  (200 &gt;&gt; 1) ^ -(200 &amp; 1)  =  100 ^ 0  =  <b>+100</b>
+raw <b>  0</b>  →  repos</pre>
+    <p class="note">Une trace du 16 octobre montre l'axe 0 à <strong>+100</strong>, côté que la palette gauche n'a jamais atteint pendant la capture guidée. Le geste qui l'a produit n'est pas identifié. Les axes 2 et 3 du pod gauche ne sont jamais sortis de zéro.</p>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Appuis simultanés</h2><span class="tag ok">confirmé</span></div>
+    <p>Le bitmap porte plusieurs boutons à la fois, sans état ambigu. <strong>Jusqu'à quatre simultanés observés</strong>, y compris à cheval sur les deux manettes : bits <code>8 + 9 + 12 + 13</code>, soit vitesse haut et vitesse bas des deux côtés, réunis dans un seul bitmap de l'agrégateur. Le relais entre pods <strong>préserve la simultanéité</strong>, y compris en combinaison triple : bits <code>8 + 12 + 13</code>, où le pod droit ne rapporte que <code>12 + 13</code>.</p>
+<pre>35.1s  <b>DROIT </b>  bits=[12]     = vitesse haut D            <span class="c">← le pod droit ne voit que sa commande</span>
+35.1s  <b>GAUCHE</b>  bits=[8]      = vitesse haut G
+35.1s  <b>GAUCHE</b>  bits=[8, 12]  = vitesse haut G + D        <span class="c">← l'agrégateur fusionne les deux pods</span>
+35.5s  <b>GAUCHE</b>  bits=[12]     = vitesse haut D            <span class="c">← la gauche relâchée en premier</span>
+35.6s  <b>GAUCHE</b>  repos</pre>
+    <h3>Le flux est un état, pas un événement</h3>
+    <p>Chaque transition émet une trame portant <strong>l'état complet</strong> des boutons et des axes, pas un événement d'appui. La séquence ci-dessus se lit <code>[8]</code> → <code>[8,12]</code> → <code>[12]</code> → repos.</p>
+    <p class="note">Un pont doit donc <strong>différencier deux bitmaps consécutifs</strong> pour en déduire appuis et relâchements. Traiter chaque trame comme « un bouton vient d'être pressé » fabriquerait un faux appui du bit 12 au moment où le bit 8 est relâché, précisément le faux positif qu'une sortie de 30 minutes ne pardonne pas.</p>
+    <p class="note">Ces combinaisons viennent des sessions du 16 octobre, relevées par numéro de bit ; les noms sont ceux de la table du 17.</p>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Les quatre types de trames</h2><span class="tag ok">confirmé</span></div>
+    <div class="scroll">
+      <table>
+        <thead><tr><th class="m">Type</th><th class="m">Période</th><th class="m">Charge</th><th>Rôle</th></tr></thead>
+        <tbody>
+          <tr><td class="m">0x15</td><td class="m">0,99 s</td><td class="m">(aucune)</td><td>Battement de présence</td></tr>
+          <tr><td class="m">0x19</td><td class="m">5 s</td><td class="m">10 53</td><td>Batterie probable : <code>0x53</code> = 83 correspond exactement au pod à 83 %, mais l'autre émet la même valeur alors qu'il est à 86 %. Non tranché.</td></tr>
+          <tr><td class="m">0x23</td><td class="m">à l'événement</td><td class="m">bitmap + axes</td><td>Boutons et palettes, 9 à 11 trames/s pendant la course d'une palette</td></tr>
+          <tr><td class="m">0x2a</td><td class="m">à la connexion</td><td class="m">protobuf imbriqué</td><td>Télémétrie, non décodée</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">Le repos ne produit aucune trame <code>0x23</code>, mais le flux n'est pas muet pour autant : le battement <code>0x15</code> à 1 Hz suffit à distinguer « palettes au repos » de « manette disparue », sans attendre le rappel de déconnexion GATT, qui reste la détection de référence mais n'est plus le seul signal.</p>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Trame 0x2a</h2><span class="tag todo">structure seule</span></div>
+    <p>Émise <strong>une seule fois par connexion</strong>, 1,3 à 2,5 s après le handshake. Vérifié sur 90 s sans interaction : aucune autre ne suit. Ce n'est donc pas de la télémétrie périodique mais une annonce d'ouverture de liaison.</p>
+<pre><b>2a</b>  08 03  12 10  <b>12 0e</b>  08 12  10 00  18 90 03  <b>22 05</b> ff ff ff ff 1f
+
+champ 1            varint    <b>3</b>            constant sur les 7 trames distinctes
+champ 2 / 2 / 1    varint    18 | 24 | 39 | 192
+champ 2 / 2 / 2    varint    <b>0</b>            constant
+champ 2 / 2 / 3    varint    42 | 200 | 400
+champ 2 / 2 / 4    bytes[5]  ff ff ff ff 1f  ·  ff fd ff ff 1f  ·  ff f3 37 3f 1e  ·  …</pre>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Configuration</th><th class="m">Trames</th><th>Contenu de <code>/2/2/1</code></th></tr></thead>
+        <tbody>
+          <tr><td>Pod gauche seul</td><td class="m">1</td><td class="m">18</td></tr>
+          <tr><td>Pod droit seul</td><td class="m">2</td><td class="m">24, puis 18</td></tr>
+          <tr><td>Les deux connectés</td><td class="m">2 à 5</td><td class="m">18, 24, 192</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note"><strong>Reproductible à conditions égales.</strong> Trois reconnexions successives du pod gauche, manette au repos, ont produit une trame strictement identique octet pour octet. Mais le champ 4 <em>change</em> si l'état de la manette change à la connexion : il porte donc bien un état, pas une constante.</p>
+    <h3>Ce que signifient les nombres : inconnu</h3>
+    <p>La structure est sûre, la sémantique ne l'est pas. <code>18</code>, <code>24</code>, <code>39</code>, <code>192</code> et <code>42</code>, <code>200</code>, <code>400</code> n'ont pas été rattachés à une grandeur connue. Le <code>200</code> coïncide avec l'étendue totale d'un axe (−100 à +100), mais une coïncidence numérique sur une seule valeur ne vaut pas démonstration.</p>
+    <h3>Champ 4 : état opaque</h3>
+    <p>L'hypothèse d'un bitmap de boutons dans l'encodage inversé de <code>0x23</code> a été <strong>testée et réfutée</strong>. Connexion établie alors que le bouton A (bit 4) était maintenu, contrôlée par la trame <code>0x23</code> simultanée :</p>
+<pre>repos         <b>ff ff ff ff 1f</b>
+A tenu (bit 4)  <b>fe 07 c8 ff 1f</b>    → <b>11 bits</b> diffèrent
+
+attendu si l'hypothèse tenait : un seul bit éteint, en position 4
+obtenu : aucun ordre d'octets ne produit de zéro isolé en position 4</pre>
+    <p class="note">Le champ dépend donc de l'état de la manette, mais ne le code pas comme le bitmap. Amplitude des écarts observés contre la trame de repos : 1 bit entre deux trames du pod droit, 4 à 8 bits sur les variantes d'une session active, 11 bits avec un bouton maintenu. Le dernier octet reste <code>1e</code> ou <code>1f</code> sur les six échantillons. <strong>Aucune autre hypothèse en réserve</strong> : champ consigné comme opaque. Sans conséquence pratique pour un pont, cette trame n'étant émise qu'une fois et ne portant aucune commande.</p>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Les six pièges</h2></div>
+    <div class="traps">
+      <div class="trapcard">
+        <h3>Le mauvais pod</h3>
+        <p>Les deux manettes annoncent « Zwift Ride ». Se connecter au pod droit ne donne que <strong>huit commandes sur seize</strong>, palette gauche et croix directionnelle absentes, sans aucune erreur. Identifier le bon pod par le préfixe du numéro de série, pas par l'ordre de découverte.</p>
+      </div>
+      <div class="trapcard">
+        <h3>La palette sans bit</h3>
+        <p>Les palettes ne touchent pas au bitmap : elles ne bougent que les axes 0 et 1. Un pont qui ne décode que le champ 1 croira que les palettes sont muettes.</p>
+      </div>
+      <div class="trapcard">
+        <h3>Le zigzag invisible</h3>
+        <p>Les extrêmes lus en brut donnent <code>199</code> et <code>200</code>. Sans décodage zigzag, les deux palettes semblent saturer à la même valeur au lieu de partir à −100 et +100.</p>
+      </div>
+      <div class="trapcard">
+        <h3>La mauvaise caractéristique</h3>
+        <p>Prendre « la première caractéristique <em>write-without-response</em> » sélectionne <code>…0006</code>, qui est de la configuration. Le handshake part, un octet <code>02</code> revient, rien ne démarre. Cibler <code>…0003</code> explicitement.</p>
+      </div>
+      <div class="trapcard">
+        <h3>La logique inversée</h3>
+        <p>Repos à <code>0xFFFFFFFF</code>, bit à <strong>0</strong> pour un appui. Un pont qui teste <code>bit == 1</code> verra tous les boutons enfoncés en permanence sauf celui qu'on presse.</p>
+      </div>
+      <div class="trapcard">
+        <h3>La liaison jamais refermée</h3>
+        <p>Un processus tué sans fermer le GATT laisse le pod persuadé d'être connecté : il <strong>cesse d'annoncer</strong> et devient introuvable, ce qui ressemble à une panne de réveil. Diagnostic : <code>bluetoothctl info &lt;addr&gt;</code>, champ <code>Connected</code>. Remède : fermeture explicite sur arrêt et sur signal.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="shead"><h2>Reste à établir</h2><span class="tag todo">à faire</span></div>
+    <ul class="plain">
+      <li><strong>Origine des bits 11 et 15</strong> : vus le 16 octobre, seuls et ensemble, mais produits par aucune des seize commandes. Ils occupent la quatrième place des blocs 8-11 et 12-15.</li>
+      <li>Le geste qui porte l'axe 0 à <strong>+100</strong>, observé une fois le 16 octobre.</li>
+      <li>Les axes 2 et 3 du pod gauche, jamais sortis de zéro.</li>
+      <li>Seuil de déclenchement des palettes à retenir dans le pont, à valider en conditions de roulage.</li>
+      <li>Sémantique des nombres de la trame <code>0x2a</code> : structure décodée, signification ouverte.</li>
+      <li>Levée du doute sur <code>0x19</code> : est-ce bien la batterie, et pourquoi les deux pods annoncent-ils la même valeur alors qu'ils sont à 83 % et 86 % ?</li>
+      <li>Comportement en veille au-delà de 10 min, et reconnexion après mise en sommeil d'un pod.</li>
+      <li>Le préfixe de série <code>07-</code> / <code>08-</code> comme marqueur gauche/droite : à confirmer sur un second exemplaire de Ride.</li>
+    </ul>
+  </section>
+
+  <footer>
+    Établi avec <code>capture_guidee.py</code>, <code>watch_bits.py</code>, <code>dual_probe.py</code> et <code>decode_trace.py</code> · table dans <code>captures/session_20261017_104530.json</code>, rejouée à l'identique dans <code>session_20261017_105340.json</code> · firmware 1.2.0, non verrouillé
+  </footer>
+
+</div>

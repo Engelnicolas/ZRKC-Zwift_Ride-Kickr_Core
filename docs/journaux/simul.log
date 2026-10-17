@@ -1,0 +1,123 @@
+   0.0s recherche des manettes (appuie un bouton sur chacune)...
+  10.0s scan 1 : DROIT, GAUCHE
+  11.3s DROIT en ligne
+  12.6s GAUCHE en ligne
+  12.6s === prêt : enchaîne les combinaisons ===
+  24.1s DROIT   bits=[4] = Y
+  24.1s GAUCHE  bits=[4] = Y
+  24.1s DROIT   bits=[4, 5] = Y + Z  <<< MULTI
+  24.2s GAUCHE  bits=[4, 5] = Y + Z  <<< MULTI
+  24.4s DROIT   bits=[4] = Y
+  24.4s DROIT   repos
+  24.5s GAUCHE  bits=[4] = Y
+  24.5s GAUCHE  repos
+  35.1s DROIT   bits=[12] = A
+  35.1s GAUCHE  bits=[8] = UP
+  35.1s GAUCHE  bits=[8, 12] = UP + A  <<< MULTI
+  35.5s GAUCHE  bits=[12] = A
+  35.6s DROIT   repos
+  35.6s GAUCHE  repos
+  40.3s GAUCHE  bits=[1] = LEFT
+  40.3s GAUCHE  bits=[1, 3] = LEFT + RIGHT  <<< MULTI
+  40.6s GAUCHE  bits=[1] = LEFT
+  40.7s GAUCHE  repos
+  64.4s GAUCHE  bits=[8] = UP
+  64.5s DROIT   bits=[12] = A
+  64.5s GAUCHE  bits=[8, 12] = UP + A  <<< MULTI
+  64.7s DROIT   bits=[12, 13] = A + B  <<< MULTI
+  64.8s GAUCHE  bits=[8, 12, 13] = UP + A + B  <<< MULTI
+  64.8s DROIT   bits=[13] = B
+  64.8s GAUCHE  bits=[8, 13] = UP + B  <<< MULTI
+  64.9s DROIT   repos
+  64.9s GAUCHE  bits=[13] = B
+  64.9s GAUCHE  repos
+  65.8s GAUCHE  bits=[8] = UP
+  65.9s DROIT   bits=[12] = A
+  65.9s GAUCHE  bits=[8, 12] = UP + A  <<< MULTI
+  66.0s DROIT   bits=[12, 13] = A + B  <<< MULTI
+  66.0s GAUCHE  bits=[8, 12, 13] = UP + A + B  <<< MULTI
+  66.2s DROIT   bits=[13] = B
+  66.2s GAUCHE  bits=[8, 13] = UP + B  <<< MULTI
+  66.2s DROIT   repos
+  66.3s GAUCHE  bits=[13] = B
+  66.3s GAUCHE  repos
+  67.3s DROIT   bits=[12] = A
+  67.3s GAUCHE  bits=[12] = A
+  67.5s DROIT   bits=[12, 13] = A + B  <<< MULTI
+  67.5s GAUCHE  bits=[8, 12] = UP + A  <<< MULTI
+  67.6s GAUCHE  bits=[8, 12, 13] = UP + A + B  <<< MULTI
+  67.7s DROIT   bits=[13] = B
+  67.8s GAUCHE  bits=[8, 13] = UP + B  <<< MULTI
+  67.8s DROIT   repos
+  67.8s GAUCHE  bits=[8] = UP
+  67.9s GAUCHE  repos
+  72.3s GAUCHE  bits=[2, 3] = LEVER_LEFT + RIGHT  <<< MULTI
+  72.4s GAUCHE  bits=[0, 2, 3] = PALETTE_GAUCHE + LEVER_LEFT + RIGHT  <<< MULTI
+  72.4s GAUCHE  bits=[0, 1, 2, 3] = PALETTE_GAUCHE + LEFT + LEVER_LEFT + RIGHT  <<< MULTI
+  72.6s GAUCHE  bits=[0, 2] = PALETTE_GAUCHE + LEVER_LEFT  <<< MULTI
+  72.7s GAUCHE  bits=[2] = LEVER_LEFT
+  72.7s GAUCHE  repos
+  75.5s DROIT   bits=[6] = PALETTE_DROITE
+  75.6s GAUCHE  bits=[6] = PALETTE_DROITE
+  75.7s DROIT   bits=[4, 6] = Y + PALETTE_DROITE  <<< MULTI
+  75.7s GAUCHE  bits=[4, 6] = Y + PALETTE_DROITE  <<< MULTI
+  76.0s DROIT   bits=[6] = PALETTE_DROITE
+  76.0s DROIT   repos
+  76.1s GAUCHE  bits=[6] = PALETTE_DROITE
+  76.1s GAUCHE  repos
+ 139.4s GAUCHE  bits=[8] = UP
+ 139.5s GAUCHE  bits=[8, 9] = UP + DOWN  <<< MULTI
+ 139.5s DROIT   bits=[13] = B
+ 139.6s DROIT   bits=[12, 13] = A + B  <<< MULTI
+ 139.6s GAUCHE  bits=[8, 9, 13] = UP + DOWN + B  <<< MULTI
+ 139.7s GAUCHE  bits=[8, 9, 12, 13] = UP + DOWN + A + B  <<< MULTI
+ 139.8s GAUCHE  bits=[8, 12, 13] = UP + A + B  <<< MULTI
+ 139.8s GAUCHE  bits=[8, 12] = UP + A  <<< MULTI
+ 139.9s DROIT   bits=[12] = A
+ 139.9s GAUCHE  bits=[12] = A
+ 139.9s GAUCHE  repos
+ 140.0s DROIT   repos
+ 141.7s DROIT   bits=[6] = PALETTE_DROITE
+ 141.7s GAUCHE  bits=[6] = PALETTE_DROITE
+ 141.8s DROIT   bits=[4, 6] = Y + PALETTE_DROITE  <<< MULTI
+ 142.0s GAUCHE  bits=[4, 6] = Y + PALETTE_DROITE  <<< MULTI
+ 142.1s DROIT   repos
+ 142.1s GAUCHE  repos
+ 143.0s DROIT   bits=[7] = LEVER_RIGHT
+ 143.0s GAUCHE  bits=[7] = LEVER_RIGHT
+ 143.1s DROIT   bits=[5, 7] = Z + LEVER_RIGHT  <<< MULTI
+ 143.2s GAUCHE  bits=[5, 7] = Z + LEVER_RIGHT  <<< MULTI
+ 143.3s DROIT   bits=[7] = LEVER_RIGHT
+ 143.4s GAUCHE  bits=[7] = LEVER_RIGHT
+ 143.4s DROIT   repos
+ 143.4s GAUCHE  repos
+ 143.9s GAUCHE  bits=[0, 1] = PALETTE_GAUCHE + LEFT  <<< MULTI
+ 144.1s GAUCHE  repos
+ 144.5s GAUCHE  bits=[3] = RIGHT
+ 144.7s GAUCHE  bits=[2] = LEVER_LEFT
+ 144.9s GAUCHE  repos
+
+=== COMBINAISONS MULTI OBSERVÉES ===
+DROIT   [4, 5] = Y + Z
+GAUCHE  [4, 5] = Y + Z
+GAUCHE  [8, 12] = UP + A
+GAUCHE  [1, 3] = LEFT + RIGHT
+DROIT   [12, 13] = A + B
+GAUCHE  [8, 12, 13] = UP + A + B
+GAUCHE  [8, 13] = UP + B
+GAUCHE  [2, 3] = LEVER_LEFT + RIGHT
+GAUCHE  [0, 2, 3] = PALETTE_GAUCHE + LEVER_LEFT + RIGHT
+GAUCHE  [0, 1, 2, 3] = PALETTE_GAUCHE + LEFT + LEVER_LEFT + RIGHT
+GAUCHE  [0, 2] = PALETTE_GAUCHE + LEVER_LEFT
+DROIT   [4, 6] = Y + PALETTE_DROITE
+GAUCHE  [4, 6] = Y + PALETTE_DROITE
+GAUCHE  [8, 9] = UP + DOWN
+GAUCHE  [8, 9, 13] = UP + DOWN + B
+GAUCHE  [8, 9, 12, 13] = UP + DOWN + A + B
+DROIT   [5, 7] = Z + LEVER_RIGHT
+GAUCHE  [5, 7] = Z + LEVER_RIGHT
+GAUCHE  [0, 1] = PALETTE_GAUCHE + LEFT
+ 337.3s DROIT !! DÉCONNECTÉ
+ 339.3s GAUCHE !! DÉCONNECTÉ
+liaisons fermées.
+arrêt demandé
