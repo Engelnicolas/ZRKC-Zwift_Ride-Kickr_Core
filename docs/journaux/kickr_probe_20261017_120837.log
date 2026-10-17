@@ -1,0 +1,146 @@
+   0.01s journal : journaux/kickr_probe_20261017_120837.log
+   8.11s trouvé CB:4A:21:C8:69:33 « KICKR CORE 85FF » RSSI -89 services ['00001818-0000-1000-8000-00805f9b34fb', '00001826-0000-1000-8000-00805f9b34fb', '00000001-19ca-4651-86e5-fa29dcdd09d1']
+  13.85s connecté à CB:4A:21:C8:69:33
+  13.85s service 00001801-0000-1000-8000-00805f9b34fb  Generic Attribute Profile
+  13.85s     00002a05-0000-1000-8000-00805f9b34fb  indicate
+  13.85s service 00001826-0000-1000-8000-00805f9b34fb  Fitness Machine
+  13.85s     00002ad6-0000-1000-8000-00805f9b34fb  read
+  13.85s     00002ad8-0000-1000-8000-00805f9b34fb  read
+  13.85s     00002ad9-0000-1000-8000-00805f9b34fb  write,indicate
+  13.85s     00002ad2-0000-1000-8000-00805f9b34fb  notify
+  13.85s     00002acc-0000-1000-8000-00805f9b34fb  read
+  13.85s     00002ad3-0000-1000-8000-00805f9b34fb  read,notify
+  13.85s     00002ada-0000-1000-8000-00805f9b34fb  notify
+  13.85s service 0000180a-0000-1000-8000-00805f9b34fb  Device Information
+  13.85s     00002a29-0000-1000-8000-00805f9b34fb  read
+  13.85s     00002a26-0000-1000-8000-00805f9b34fb  read
+  13.85s     00002a25-0000-1000-8000-00805f9b34fb  read
+  13.85s     00002a27-0000-1000-8000-00805f9b34fb  read
+  13.85s service a026ee01-0a7d-4ab3-97fa-f1500f9feb8b  Unknown
+  13.85s     a026e002-0a7d-4ab3-97fa-f1500f9feb8b  write-without-response,notify
+  13.85s     a026e004-0a7d-4ab3-97fa-f1500f9feb8b  notify
+  13.85s service 00000001-19ca-4651-86e5-fa29dcdd09d1  SDP
+  13.85s     00000003-19ca-4651-86e5-fa29dcdd09d1  write-without-response
+  13.85s     00000004-19ca-4651-86e5-fa29dcdd09d1  indicate
+  13.85s     00000002-19ca-4651-86e5-fa29dcdd09d1  notify
+  13.85s service 00001818-0000-1000-8000-00805f9b34fb  Cycling Power
+  13.85s     a026e005-0a7d-4ab3-97fa-f1500f9feb8b  write,indicate
+  13.85s     00002a66-0000-1000-8000-00805f9b34fb  write,indicate
+  13.85s     00002a63-0000-1000-8000-00805f9b34fb  notify
+  13.85s     00002a5d-0000-1000-8000-00805f9b34fb  read
+  13.85s     00002a65-0000-1000-8000-00805f9b34fb  read
+  13.85s service a026ee06-0a7d-4ab3-97fa-f1500f9feb8b  Unknown
+  13.85s     a026e023-0a7d-4ab3-97fa-f1500f9feb8b  write-without-response,notify
+  13.85s service a026ee0b-0a7d-4ab3-97fa-f1500f9feb8b  Unknown
+  13.85s     a026e037-0a7d-4ab3-97fa-f1500f9feb8b  write-without-response,notify
+  13.85s service 00001800-0000-1000-8000-00805f9b34fb  Generic Access Profile
+  13.85s     00002aa6-0000-1000-8000-00805f9b34fb  read
+  13.85s     00002a00-0000-1000-8000-00805f9b34fb  read
+  13.85s     00002a01-0000-1000-8000-00805f9b34fb  read
+  13.85s     00002a04-0000-1000-8000-00805f9b34fb  read
+  13.85s service 0000181c-0000-1000-8000-00805f9b34fb  User Data
+  13.85s     00002a98-0000-1000-8000-00805f9b34fb  read,write
+  14.37s info fabricant = 'Wahoo Fitness'
+  14.47s info n° série  = '213400303'
+  14.73s info matériel  = '1'
+  15.25s info firmware  = '1.5.36'
+  16.03s <- 0002 2a 08 03 12 11 22 0f 41 54 58 20 30 31 2c 20 53 54 58 20 30 30 00  | 0x2a champs=[(1, 3), (2, '22 0f 41 54 58 20 30 31 2c 20 53 54 58 20 30 30 00')]
+  16.55s -> 0003 RideOn (sans réponse)
+  16.55s écoute 90.0 s - pédale pour voir les trames 0x03
+  16.55s <- 0002 2a 08 03 12 11 22 0f 41 54 58 20 30 31 2c 20 53 54 58 20 30 31 00  | 0x2a champs=[(1, 3), (2, '22 0f 41 54 58 20 30 31 2c 20 53 54 58 20 30 31 00')]
+  17.07s <- 0002 2a 08 03 12 0d 22 0b 52 49 44 45 5f 4f 4e 28 30 29 00  | 0x2a champs=[(1, 3), (2, '22 0b 52 49 44 45 5f 4f 4e 28 30 29 00')]
+  17.07s <- 0004 52 69 64 65 4f 6e 02 02  | écho RideOn + 2 octets : 02 02
+  17.59s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  18.63s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  19.67s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  20.55s <- 0002 2a 08 03 12 27 22 25 67 61 70 5f 70 61 72 61 6d 73 5f 63 68 61 6e 67 65 28 30 29 3a 20 36 30 2c 20 36 30 2c 20 30 2c 20 36 30 30 00  | 0x2a champs=[(1, 3), (2, '22 25 67 61 70 5f 70 61 72 61 6d 73 5f 63 68 61 6e 67 65 28 30 29 3a 20 36 30 2c 20 36 30 2c 20 30 2c 20 36 30 30 00')]
+  20.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  21.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  22.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  23.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  24.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  25.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  26.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  27.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  28.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  29.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  30.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  31.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  32.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  33.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  34.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  35.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  36.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  37.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  38.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  39.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  40.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  41.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  42.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  43.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  44.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  45.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  46.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  47.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  48.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  49.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  50.62s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  51.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  52.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  53.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  54.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  55.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  56.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  57.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  58.65s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  59.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  60.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  61.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  62.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  63.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  64.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  65.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  66.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  67.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  68.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  69.52s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  70.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  71.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  72.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  73.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  74.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  75.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  76.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  77.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  78.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  79.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  80.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  81.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  82.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  83.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  84.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  85.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  86.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  87.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  88.65s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  89.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  90.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  91.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  92.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  93.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  94.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  95.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  96.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  97.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  98.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+  99.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+ 100.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+ 101.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+ 102.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+ 103.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+ 104.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+ 105.60s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+ 106.55s fin de l'écoute, fermeture de la liaison
+ 106.57s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+ 107.55s <- 0002 03 08 00 10 00 18 00 20 00 28 00 30 88 ea 01  | 0x03 puissance=0 W cadence=0 rpm vitesse=0.0 km/h FC=0 inconnus={5: 0, 6: 29960}
+ 108.45s !! liaison perdue
