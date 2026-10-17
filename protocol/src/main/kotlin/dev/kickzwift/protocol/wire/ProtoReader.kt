@@ -1,10 +1,11 @@
-package dev.kickzwift.protocol.ride
+package dev.kickzwift.protocol.wire
 
 /**
  * Lecteur protobuf minimal : varints et champs délimités, rien d'autre.
  *
- * Le message boutons du Ride n'a que deux champs ; ce lecteur évite d'embarquer
- * le runtime protobuf pour si peu. Toute entrée invalide lève [MalformedFrameException].
+ * Les messages du Ride et du KICKR n'ont que quelques champs ; ce lecteur évite
+ * d'embarquer le runtime protobuf pour si peu. Toute entrée invalide lève
+ * [MalformedFrameException].
  */
 internal class ProtoReader(
     private val buf: ByteArray,
@@ -39,6 +40,13 @@ internal class ProtoReader(
         val sub = ProtoReader(buf, pos, pos + len.toInt())
         pos += len.toInt()
         return sub
+    }
+
+    /** Octets restants du lecteur, qui se retrouve vide. */
+    fun remainingBytes(): ByteArray {
+        val bytes = buf.copyOfRange(pos, end)
+        pos = end
+        return bytes
     }
 
     fun skip(wireType: Int) {

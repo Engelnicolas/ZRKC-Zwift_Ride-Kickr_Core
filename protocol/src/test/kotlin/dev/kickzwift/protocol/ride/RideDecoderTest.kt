@@ -1,6 +1,7 @@
 package dev.kickzwift.protocol.ride
 
 import dev.kickzwift.protocol.Button
+import dev.kickzwift.protocol.wire.ProtoReader
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertTrue

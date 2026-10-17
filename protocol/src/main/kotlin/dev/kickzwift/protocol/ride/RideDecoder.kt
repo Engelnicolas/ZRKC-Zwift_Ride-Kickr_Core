@@ -1,5 +1,8 @@
 package dev.kickzwift.protocol.ride
 
+import dev.kickzwift.protocol.wire.MalformedFrameException
+import dev.kickzwift.protocol.wire.ProtoReader
+
 /** État complet des commandes porté par une trame 0x23. */
 data class RideState(
     /** Bits appuyés, logique déjà redressée : 1 = appuyé. */

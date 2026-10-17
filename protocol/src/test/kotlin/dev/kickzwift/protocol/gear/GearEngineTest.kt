@@ -1,5 +1,6 @@
 package dev.kickzwift.protocol.gear
 
+import dev.kickzwift.protocol.trainer.TrainerCodec
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -16,7 +17,7 @@ class GearEngineTest {
     fun `vitesse 12 - rapport 2,40 soit GearRatioX10000 24000`() {
         val engine = GearEngine(GearTable.ZWIFT, start = 12)
         assertEquals(2.40, engine.ratio)
-        assertEquals(24_000, GearTable.toGearRatioX10000(engine.ratio))
+        assertEquals(24_000, TrainerCodec.toGearRatioX10000(engine.ratio))
     }
 
     @Test

@@ -35,11 +35,6 @@ object GearTable {
             5.14,
             5.49,
         )
-
-    /** Valeur du champ GearRatioX10000 du message 0x04 pour un rapport donné. */
-    fun toGearRatioX10000(ratio: Double): Int = Math.round(ratio * RATIO_SCALE).toInt()
-
-    private const val RATIO_SCALE = 10_000
 }
 
 /**
