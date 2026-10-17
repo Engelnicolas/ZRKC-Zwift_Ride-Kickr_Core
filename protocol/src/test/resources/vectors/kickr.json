@@ -1,0 +1,643 @@
+{
+  "device": "KICKR CORE 85FF, firmware 1.5.36",
+  "handshake": {
+    "write": "52 69 64 65 4f 6e",
+    "response": "52 69 64 65 4f 6e 02 02",
+    "source": "materiel"
+  },
+  "infoRequest520": {
+    "frame": "00 08 88 04",
+    "source": "materiel"
+  },
+  "gearRatio": [
+    {
+      "ratio": 0.75,
+      "gearRatioX10000": 7500,
+      "frame": "04 2a 03 10 cc 3a",
+      "source": "calcul"
+    },
+    {
+      "ratio": 0.87,
+      "gearRatioX10000": 8700,
+      "frame": "04 2a 03 10 fc 43",
+      "source": "calcul"
+    },
+    {
+      "ratio": 0.99,
+      "gearRatioX10000": 9900,
+      "frame": "04 2a 03 10 ac 4d",
+      "source": "calcul"
+    },
+    {
+      "ratio": 1.11,
+      "gearRatioX10000": 11100,
+      "frame": "04 2a 03 10 dc 56",
+      "source": "calcul"
+    },
+    {
+      "ratio": 1.23,
+      "gearRatioX10000": 12300,
+      "frame": "04 2a 03 10 8c 60",
+      "source": "materiel"
+    },
+    {
+      "ratio": 1.38,
+      "gearRatioX10000": 13800,
+      "frame": "04 2a 03 10 e8 6b",
+      "source": "calcul"
+    },
+    {
+      "ratio": 1.53,
+      "gearRatioX10000": 15300,
+      "frame": "04 2a 03 10 c4 77",
+      "source": "calcul"
+    },
+    {
+      "ratio": 1.68,
+      "gearRatioX10000": 16800,
+      "frame": "04 2a 04 10 a0 83 01",
+      "source": "calcul"
+    },
+    {
+      "ratio": 1.86,
+      "gearRatioX10000": 18600,
+      "frame": "04 2a 04 10 a8 91 01",
+      "source": "calcul"
+    },
+    {
+      "ratio": 2.04,
+      "gearRatioX10000": 20400,
+      "frame": "04 2a 04 10 b0 9f 01",
+      "source": "calcul"
+    },
+    {
+      "ratio": 2.22,
+      "gearRatioX10000": 22200,
+      "frame": "04 2a 04 10 b8 ad 01",
+      "source": "calcul"
+    },
+    {
+      "ratio": 2.4,
+      "gearRatioX10000": 24000,
+      "frame": "04 2a 04 10 c0 bb 01",
+      "source": "calcul"
+    },
+    {
+      "ratio": 2.61,
+      "gearRatioX10000": 26100,
+      "frame": "04 2a 04 10 f4 cb 01",
+      "source": "calcul"
+    },
+    {
+      "ratio": 2.82,
+      "gearRatioX10000": 28200,
+      "frame": "04 2a 04 10 a8 dc 01",
+      "source": "calcul"
+    },
+    {
+      "ratio": 3.03,
+      "gearRatioX10000": 30300,
+      "frame": "04 2a 04 10 dc ec 01",
+      "source": "calcul"
+    },
+    {
+      "ratio": 3.24,
+      "gearRatioX10000": 32400,
+      "frame": "04 2a 04 10 90 fd 01",
+      "source": "calcul"
+    },
+    {
+      "ratio": 3.49,
+      "gearRatioX10000": 34900,
+      "frame": "04 2a 04 10 d4 90 02",
+      "source": "calcul"
+    },
+    {
+      "ratio": 3.74,
+      "gearRatioX10000": 37400,
+      "frame": "04 2a 04 10 98 a4 02",
+      "source": "calcul"
+    },
+    {
+      "ratio": 3.99,
+      "gearRatioX10000": 39900,
+      "frame": "04 2a 04 10 dc b7 02",
+      "source": "calcul"
+    },
+    {
+      "ratio": 4.24,
+      "gearRatioX10000": 42400,
+      "frame": "04 2a 04 10 a0 cb 02",
+      "source": "calcul"
+    },
+    {
+      "ratio": 4.54,
+      "gearRatioX10000": 45400,
+      "frame": "04 2a 04 10 d8 e2 02",
+      "source": "calcul"
+    },
+    {
+      "ratio": 4.84,
+      "gearRatioX10000": 48400,
+      "frame": "04 2a 04 10 90 fa 02",
+      "source": "calcul"
+    },
+    {
+      "ratio": 5.14,
+      "gearRatioX10000": 51400,
+      "frame": "04 2a 04 10 c8 91 03",
+      "source": "calcul"
+    },
+    {
+      "ratio": 5.49,
+      "gearRatioX10000": 54900,
+      "frame": "04 2a 04 10 f4 ac 03",
+      "source": "calcul"
+    },
+    {
+      "ratio": 2.996,
+      "gearRatioX10000": 29960,
+      "frame": "04 2a 04 10 88 ea 01",
+      "source": "materiel"
+    }
+  ],
+  "simulation": {
+    "wind": 0,
+    "cwa": 5100,
+    "crr": 400,
+    "grades": [
+      {
+        "gradePct": -10.0,
+        "inclineX100": -1000,
+        "frame": "04 22 0b 08 00 10 cf 0f 18 ec 27 20 90 03",
+        "source": "calcul"
+      },
+      {
+        "gradePct": -5.0,
+        "inclineX100": -500,
+        "frame": "04 22 0b 08 00 10 e7 07 18 ec 27 20 90 03",
+        "source": "calcul"
+      },
+      {
+        "gradePct": -1.0,
+        "inclineX100": -100,
+        "frame": "04 22 0b 08 00 10 c7 01 18 ec 27 20 90 03",
+        "source": "calcul"
+      },
+      {
+        "gradePct": 0.0,
+        "inclineX100": 0,
+        "frame": "04 22 0a 08 00 10 00 18 ec 27 20 90 03",
+        "source": "materiel"
+      },
+      {
+        "gradePct": 2.0,
+        "inclineX100": 200,
+        "frame": "04 22 0b 08 00 10 90 03 18 ec 27 20 90 03",
+        "source": "materiel"
+      },
+      {
+        "gradePct": 5.0,
+        "inclineX100": 500,
+        "frame": "04 22 0b 08 00 10 e8 07 18 ec 27 20 90 03",
+        "source": "calcul"
+      },
+      {
+        "gradePct": 10.0,
+        "inclineX100": 1000,
+        "frame": "04 22 0b 08 00 10 d0 0f 18 ec 27 20 90 03",
+        "source": "calcul"
+      },
+      {
+        "gradePct": 16.0,
+        "inclineX100": 1600,
+        "frame": "04 22 0b 08 00 10 80 19 18 ec 27 20 90 03",
+        "source": "calcul"
+      }
+    ]
+  },
+  "infoResponses": [
+    {
+      "frame": "3c 08 88 04 12 04 0a 02 40 00",
+      "gearRatioX10000": 0,
+      "source": "materiel",
+      "journal": "kickr_gear_20261017_121527.log"
+    },
+    {
+      "frame": "3c 08 88 04 12 05 0a 03 40 8c 60",
+      "gearRatioX10000": 12300,
+      "source": "materiel",
+      "journal": "kickr_gear_20261017_121527.log"
+    },
+    {
+      "frame": "3c 08 88 04 12 06 0a 04 40 88 ea 01",
+      "gearRatioX10000": 29960,
+      "source": "materiel",
+      "journal": "kickr_gear_20261017_121527.log"
+    }
+  ],
+  "ridingData": [
+    {
+      "frame": "03 08 be 01 10 50 18 bd 06 20 00 28 e2 ba 01 30 8b eb 01",
+      "fields": {
+        "1": 190,
+        "2": 80,
+        "3": 829,
+        "4": 0,
+        "5": 23906,
+        "6": 30091
+      },
+      "source": "reference"
+    },
+    {
+      "frame": "03 08 3d 10 35 18 f0 01 20 00 28 93 7f 30 88 ea 01",
+      "fields": {
+        "1": 61,
+        "2": 53,
+        "3": 240,
+        "4": 0,
+        "5": 16275,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_gear_20261017_121527.log"
+    },
+    {
+      "frame": "03 08 3c 10 38 18 fa 01 20 00 28 9d 84 01 30 88 ea 01",
+      "fields": {
+        "1": 60,
+        "2": 56,
+        "3": 250,
+        "4": 0,
+        "5": 16925,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_gear_20261017_121527.log"
+    },
+    {
+      "frame": "03 08 43 10 3a 18 83 02 20 00 28 92 89 01 30 88 ea 01",
+      "fields": {
+        "1": 67,
+        "2": 58,
+        "3": 259,
+        "4": 0,
+        "5": 17554,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_gear_20261017_121527.log"
+    },
+    {
+      "frame": "03 08 20 10 3c 18 6a 20 00 28 de 8b 01 30 88 ea 01",
+      "fields": {
+        "1": 32,
+        "2": 60,
+        "3": 106,
+        "4": 0,
+        "5": 17886,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_gear_20261017_121527.log"
+    },
+    {
+      "frame": "03 08 00 10 3e 18 8b 01 20 00 28 f7 89 01 30 88 ea 01",
+      "fields": {
+        "1": 0,
+        "2": 62,
+        "3": 139,
+        "4": 0,
+        "5": 17655,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_gear_20261017_121527.log"
+    },
+    {
+      "frame": "03 08 00 10 00 18 55 20 00 28 90 66 30 88 ea 01",
+      "fields": {
+        "1": 0,
+        "2": 0,
+        "3": 85,
+        "4": 0,
+        "5": 13072,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_gear_20261017_121527.log"
+    },
+    {
+      "frame": "03 08 05 10 00 18 36 20 00 28 80 40 30 88 ea 01",
+      "fields": {
+        "1": 5,
+        "2": 0,
+        "3": 54,
+        "4": 0,
+        "5": 8192,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_gear_20261017_121527.log"
+    },
+    {
+      "frame": "03 08 0b 10 00 18 4c 20 00 28 89 17 30 88 ea 01",
+      "fields": {
+        "1": 11,
+        "2": 0,
+        "3": 76,
+        "4": 0,
+        "5": 2953,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_gear_20261017_121527.log"
+    },
+    {
+      "frame": "03 08 44 10 01 18 97 01 20 00 28 e0 57 30 88 ea 01",
+      "fields": {
+        "1": 68,
+        "2": 1,
+        "3": 151,
+        "4": 0,
+        "5": 11232,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_121925.log"
+    },
+    {
+      "frame": "03 08 30 10 2a 18 80 02 20 00 28 d5 76 30 88 ea 01",
+      "fields": {
+        "1": 48,
+        "2": 42,
+        "3": 256,
+        "4": 0,
+        "5": 15189,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_121925.log"
+    },
+    {
+      "frame": "03 08 2a 10 35 18 b9 02 20 00 28 9a 81 01 30 88 ea 01",
+      "fields": {
+        "1": 42,
+        "2": 53,
+        "3": 313,
+        "4": 0,
+        "5": 16538,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_121925.log"
+    },
+    {
+      "frame": "03 08 2b 10 3a 18 8e 02 20 00 28 f7 89 01 30 88 ea 01",
+      "fields": {
+        "1": 43,
+        "2": 58,
+        "3": 270,
+        "4": 0,
+        "5": 17655,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_121925.log"
+    },
+    {
+      "frame": "03 08 30 10 3e 18 9a 0b 20 00 28 b5 97 01 30 88 ea 01",
+      "fields": {
+        "1": 48,
+        "2": 62,
+        "3": 1434,
+        "4": 0,
+        "5": 19381,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_122236.log"
+    },
+    {
+      "frame": "03 08 33 10 40 18 ba 09 20 00 28 8c 9c 01 30 88 ea 01",
+      "fields": {
+        "1": 51,
+        "2": 64,
+        "3": 1210,
+        "4": 0,
+        "5": 19980,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_122236.log"
+    },
+    {
+      "frame": "03 08 36 10 42 18 92 08 20 00 28 dd 9f 01 30 88 ea 01",
+      "fields": {
+        "1": 54,
+        "2": 66,
+        "3": 1042,
+        "4": 0,
+        "5": 20445,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_122236.log"
+    },
+    {
+      "frame": "03 08 2e 10 43 18 98 07 20 00 28 f1 a1 01 30 88 ea 01",
+      "fields": {
+        "1": 46,
+        "2": 67,
+        "3": 920,
+        "4": 0,
+        "5": 20721,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_122236.log"
+    },
+    {
+      "frame": "03 08 3d 10 43 18 e8 05 20 00 28 f1 a1 01 30 88 ea 01",
+      "fields": {
+        "1": 61,
+        "2": 67,
+        "3": 744,
+        "4": 0,
+        "5": 20721,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_122236.log"
+    },
+    {
+      "frame": "03 08 2b 10 42 18 d4 04 20 00 28 cb 9b 01 30 88 ea 01",
+      "fields": {
+        "1": 43,
+        "2": 66,
+        "3": 596,
+        "4": 0,
+        "5": 19915,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_122236.log"
+    },
+    {
+      "frame": "03 08 32 10 44 18 ee 03 20 00 28 b1 a4 01 30 88 ea 01",
+      "fields": {
+        "1": 50,
+        "2": 68,
+        "3": 494,
+        "4": 0,
+        "5": 21041,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_122236.log"
+    },
+    {
+      "frame": "03 08 00 10 00 18 f4 02 20 00 28 f9 88 01 30 88 ea 01",
+      "fields": {
+        "1": 0,
+        "2": 0,
+        "3": 372,
+        "4": 0,
+        "5": 17529,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_122236.log"
+    },
+    {
+      "frame": "03 08 00 10 00 18 d7 02 20 00 28 a1 69 30 88 ea 01",
+      "fields": {
+        "1": 0,
+        "2": 0,
+        "3": 343,
+        "4": 0,
+        "5": 13473,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_122236.log"
+    },
+    {
+      "frame": "03 08 00 10 00 18 ba 02 20 00 28 90 4a 30 88 ea 01",
+      "fields": {
+        "1": 0,
+        "2": 0,
+        "3": 314,
+        "4": 0,
+        "5": 9488,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_122236.log"
+    },
+    {
+      "frame": "03 08 00 10 00 18 9d 02 20 00 28 f2 2b 30 88 ea 01",
+      "fields": {
+        "1": 0,
+        "2": 0,
+        "3": 285,
+        "4": 0,
+        "5": 5618,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_pente_20261017_122236.log"
+    },
+    {
+      "frame": "03 08 00 10 00 18 51 20 00 28 8d 2b 30 88 ea 01",
+      "fields": {
+        "1": 0,
+        "2": 0,
+        "3": 81,
+        "4": 0,
+        "5": 5517,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_probe_20261017_121118.log"
+    },
+    {
+      "frame": "03 08 2d 10 01 18 81 01 20 00 28 cf 44 30 88 ea 01",
+      "fields": {
+        "1": 45,
+        "2": 1,
+        "3": 129,
+        "4": 0,
+        "5": 8783,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_probe_20261017_121118.log"
+    },
+    {
+      "frame": "03 08 48 10 28 18 ce 01 20 00 28 fb 6c 30 88 ea 01",
+      "fields": {
+        "1": 72,
+        "2": 40,
+        "3": 206,
+        "4": 0,
+        "5": 13947,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_probe_20261017_121118.log"
+    },
+    {
+      "frame": "03 08 3d 10 30 18 e6 01 20 00 28 fd 79 30 88 ea 01",
+      "fields": {
+        "1": 61,
+        "2": 48,
+        "3": 230,
+        "4": 0,
+        "5": 15613,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_probe_20261017_121118.log"
+    },
+    {
+      "frame": "03 08 26 10 34 18 f1 01 20 00 28 ea 7f 30 88 ea 01",
+      "fields": {
+        "1": 38,
+        "2": 52,
+        "3": 241,
+        "4": 0,
+        "5": 16362,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_probe_20261017_121118.log"
+    },
+    {
+      "frame": "03 08 2c 10 36 18 fd 01 20 00 28 f2 85 01 30 88 ea 01",
+      "fields": {
+        "1": 44,
+        "2": 54,
+        "3": 253,
+        "4": 0,
+        "5": 17138,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_probe_20261017_121118.log"
+    },
+    {
+      "frame": "03 08 04 10 38 18 f1 01 20 00 28 be 7f 30 88 ea 01",
+      "fields": {
+        "1": 4,
+        "2": 56,
+        "3": 241,
+        "4": 0,
+        "5": 16318,
+        "6": 29960
+      },
+      "source": "materiel",
+      "journal": "kickr_probe_20261017_121118.log"
+    }
+  ]
+}
