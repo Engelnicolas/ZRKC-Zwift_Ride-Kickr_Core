@@ -1,6 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Kick Zwift</string>
-    <string name="socle_status">Socle du lot 2 : modules :protocol, :ble et :app reliés.</string>
-    <string name="socle_protocol">Commandes du Ride : %1$d · rapports virtuels : %2$d</string>
+
+    <!-- Notification du service -->
+    <string name="channel_ride">Sortie</string>
+    <string name="notification_title">Liaisons Bluetooth actives</string>
+    <string name="notification_no_device">Aucun appareil de confiance</string>
+    <string name="notification_links">Appareils prêts : %1$d/%2$d</string>
+
+    <!-- Écran provisoire du lot 4 -->
+    <string name="links_title">Liaisons (lot 4)</string>
+    <string name="links_permissions_needed">Bluetooth et notifications doivent être autorisés pour joindre les appareils.</string>
+    <string name="links_permissions_grant">Autoriser</string>
+    <string name="links_battery_needed">Sans exclusion de l\'optimisation de batterie, Android peut couper les liaisons écran éteint.</string>
+    <string name="links_battery_grant">Exclure de l\'optimisation</string>
+    <string name="links_service_on">Service actif</string>
+    <string name="links_service_off">Service arrêté</string>
+    <string name="links_service_start">Démarrer</string>
+    <string name="links_service_stop">Arrêter</string>
+    <string name="links_trusted">Appareils de confiance</string>
+    <string name="links_trusted_empty">Aucun : lancez une recherche puis mémorisez un appareil.</string>
+    <string name="links_forget">Oublier</string>
+    <string name="links_search">Recherche</string>
+    <string name="links_search_start">Rechercher</string>
+    <string name="links_search_stop">Arrêter</string>
+    <string name="links_search_failed">Recherche refusée par Android (code %1$d)</string>
+    <string name="links_search_denied">Recherche impossible : permission Bluetooth retirée</string>
+    <string name="links_trust">Mémoriser</string>
+
+    <string name="kind_ride">Zwift Ride</string>
+    <string name="kind_kickr">KICKR</string>
+    <string name="kind_other">Autre appareil</string>
+
+    <!-- LinkState -->
+    <string name="link_service_off">Service arrêté</string>
+    <string name="link_not_found">Introuvable, nouvel essai</string>
+    <string name="link_scanning">Recherche</string>
+    <string name="link_connecting">Connexion</string>
+    <string name="link_handshake">Poignée de main</string>
+    <string name="link_ready">Prêt</string>
+    <string name="link_reconnecting">Reconnexion</string>
+    <string name="link_lost">Perdu</string>
 </resources>

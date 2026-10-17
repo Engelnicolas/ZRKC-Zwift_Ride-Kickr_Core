@@ -42,3 +42,13 @@ jobs:
             echo "Permission interdite par la spécification" >&2
             exit 1
           fi
+
+      - name: Seule l'activité de lancement est exportée
+        run: |
+          tree=$("$ANDROID_HOME/build-tools/36.0.0/aapt2" dump xmltree --file AndroidManifest.xml app/build/outputs/apk/release/app-release-unsigned.apk)
+          exported=$(echo "$tree" | grep -c "android:exported(0x01010010)=true" || true)
+          echo "composants exportés : $exported"
+          if [ "$exported" -ne 1 ]; then
+            echo "Un seul composant exporté admis, l'activité de lancement" >&2
+            exit 1
+          fi

@@ -5,10 +5,14 @@ Référence : `../docs/Spécification technique — app Android Zwift Ride ↔ K
 
 ## Modules
 
-    protocol/   Kotlin pur, sans Android : types communs, décodeur du Ride,
-                moteur de vitesses. Testé sur la JVM avec les trames réelles.
-    ble/        Android : interfaces Controller et Trainer (implémentées aux lots 4 à 6).
-    app/        Android : activité Compose, manifeste, thème.
+    protocol/   Kotlin pur, sans Android : types communs, décodeur du Ride, codecs du
+                KICKR, moteur de vitesses, appareils de confiance. Testé sur la JVM
+                avec les trames réelles.
+    ble/        Android : liaisons BLE (DeviceLink, LinkSupervisor, ReconnectPolicy,
+                testés sur la JVM avec de faux appareils), base Nordic LinkManager,
+                scan ; interfaces Controller et Trainer (lots 5 et 6).
+    app/        Android : RideService (service de premier plan), AppContainer,
+                appareils de confiance (DataStore), écran provisoire « Liaisons ».
 
 ## Construire
 
@@ -17,6 +21,8 @@ Prérequis : JDK 17 ou plus récent, SDK Android avec `platforms;android-37.0` e
 
     ./gradlew build              # tests, Android Lint, ktlint, detekt, APK debug et release
     ./gradlew :protocol:test     # logique pure, sans SDK nécessaire à l'exécution
+    ./gradlew :ble:testDebugUnitTest   # machines de liaison, faux appareils
+    ./gradlew :app:installDebug  # sur le téléphone branché (débogage USB)
     ./gradlew ktlintFormat       # remet le code en forme
 
 Sur la machine de développement :
