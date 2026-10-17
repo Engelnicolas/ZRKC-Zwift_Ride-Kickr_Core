@@ -22,7 +22,7 @@ controllers. The app reads each controller's version and warns you.
 ## Usage
 
 The interface is in English, and in French on a French-language phone. On Android 13 and
-later, the language can also be chosen per app in Settings › Apps › Kick Zwift › Language.
+later, the language can also be chosen per app in Settings › Apps › ZRKC › Language.
 
 1. Connections: allow Bluetooth and notifications, exclude the app from battery
    optimisation, tap Search, then Remember the Ride's left pod (it relays both controllers)
