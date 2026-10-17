@@ -71,6 +71,9 @@ sealed interface Action {
 
     data object VolumeDown : Action
 
+    /** Met la sortie en pause, ou la reprend si elle l'est déjà. */
+    data object PauseResume : Action
+
     data object None : Action
 }
 
