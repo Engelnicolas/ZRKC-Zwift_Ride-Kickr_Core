@@ -2,6 +2,7 @@ package dev.kickzwift.protocol.gear
 
 import dev.kickzwift.protocol.RidingData
 import dev.kickzwift.protocol.trainer.TrainerCodec
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
@@ -191,6 +192,12 @@ class VirtualBike(
  * oscillait (sortie du 18 octobre, sauts de consigne de plus de 40 W). La médiane écarte la
  * mesure isolée qui lance l'oscillation, pour une seconde de retard environ ; elle repart de
  * zéro à l'arrêt des pédales.
+ *
+ * Calage protégé : la cadence publiée double parfois, volant inchangé (61 → 117 rpm pendant
+ * 11 s, 18 octobre ; la consigne avait suivi, de 8 à 17 W). Une mesure dont le rapport
+ * s'écarte de plus de [OUTLIER_RATIO] du rapport calé est ignorée pour le calage. Après
+ * [OUTLIER_LIMIT] rejets de suite, c'est le rapport calé qui est faux (autre plateau) : le
+ * calage reprend.
  */
 class FlywheelCadence(
     initialPerRpm: Double = DEFAULT_PER_RPM,
@@ -199,6 +206,7 @@ class FlywheelCadence(
         private set
 
     private val recent = ArrayDeque<Double>()
+    private var rejected = 0
 
     fun update(data: RidingData): Double {
         val flywheel = data.flywheelRaw
@@ -207,7 +215,7 @@ class FlywheelCadence(
                 data.cadenceRpm <= 0 -> 0.0
                 flywheel == null || flywheel <= 0 -> data.cadenceRpm.toDouble()
                 else -> {
-                    if (data.cadenceRpm >= CALIBRATE_MIN_RPM) perRpm += (flywheel.toDouble() / data.cadenceRpm - perRpm) * GAIN
+                    if (data.cadenceRpm >= CALIBRATE_MIN_RPM) calibrate(flywheel.toDouble() / data.cadenceRpm)
                     flywheel / perRpm
                 }
             }
@@ -222,6 +230,15 @@ class FlywheelCadence(
         return if (sorted.size % 2 == 1) sorted[mid] else (sorted[mid - 1] + sorted[mid]) / 2
     }
 
+    private fun calibrate(measured: Double) {
+        if (abs(measured - perRpm) > perRpm * OUTLIER_RATIO && rejected < OUTLIER_LIMIT) {
+            rejected++
+            return
+        }
+        rejected = 0
+        perRpm += (measured - perRpm) * GAIN
+    }
+
     companion object {
         const val DEFAULT_PER_RPM = 305.0
 
@@ -233,5 +250,11 @@ class FlywheelCadence(
 
         /** Mesures dans la médiane : environ 3 s au rythme des trames du KICKR. */
         const val FILTER_SIZE = 3
+
+        /** Écart relatif au rapport calé au-delà duquel une mesure est ignorée pour le calage. */
+        const val OUTLIER_RATIO = 0.25
+
+        /** Rejets de suite avant de reprendre le calage : 20 mesures, bien plus que les 6 du 18 octobre. */
+        const val OUTLIER_LIMIT = 20
     }
 }

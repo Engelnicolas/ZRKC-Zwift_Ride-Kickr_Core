@@ -54,6 +54,28 @@ class PowerGearsTest {
     }
 
     @Test
+    fun `cadence - publiee qui double, volant inchange, le calage ne suit pas`() {
+        val c = FlywheelCadence()
+        // Sortie du 18 octobre, 21:27 : 61 rpm au volant 17 900, puis 117 rpm publiés pendant 11 s.
+        repeat(200) { c.update(data(61, 17_900)) }
+        val calibrated = c.perRpm
+        assertEquals(17_900 / 61.0, calibrated, 0.5)
+        repeat(6) { assertEquals(61.0, c.update(data(117, 17_900)), 0.5, "cadence toujours tirée du volant") }
+        assertEquals(calibrated, c.perRpm, 0.0, "mesures aberrantes ignorées pour le calage")
+        repeat(5) { c.update(data(61, 17_900)) }
+        assertEquals(calibrated, c.perRpm, 0.1, "retour à la normale")
+    }
+
+    @Test
+    fun `cadence - autre plateau, le calage reprend apres une serie de rejets`() {
+        val c = FlywheelCadence()
+        repeat(FlywheelCadence.OUTLIER_LIMIT) { c.update(data(80, 32_000)) }
+        assertEquals(FlywheelCadence.DEFAULT_PER_RPM, c.perRpm, 0.0, "400 au lieu de 305 : rejeté d'abord")
+        repeat(200) { c.update(data(80, 32_000)) }
+        assertEquals(400.0, c.perRpm, 0.5, "puis le calage rejoint le vrai rapport")
+    }
+
+    @Test
     fun `cadence - pedales arretees, ou sans volant en FTMS`() {
         val c = FlywheelCadence()
         assertEquals(0.0, c.update(data(0, 20_000)), 0.0)
