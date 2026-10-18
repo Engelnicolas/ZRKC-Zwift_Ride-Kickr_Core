@@ -46,3 +46,8 @@ class TrainerEndpoint {
         current.compareAndSet(connection, null)
     }
 }
+
+/** Ce que publie un capteur cardiaque, d'une connexion à l'autre ; null tant qu'aucune mesure. */
+class HeartRateEndpoint {
+    val bpm = MutableStateFlow<Int?>(null)
+}

@@ -11,6 +11,7 @@ import dev.kickzwift.app.data.SettingsStore
 import dev.kickzwift.app.data.TrustedDevices
 import dev.kickzwift.app.log.FileLog
 import dev.kickzwift.app.phone.AndroidPhoneActions
+import dev.kickzwift.app.phone.MediaMonitor
 import dev.kickzwift.app.phone.PhoneActions
 import dev.kickzwift.app.route.RouteLibrary
 import dev.kickzwift.app.session.SessionController
@@ -103,6 +104,9 @@ class AppContainer(
 
     private val phone: PhoneActions = AndroidPhoneActions(this.context)
 
+    /** Lecture en cours sur le téléphone, pour le lecteur de l'écran Sortie. */
+    val media = MediaMonitor(this.context)
+
     val session =
         SessionController(
             env = Environment(),
@@ -116,6 +120,7 @@ class AppContainer(
             SessionDevices(
                 controllers = list.filter { it.kind == DeviceKind.RIDE }.map { hub.controller(it, links, controllerConfig) },
                 trainer = list.firstOrNull { it.kind == DeviceKind.KICKR }?.let { hub.trainer(it, links) },
+                heartRate = list.firstOrNull { it.kind == DeviceKind.HEART_RATE }?.let { hub.heartRateEndpoint(it.id).bpm },
             )
         }
 

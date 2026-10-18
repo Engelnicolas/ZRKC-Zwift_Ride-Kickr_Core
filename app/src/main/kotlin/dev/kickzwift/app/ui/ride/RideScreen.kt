@@ -12,23 +12,29 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -36,8 +42,10 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -46,10 +54,12 @@ import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.kickzwift.app.R
+import dev.kickzwift.app.phone.MediaState
 import dev.kickzwift.app.ui.common.Format
 import dev.kickzwift.app.ui.common.ProfileChart
 import dev.kickzwift.app.ui.common.StatusDot
@@ -61,6 +71,9 @@ import dev.kickzwift.protocol.session.RideMode
 import dev.kickzwift.protocol.session.RidePhase
 import dev.kickzwift.protocol.session.SessionSnapshot
 import dev.kickzwift.protocol.settings.OrientationChoice
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 /** Écran Sortie : lisible à 1,5 m, pilotable aux manettes ; l'écran ne sert qu'à Pause et Terminer. */
@@ -68,6 +81,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 fun RideScreen(viewModel: RideViewModel) {
     val ui by viewModel.state.collectAsStateWithLifecycle()
     val s = ui.snapshot ?: return
+    val context = LocalContext.current
+    val grantMedia = { context.startActivity(viewModel.mediaAccess()) }
     KeepScreenOn(ui.orientation)
     GearFeedback(s.gear, ui.haptics)
 
@@ -75,7 +90,7 @@ fun RideScreen(viewModel: RideViewModel) {
         BoxWithConstraints(Modifier.safeDrawingPadding().padding(12.dp)) {
             val landscape = maxWidth > maxHeight
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatusStrip(ui)
+                SensorsCard(ui)
                 Banners(ui, s)
                 if (landscape) {
                     Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -84,14 +99,16 @@ fun RideScreen(viewModel: RideViewModel) {
                             Modifier.weight(1f).verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            Metrics(s, ui.imperial)
+                            Metrics(s, ui)
+                            Player(ui.media, grantMedia)
                             ModeZone(s, ui, viewModel::act)
                         }
                     }
                 } else {
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         GearBlock(s, Modifier.fillMaxWidth())
-                        Metrics(s, ui.imperial)
+                        Metrics(s, ui)
+                        Player(ui.media, grantMedia)
                         ModeZone(s, ui, viewModel::act)
                     }
                 }
@@ -133,13 +150,35 @@ private fun GearFeedback(
     }
 }
 
+/** Les appareils de confiance, regroupés dans un encart, deux par ligne. */
 @Composable
-private fun StatusStrip(ui: RideUi) {
-    Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-        ui.devices.forEach { d ->
-            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                StatusDot(d.state)
-                Text(d.device.name, style = MaterialTheme.typography.labelLarge, maxLines = 1)
+private fun SensorsCard(ui: RideUi) {
+    if (ui.devices.isEmpty()) return
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Text(
+            stringResource(R.string.ride_sensors),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        ui.devices.chunked(SENSORS_PER_ROW).forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                row.forEach { d ->
+                    Row(
+                        Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        StatusDot(d.state)
+                        Text(d.device.name, style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    }
+                }
+                repeat(SENSORS_PER_ROW - row.size) { Spacer(Modifier.weight(1f)) }
             }
         }
     }
@@ -234,8 +273,9 @@ private fun GearBar(
 @Composable
 private fun Metrics(
     s: SessionSnapshot,
-    imperial: Boolean,
+    ui: RideUi,
 ) {
+    val imperial = ui.imperial
     val last = s.last
     val erg = s.ergWatts
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -258,6 +298,88 @@ private fun Metrics(
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Metric(stringResource(R.string.ride_time), Format.duration(s.stats.elapsedMs), Modifier.weight(1f))
             Metric(stringResource(R.string.ride_distance), Format.distance(s.stats.distanceM, imperial), Modifier.weight(1f))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Metric(
+                stringResource(R.string.ride_heart_rate),
+                ui.heartRate?.let { stringResource(R.string.unit_bpm, it) } ?: "—",
+                Modifier.weight(1f),
+            )
+            // Unité inconnue (prototype/zwift.proto) : la valeur brute du trainer, telle quelle.
+            Metric(stringResource(R.string.ride_flywheel), last?.flywheelRaw?.toString() ?: "—", Modifier.weight(1f))
+        }
+    }
+}
+
+/**
+ * Lecteur : titre, lecture ou pause, volume. Relu deux fois par seconde : ce que font les
+ * manettes s'y voit aussitôt. Sans l'accès aux notifications, ni titre ni état précis.
+ */
+@Composable
+private fun Player(
+    media: MediaState,
+    onGrant: () -> Unit,
+) {
+    Column(
+        Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium).padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            PlayIcon(media.playing, Modifier.size(28.dp))
+            Column(Modifier.weight(1f)) {
+                val title =
+                    when {
+                        media.title != null -> media.title
+                        media.access -> stringResource(R.string.player_unknown_title)
+                        else -> stringResource(R.string.player_music)
+                    }
+                Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                val state = stringResource(if (media.playing) R.string.player_playing else R.string.player_paused)
+                Text(
+                    listOfNotNull(media.artist, state).joinToString(" · "),
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(stringResource(R.string.player_volume, media.volume, media.maxVolume), style = MaterialTheme.typography.labelLarge)
+            LinearProgressIndicator(
+                progress = { if (media.maxVolume > 0) media.volume.toFloat() / media.maxVolume else 0f },
+                modifier = Modifier.weight(1f),
+                drawStopIndicator = {},
+            )
+        }
+        if (!media.access) {
+            TextButton(onClick = onGrant) { Text(stringResource(R.string.player_grant)) }
+            Text(stringResource(R.string.player_grant_hint), style = MaterialTheme.typography.bodySmall)
+        }
+    }
+}
+
+/** Triangle en lecture, deux barres en pause. */
+@Composable
+private fun PlayIcon(
+    playing: Boolean,
+    modifier: Modifier,
+) {
+    val color = MaterialTheme.colorScheme.primary
+    val label = stringResource(if (playing) R.string.player_playing else R.string.player_paused)
+    Canvas(modifier.semantics { contentDescription = label }) {
+        if (playing) {
+            val path =
+                Path().apply {
+                    moveTo(size.width * ICON_INSET, 0f)
+                    lineTo(size.width, size.height / 2)
+                    lineTo(size.width * ICON_INSET, size.height)
+                    close()
+                }
+            drawPath(path, color)
+        } else {
+            val bar = size.width * PAUSE_BAR
+            drawRect(color, Offset(size.width * PAUSE_LEFT, 0f), Size(bar, size.height))
+            drawRect(color, Offset(size.width * PAUSE_RIGHT, 0f), Size(bar, size.height))
         }
     }
 }
@@ -332,8 +454,10 @@ private fun Controls(
                 style = MaterialTheme.typography.titleLarge,
             )
         }
-        // Terminer demande un appui long de 2 s : pas de fin de sortie par mégarde.
-        val label = stringResource(R.string.ride_finish)
+        // Terminer demande d'appuyer 3 s, décompte 3, 2, 1 sur le bouton : pas de fin de sortie
+        // par mégarde. Relâcher avant la fin annule.
+        val label = stringResource(R.string.ride_finish_description)
+        var countdown by remember { mutableStateOf<Int?>(null) }
         Box(
             Modifier
                 .weight(1f)
@@ -341,7 +465,21 @@ private fun Controls(
                 .background(MaterialTheme.colorScheme.errorContainer, MaterialTheme.shapes.extraLarge)
                 .pointerInput(Unit) {
                     detectTapGestures(onPress = {
-                        if (withTimeoutOrNull(FINISH_HOLD_MS) { tryAwaitRelease() } == null) onFinish()
+                        val held =
+                            coroutineScope {
+                                val ticks =
+                                    launch {
+                                        for (n in FINISH_COUNTDOWN downTo 1) {
+                                            countdown = n
+                                            delay(FINISH_STEP_MS)
+                                        }
+                                    }
+                                val released = withTimeoutOrNull(FINISH_COUNTDOWN * FINISH_STEP_MS) { tryAwaitRelease() }
+                                ticks.cancel()
+                                countdown = null
+                                released == null
+                            }
+                        if (held) onFinish()
                     })
                 }.semantics {
                     role = Role.Button
@@ -353,9 +491,10 @@ private fun Controls(
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                stringResource(R.string.ride_finish),
+                countdown?.toString() ?: stringResource(R.string.ride_finish),
                 color = MaterialTheme.colorScheme.onErrorContainer,
-                style = MaterialTheme.typography.titleMedium,
+                style = if (countdown != null) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.titleMedium,
+                fontWeight = if (countdown != null) FontWeight.Bold else null,
             )
         }
     }
@@ -363,7 +502,15 @@ private fun Controls(
 
 private const val PULSE_SCALE = 1.25f
 private const val BLINK_ALPHA = 0.2f
-private const val FINISH_HOLD_MS = 2_000L
+private const val FINISH_COUNTDOWN = 3
+private const val FINISH_STEP_MS = 1_000L
+private const val SENSORS_PER_ROW = 2
+
+// Icône du lecteur, en fractions de sa largeur.
+private const val ICON_INSET = 0.2f
+private const val PAUSE_BAR = 0.3f
+private const val PAUSE_LEFT = 0.1f
+private const val PAUSE_RIGHT = 0.6f
 
 // Pas de « Pente ± » ; en ERG, la même action règle la cible de 10 W.
 private const val GRADE_STEP = 0.5

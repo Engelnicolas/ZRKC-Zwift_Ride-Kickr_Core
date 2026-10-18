@@ -205,6 +205,7 @@ object SettingsCodec {
                 Action.VolumeUp -> "volume_up" to 0
                 Action.VolumeDown -> "volume_down" to 0
                 Action.PauseResume -> "pause_resume" to 0
+                Action.OpenSpotify -> "open_spotify" to 0
                 Action.None -> "none" to 0
             }
 
@@ -221,6 +222,7 @@ object SettingsCodec {
                 "volume_up" -> Action.VolumeUp
                 "volume_down" -> Action.VolumeDown
                 "pause_resume" -> Action.PauseResume
+                "open_spotify" -> Action.OpenSpotify
                 "none" -> Action.None
                 else -> null
             }

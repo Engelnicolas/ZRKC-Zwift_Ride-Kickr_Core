@@ -48,6 +48,8 @@ data class RidingData(
     val speedKmh: Double,
     val heartRate: Int?,
     val atMs: Long,
+    /** Vitesse du volant telle que la publie le trainer ; unité inconnue, null en FTMS. */
+    val flywheelRaw: Int? = null,
 )
 
 sealed interface Action {
@@ -73,6 +75,9 @@ sealed interface Action {
 
     /** Met la sortie en pause, ou la reprend si elle l'est déjà. */
     data object PauseResume : Action
+
+    /** Ouvre Spotify sur le téléphone. */
+    data object OpenSpotify : Action
 
     data object None : Action
 }

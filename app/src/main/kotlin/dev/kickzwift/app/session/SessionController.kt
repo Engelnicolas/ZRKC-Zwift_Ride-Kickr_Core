@@ -12,6 +12,7 @@ import dev.kickzwift.protocol.Action
 import dev.kickzwift.protocol.ButtonEvent
 import dev.kickzwift.protocol.LinkState
 import dev.kickzwift.protocol.RidingData
+import dev.kickzwift.protocol.TrainerTarget
 import dev.kickzwift.protocol.fit.FitEncoder
 import dev.kickzwift.protocol.fit.FitSample
 import dev.kickzwift.protocol.fit.FitSummary
@@ -44,12 +45,15 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 
-/** Les appareils d'une sortie : les manettes de confiance et le trainer, s'il y en a un. */
+/** Les appareils d'une sortie : les manettes de confiance, le trainer et le capteur cardiaque, s'il y en a. */
 data class SessionDevices(
     val controllers: List<Controller>,
     val trainer: Trainer?,
+    /** Fréquence du capteur cardiaque de confiance, en battements par minute. */
+    val heartRate: StateFlow<Int?>? = null,
 )
 
 /** Action déclenchée depuis une manette, pour le bandeau de l'écran Sortie. */
@@ -66,6 +70,8 @@ data class SessionUi(
     val fitFile: File? = null,
     /** Activité enregistrée à la fin de la sortie, pour y joindre le commentaire du bilan. */
     val activityId: Long? = null,
+    /** Fréquence cardiaque du moment : le capteur d'abord, sinon celle que relaie le trainer. */
+    val heartRate: Int? = null,
 )
 
 /** Ce dont le contrôleur a besoin hors de la sortie elle-même ; remplacé par des faux en test. */
@@ -121,6 +127,8 @@ class SessionController(
     private val samples = mutableListOf<FitSample>()
     private var startedWallMs = 0L
     private var gearSave: Job? = null
+    private var lastRidingLogMs: Long? = null
+    private var sensorHeartRate: Int? = null
 
     private val mutableState = MutableStateFlow(SessionUi(session.snapshot(env.now())))
     val state: StateFlow<SessionUi> = mutableState.asStateFlow()
@@ -155,6 +163,7 @@ class SessionController(
         if (session.phase == RidePhase.PREPARING) {
             route = routeData
             samples.clear()
+            lastRidingLogMs = null
             startedWallMs = env.wallClock()
             session.start(mode, env.now())
             env.log("sortie démarrée : ${mode::class.simpleName}")
@@ -216,11 +225,20 @@ class SessionController(
                     launch { trainer.data.filterNotNull().collect { onData(it) } }
                     launch { trainer.link.collect { onTrainerLink(it) } }
                 }
+                d.heartRate?.let { hr ->
+                    launch {
+                        hr.collect {
+                            sensorHeartRate = it
+                            publish()
+                        }
+                    }
+                }
                 launch { activeEvents(d.controllers).collect { onEvent(it) } }
                 launch { ticks() }
                 awaitCancellation()
             } finally {
                 writer = null
+                sensorHeartRate = null
             }
         }
     }
@@ -247,6 +265,7 @@ class SessionController(
 
     private fun onData(data: RidingData) {
         session.onRidingData(data)
+        if (session.phase == RidePhase.RIDING) logRiding(data)
         if (session.phase == RidePhase.RIDING && env.settings.value.fitExport) {
             samples +=
                 FitSample(
@@ -255,11 +274,39 @@ class SessionController(
                     cadenceRpm = data.cadenceRpm,
                     speedKmh = data.speedKmh,
                     distanceM = session.stats(env.now()).distanceM,
-                    heartRate = data.heartRate,
+                    heartRate = sensorHeartRate ?: data.heartRate,
                 )
         }
         publish()
     }
+
+    /**
+     * Une ligne par seconde au plus pendant la sortie : mesures du trainer et consigne
+     * écrite, pour voir si la puissance suit les changements de rapport.
+     */
+    private fun logRiding(data: RidingData) {
+        val now = env.now()
+        if (lastRidingLogMs?.let { now - it < RIDING_LOG_MS } == true) return
+        lastRidingLogMs = now
+        val speed = "%.1f".format(Locale.ROOT, data.speedKmh)
+        val extras =
+            listOfNotNull(
+                data.flywheelRaw?.let { "volant $it" },
+                (sensorHeartRate ?: data.heartRate)?.let { "FC $it" },
+            ).joinToString("") { ", $it" }
+        env.log(
+            "pédalage : ${data.powerW} W, ${data.cadenceRpm} rpm, $speed km/h$extras, " +
+                "vitesse ${session.gear}, consigne ${describe(writer?.lastSent)}",
+        )
+    }
+
+    private fun describe(target: TrainerTarget?): String =
+        when (target) {
+            is TrainerTarget.Simulation -> "rapport ${target.gearRatio}, pente ${target.gradePct} %"
+            is TrainerTarget.Erg -> "ERG ${target.watts} W"
+            TrainerTarget.Neutral -> "à plat"
+            null -> "aucune"
+        }
 
     private fun onTrainerLink(state: LinkState) {
         val ready = state == LinkState.READY
@@ -355,12 +402,14 @@ class SessionController(
     }
 
     private fun publish() {
-        mutableState.value = SessionUi(session.snapshot(env.now()), route, fitFile, activityId)
+        val snapshot = session.snapshot(env.now())
+        mutableState.value = SessionUi(snapshot, route, fitFile, activityId, sensorHeartRate ?: snapshot.last?.heartRate)
     }
 
     private companion object {
         const val TICK_MS = 250L
         const val TICKS_PER_SECOND = 4
         const val GEAR_SAVE_DELAY_MS = 2_000L
+        const val RIDING_LOG_MS = 1_000L
     }
 }

@@ -3,8 +3,10 @@ package dev.kickzwift.app.ui.devices
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,7 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -29,6 +31,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -36,6 +39,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.kickzwift.app.R
 import dev.kickzwift.app.service.RideService
+import dev.kickzwift.app.ui.common.HelpText
 import dev.kickzwift.app.ui.common.StatusDot
 import dev.kickzwift.app.ui.common.kindLabel
 import dev.kickzwift.app.ui.common.linkLabel
@@ -72,11 +76,10 @@ fun DevicesScreen(
             item { OutlinedButton(onClick = { RideService.start(context) }) { Text(stringResource(R.string.devices_service_start)) } }
         }
         if (ui.cards.isEmpty()) item { Text(stringResource(R.string.devices_empty)) }
-        val rides = ui.cards.filter { it.device.kind == DeviceKind.RIDE }
-        items(ui.cards, key = { it.device.id.address }) { card ->
-            DeviceCardView(card, rideIndex = rides.indexOf(card).takeIf { it >= 0 }?.plus(1), onLongPress = { forgetting = card })
+        if (ui.cards.isNotEmpty()) {
+            item { MyDevices(ui.cards, onLongPress = { forgetting = it }) }
+            item { HelpText(stringResource(R.string.devices_forget_hint)) }
         }
-        if (ui.cards.isNotEmpty()) item { Text(stringResource(R.string.devices_forget_hint), style = MaterialTheme.typography.bodySmall) }
         item {
             SearchRow(ui.scan) {
                 if (ui.scan == ScanStatus.Scanning) {
@@ -130,26 +133,42 @@ private fun PrepareButton(
     Button(onClick = onClick, enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp)) {
         Text(stringResource(R.string.devices_prepare))
     }
-    if (!enabled) Text(stringResource(R.string.devices_prepare_hint), style = MaterialTheme.typography.bodySmall)
+    if (!enabled) HelpText(stringResource(R.string.devices_prepare_hint))
+}
+
+/** Les appareils de confiance, regroupés dans un seul encart, une ligne chacun. */
+@Composable
+private fun MyDevices(
+    cards: List<DeviceCard>,
+    onLongPress: (DeviceCard) -> Unit,
+) {
+    val rides = cards.filter { it.device.kind == DeviceKind.RIDE }
+    Card(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(vertical = 8.dp)) {
+            Text(
+                stringResource(R.string.devices_mine),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+            )
+            cards.forEachIndexed { i, card ->
+                if (i > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp))
+                DeviceRow(card, rideIndex = rides.indexOf(card).takeIf { it >= 0 }?.plus(1), onLongPress = { onLongPress(card) })
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun DeviceCardView(
+private fun DeviceRow(
     card: DeviceCard,
     rideIndex: Int?,
     onLongPress: () -> Unit,
 ) {
-    val colors =
-        if (card.locked) {
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.errorContainer,
-            )
-        } else {
-            CardDefaults.cardColors()
-        }
-    Card(colors = colors, modifier = Modifier.fillMaxWidth().combinedClickable(onClick = {}, onLongClick = onLongPress)) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    val background = if (card.locked) MaterialTheme.colorScheme.errorContainer else Color.Transparent
+    Box(Modifier.fillMaxWidth().background(background).combinedClickable(onClick = {}, onLongClick = onLongPress)) {
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
                 StatusDot(card.state)
                 Column(Modifier.weight(1f)) {
@@ -164,6 +183,7 @@ private fun DeviceCardView(
             }
             val details =
                 listOfNotNull(
+                    card.heartRate?.let { stringResource(R.string.devices_heart_rate, it) },
                     card.battery?.let { stringResource(R.string.devices_battery, it) },
                     card.firmware?.let { stringResource(R.string.devices_firmware, it) },
                 )

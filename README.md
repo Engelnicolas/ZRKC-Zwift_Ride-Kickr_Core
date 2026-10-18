@@ -24,16 +24,20 @@ controllers. The app reads each controller's version and warns you.
    optimisation, tap Search, then Remember the Ride's left pod (it relays both controllers)
    and the KICKR. Only remembered devices are joined afterwards.
 2. **Ride**: Prepare the ride (or Start an activity in the Activities tab), choose the mode,
-   Start. Everything is then controlled from the controllers; Finish needs a 2 s long press.
+   Start. Everything is then controlled from the controllers; to finish, hold Finish while it
+   counts down 3, 2, 1.
 3. **Activities**: the summary offers a short comment, and every finished ride is listed in
    the Activities tab, most recent first, to review, comment or delete.
 
 Default mapping: Shift up and Shift down for gears, Up and Down arrows for grade (or the ERG
-target), Left and Right arrows for tracks, A play/pause, Y and B volume, Z pause. Everything
-can be changed in Settings.
+target), Left and Right arrows for tracks, A play/pause, Y and B volume, Z pause, right
+Power-up opens Spotify. Everything can be changed in Settings.
 
-The interface is in English, and in French on a French-language phone (also selectable per
-app in Settings › Apps › ZRKC › Language).
+A heart rate monitor using the standard Bluetooth profile (such as the COROS HRM) can be
+remembered like the other devices. The ride screen shows the track playing and the volume;
+the track title needs notification access, which the app asks for from that screen.
+
+The interface is in English only.
 
 ## Building
 

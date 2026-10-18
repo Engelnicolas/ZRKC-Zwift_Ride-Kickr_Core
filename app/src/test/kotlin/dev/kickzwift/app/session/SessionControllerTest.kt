@@ -318,6 +318,31 @@ class SessionControllerTest {
         }
 
     @Test
+    fun `journal de pedalage - une ligne par seconde en sortie, rien en pause`() =
+        runTest {
+            val r = rig()
+            r.ride()
+            advanceTimeBy(200)
+            repeat(4) {
+                r.trainer.data.value = RidingData(150 + it, 80, 30.0, null, currentTime)
+                advanceTimeBy(500)
+            }
+            r.controller.pause()
+            advanceTimeBy(200)
+            r.trainer.data.value = RidingData(0, 0, 0.0, null, currentTime)
+            advanceTimeBy(1_000)
+
+            val lines = r.env.logs.filter { it.startsWith("pédalage") }
+            assertEquals(
+                listOf(
+                    "pédalage : 150 W, 80 rpm, 30.0 km/h, vitesse 12, consigne rapport 2.4, pente 0.0 %",
+                    "pédalage : 152 W, 80 rpm, 30.0 km/h, vitesse 12, consigne rapport 2.4, pente 0.0 %",
+                ),
+                lines,
+            )
+        }
+
+    @Test
     fun `arret d'urgence - remise a plat immediate`() =
         runTest {
             val r = rig()

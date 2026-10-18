@@ -66,6 +66,7 @@ class ButtonMapping private constructor(
                 Action.VolumeUp,
                 Action.VolumeDown,
                 Action.PauseResume,
+                Action.OpenSpotify,
                 Action.None,
             )
 
@@ -75,7 +76,7 @@ class ButtonMapping private constructor(
          * Correspondance par défaut : Vitesse haut et Vitesse bas des deux manettes pour
          * les vitesses (les palettes n'y sont pas affectées), flèches pour la pente et
          * les pistes, boutons d'action pour la musique et le volume, Z pour la pause de
-         * la sortie. Appui simple seulement, pour que chaque appui parte dès sa confirmation.
+         * la sortie, Power-up droit pour ouvrir Spotify. Appui simple seulement, pour que chaque appui parte dès sa confirmation.
          */
         val DEFAULT: ButtonMapping =
             listOf(
@@ -91,6 +92,7 @@ class ButtonMapping private constructor(
                 Button.Y to Action.VolumeUp,
                 Button.B to Action.VolumeDown,
                 Button.Z to Action.PauseResume,
+                Button.POWER_UP_RIGHT to Action.OpenSpotify,
             ).fold(EMPTY) { m, (button, action) -> m.with(button, Gesture.PRESS, action) }
 
         private fun validate(action: Action) {

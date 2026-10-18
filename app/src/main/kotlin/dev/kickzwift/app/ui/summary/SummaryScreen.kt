@@ -26,6 +26,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.kickzwift.app.R
 import dev.kickzwift.app.ui.activities.CommentField
 import dev.kickzwift.app.ui.common.Format
+import dev.kickzwift.app.ui.common.HelpText
 import dev.kickzwift.app.ui.common.StatLine
 import dev.kickzwift.app.ui.common.shareFile
 import dev.kickzwift.protocol.session.RideMode
@@ -65,7 +66,7 @@ fun SummaryScreen(
         HorizontalDivider()
         if (ui.activityId != null) {
             CommentField(comment, onChange = { comment = it })
-            Text(stringResource(R.string.summary_saved), style = MaterialTheme.typography.bodySmall)
+            HelpText(stringResource(R.string.summary_saved))
         }
         ui.fitFile?.let { file ->
             OutlinedButton(

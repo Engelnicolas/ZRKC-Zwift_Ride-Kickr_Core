@@ -1,10 +1,21 @@
 package dev.kickzwift.app.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -13,9 +24,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -46,8 +59,9 @@ import dev.kickzwift.protocol.session.RidePhase
 /**
  * Une seule activité, Navigation Compose. L'app s'ouvre sur Connexions ; la phase de la sortie
  * impose l'écran : une sortie en cours rouvre l'écran Sortie, une sortie finie le Bilan, dont la
- * fermeture mène à l'historique des activités. La barre de navigation n'existe que sur
- * Connexions, Activités et Réglages.
+ * fermeture mène à l'historique des activités. La barre de navigation et le logo, qui mène aux
+ * réglages, n'existent que sur Connexions, Activités et Réglages : l'écran Sortie garde toute
+ * sa hauteur.
  */
 @Composable
 fun AppNav(c: AppContainer) {
@@ -59,6 +73,11 @@ fun AppNav(c: AppContainer) {
     LaunchedEffect(session.snapshot.phase, route) { follow(nav, session.snapshot.phase, route) }
 
     Scaffold(
+        topBar = {
+            if (route in TAB_ROUTES) {
+                LogoBar(onClick = { if (route != Routes.SETTINGS) nav.navigate(Routes.SETTINGS) { popUpTo(Routes.DEVICES) } })
+            }
+        },
         bottomBar = {
             if (route in TAB_ROUTES) {
                 NavigationBar {
@@ -69,7 +88,8 @@ fun AppNav(c: AppContainer) {
             }
         },
     ) { padding ->
-        Box(Modifier.fillMaxSize().padding(padding)) {
+        // Marges du Scaffold consommées : safeDrawingPadding ne rajoute pas la barre d'état.
+        Box(Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding)) {
             NavHost(nav, startDestination = Routes.DEVICES, modifier = Modifier.safeDrawingPadding()) {
                 composable(Routes.DEVICES) {
                     DevicesScreen(viewModel(factory = DevicesViewModel.factory(c)), onPrepare = { nav.navigate(Routes.MODE) })
@@ -105,6 +125,30 @@ fun AppNav(c: AppContainer) {
     }
 }
 
+/** Logo en haut à gauche, à peine plus clair que le fond ; le toucher ouvre les réglages. */
+@Composable
+private fun LogoBar(onClick: () -> Unit) {
+    val label = stringResource(R.string.tab_settings)
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
+            .padding(start = 12.dp, top = 8.dp),
+    ) {
+        Icon(
+            ImageVector.vectorResource(R.drawable.ic_logo),
+            contentDescription = label,
+            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = LOGO_ALPHA),
+            modifier =
+                Modifier
+                    .clip(CircleShape)
+                    .clickable(onClick = onClick)
+                    .padding(4.dp)
+                    .size(LOGO_SIZE),
+        )
+    }
+}
+
 private fun follow(
     nav: NavHostController,
     phase: RidePhase,
@@ -123,6 +167,11 @@ private fun follow(
 }
 
 private val TAB_ROUTES = setOf(Routes.DEVICES, Routes.ACTIVITIES, Routes.SETTINGS)
+
+private const val LOGO_ALPHA = 0.22f
+
+// Trois fois le pignon de la version précédente (22 dp visibles dans une icône de 40 dp).
+private val LOGO_SIZE = 66.dp
 
 private fun home(nav: NavHostController) {
     nav.navigate(Routes.DEVICES) { popUpTo(Routes.DEVICES) { inclusive = true } }

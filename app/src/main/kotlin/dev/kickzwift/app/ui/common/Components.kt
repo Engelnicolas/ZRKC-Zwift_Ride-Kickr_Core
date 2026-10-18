@@ -21,9 +21,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.kickzwift.app.R
+import dev.kickzwift.app.ui.ReadyGreen
 import dev.kickzwift.protocol.Action
 import dev.kickzwift.protocol.Button
 import dev.kickzwift.protocol.Gesture
@@ -51,7 +53,7 @@ fun StatusDot(
         val r = this.size.minDimension / 2
         val stroke = r / 3
         when (state) {
-            LinkState.READY -> drawCircle(colors.primary, r)
+            LinkState.READY -> drawCircle(ReadyGreen, r)
             LinkState.CONNECTING, LinkState.HANDSHAKE, LinkState.RECONNECTING, LinkState.SCANNING ->
                 drawCircle(colors.tertiary, r - stroke / 2, style = Stroke(stroke))
             else -> {
@@ -80,6 +82,7 @@ fun kindLabel(kind: DeviceKind): Int =
     when (kind) {
         DeviceKind.RIDE -> R.string.kind_ride
         DeviceKind.KICKR -> R.string.kind_kickr
+        DeviceKind.HEART_RATE -> R.string.kind_heart_rate
         DeviceKind.OTHER -> R.string.kind_other
     }
 
@@ -125,8 +128,15 @@ fun actionText(action: Action): String =
         Action.VolumeUp -> stringResource(R.string.action_volume_up)
         Action.VolumeDown -> stringResource(R.string.action_volume_down)
         Action.PauseResume -> stringResource(R.string.action_pause_resume)
+        Action.OpenSpotify -> stringResource(R.string.action_open_spotify)
         Action.None -> stringResource(R.string.action_none)
     }
+
+/** Texte d'aide, petit et centré sur la largeur de l'écran. */
+@Composable
+fun HelpText(text: String) {
+    Text(text, modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.bodySmall, textAlign = TextAlign.Center)
+}
 
 /** Valeur réglable par − et +, cibles de 48 dp. */
 @Composable
@@ -187,8 +197,9 @@ fun ProfileChart(
     }
 }
 
-/** Formats d'affichage, métriques ou impériaux. */
+/** Formats d'affichage, métriques ou impériaux, à l'anglaise comme toute l'interface. */
 object Format {
+    private val LOCALE = Locale.ENGLISH
     private const val KM_PER_MILE = 1.609344
     private const val FEET_PER_M = 3.28084
     private const val MS_PER_S = 1_000
@@ -196,13 +207,10 @@ object Format {
     private const val S_PER_H = 3_600
     private const val M_PER_KM = 1_000.0
 
+    /** Heures, minutes et secondes, toujours : 0:01:19. */
     fun duration(ms: Long): String {
         val s = ms / MS_PER_S
-        return if (s >= S_PER_H) {
-            "%d:%02d:%02d".format(Locale.ROOT, s / S_PER_H, s % S_PER_H / S_PER_MIN, s % S_PER_MIN)
-        } else {
-            "%d:%02d".format(Locale.ROOT, s / S_PER_MIN, s % S_PER_MIN)
-        }
+        return "%d:%02d:%02d".format(Locale.ROOT, s / S_PER_H, s % S_PER_H / S_PER_MIN, s % S_PER_MIN)
     }
 
     fun distance(
@@ -210,31 +218,32 @@ object Format {
         imperial: Boolean,
     ): String =
         if (imperial) {
-            "%.2f mi".format(Locale.getDefault(), m / M_PER_KM / KM_PER_MILE)
+            "%.2f mi".format(LOCALE, m / M_PER_KM / KM_PER_MILE)
         } else {
-            "%.2f km".format(Locale.getDefault(), m / M_PER_KM)
+            "%.2f km".format(LOCALE, m / M_PER_KM)
         }
 
     fun speed(
         kmh: Double,
         imperial: Boolean,
-    ): String = if (imperial) "%.1f mph".format(Locale.getDefault(), kmh / KM_PER_MILE) else "%.1f km/h".format(Locale.getDefault(), kmh)
+    ): String = if (imperial) "%.1f mph".format(LOCALE, kmh / KM_PER_MILE) else "%.1f km/h".format(LOCALE, kmh)
 
     fun elevation(
         m: Double,
         imperial: Boolean,
-    ): String = if (imperial) "%.0f ft".format(Locale.getDefault(), m * FEET_PER_M) else "%.0f m".format(Locale.getDefault(), m)
+    ): String = if (imperial) "%.0f ft".format(LOCALE, m * FEET_PER_M) else "%.0f m".format(LOCALE, m)
 
-    fun pct(value: Double): String = "%.1f %%".format(Locale.getDefault(), value)
+    fun pct(value: Double): String = "%.1f %%".format(LOCALE, value)
 
-    fun signedPct(value: Double): String = "%+.1f %%".format(Locale.getDefault(), value)
+    fun signedPct(value: Double): String = "%+.1f %%".format(LOCALE, value)
 
-    fun kg(value: Double): String = "%.1f kg".format(Locale.getDefault(), value)
+    fun kg(value: Double): String = "%.1f kg".format(LOCALE, value)
 
     /** Date et heure locales d'une heure Unix en millisecondes. */
     fun dateTime(epochMs: Long): String =
         DateTimeFormatter
             .ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+            .withLocale(LOCALE)
             .withZone(ZoneId.systemDefault())
             .format(Instant.ofEpochMilli(epochMs))
 }

@@ -35,7 +35,7 @@
     <string name="devices_forget_text">The app will no longer connect to it. You will have to remember it again.</string>
     <string name="devices_forget">Forget</string>
     <string name="devices_cancel">Cancel</string>
-    <string name="devices_forget_hint">Long-press a card to forget the device.</string>
+    <string name="devices_forget_hint">Long-press a device to forget it.</string>
     <string name="devices_battery">Battery %1$d %%</string>
     <string name="devices_firmware">Firmware %1$s</string>
     <string name="devices_locked">Firmware 1.3 or later: Zwift locks the Ride. Do not update it any further.</string>
@@ -46,9 +46,12 @@
     <string name="devices_service_start">Start the links</string>
     <string name="devices_ride_pod">Zwift Ride · controller %1$d</string>
     <string name="devices_ride_tip">The left pod is enough: it relays the commands of both controllers.</string>
+    <string name="devices_mine">My devices</string>
+    <string name="devices_heart_rate">%1$d bpm</string>
 
     <string name="kind_ride">Zwift Ride</string>
     <string name="kind_kickr">KICKR</string>
+    <string name="kind_heart_rate">Heart rate monitor</string>
     <string name="kind_other">Other device</string>
 
     <!-- LinkState -->
@@ -95,18 +98,31 @@
     <string name="ride_target">Target</string>
     <string name="ride_time">Time</string>
     <string name="ride_distance">Distance</string>
+    <string name="ride_heart_rate">Heart rate</string>
+    <string name="ride_flywheel">Flywheel (raw)</string>
+    <string name="ride_sensors">Sensors</string>
     <string name="ride_remaining">%1$s left</string>
     <string name="ride_pause">Pause</string>
     <string name="ride_resume">Resume</string>
-    <string name="ride_finish">Finish (long press)</string>
+    <string name="ride_finish">Hold to finish</string>
+    <string name="ride_finish_description">Finish the ride: hold for 3 seconds</string>
     <string name="ride_lost">%1$s lost</string>
     <string name="ride_paused_trainer">Paused: KICKR lost for more than 30 s</string>
-    <string name="ride_paused_route">Route finished: long-press Finish</string>
+    <string name="ride_paused_route">Route finished: hold Finish</string>
     <string name="ride_paused">Paused</string>
     <string name="ride_minus">Minus</string>
     <string name="ride_plus">Plus</string>
     <string name="ride_gear_description">Current gear: %1$d/%2$d</string>
     <string name="ride_profile_description">Route profile, current position marked</string>
+
+    <!-- Lecteur de l'écran Sortie -->
+    <string name="player_music">Music</string>
+    <string name="player_playing">Playing</string>
+    <string name="player_paused">Paused</string>
+    <string name="player_volume">Volume %1$d/%2$d</string>
+    <string name="player_unknown_title">Unknown track</string>
+    <string name="player_grant">Show the track title</string>
+    <string name="player_grant_hint">Android asks for notification access: the app only uses it to see which track is playing.</string>
 
     <!-- Actions -->
     <string name="action_shift">Gear %1$+d</string>
@@ -117,6 +133,7 @@
     <string name="action_volume_up">Volume +</string>
     <string name="action_volume_down">Volume −</string>
     <string name="action_pause_resume">Pause or resume</string>
+    <string name="action_open_spotify">Open Spotify</string>
     <string name="action_none">None</string>
 
     <!-- Écran Bilan -->
@@ -179,6 +196,10 @@
     <string name="settings_ftms_hint">Applies on the next connection; gears are then simulated through the grade.</string>
     <string name="settings_fit">FIT export of the ride</string>
     <string name="settings_export_log">Export the log</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version %1$s · built %2$s</string>
+    <string name="settings_email_support">Email support</string>
+    <string name="support_email" translatable="false">contact@nicolasengel.fr</string>
     <string name="gesture_press">Press</string>
     <string name="gesture_long">Long press</string>
     <string name="gesture_double">Double press</string>
@@ -204,4 +225,5 @@
     <string name="share_title">Share</string>
     <string name="unit_w">%1$d W</string>
     <string name="unit_rpm">%1$d rpm</string>
+    <string name="unit_bpm">%1$d bpm</string>
 </resources>

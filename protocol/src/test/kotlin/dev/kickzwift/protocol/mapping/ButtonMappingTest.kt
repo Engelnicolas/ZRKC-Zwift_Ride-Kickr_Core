@@ -37,6 +37,7 @@ class ButtonMappingTest {
             Button.Y to Action.VolumeUp,
             Button.B to Action.VolumeDown,
             Button.Z to Action.PauseResume,
+            Button.POWER_UP_RIGHT to Action.OpenSpotify,
         )
 
     @Test

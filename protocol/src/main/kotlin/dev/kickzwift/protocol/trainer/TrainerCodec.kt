@@ -27,6 +27,7 @@ data class RidingFields(
             speedKmh = (virtualSpeedRaw ?: 0) * TrainerCodec.SPEED_RAW_TO_KMH,
             heartRate = heartRate?.takeIf { it > 0 },
             atMs = atMs,
+            flywheelRaw = flywheelSpeedRaw,
         )
 }
 

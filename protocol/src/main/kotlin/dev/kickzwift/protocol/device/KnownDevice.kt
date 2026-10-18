@@ -6,6 +6,7 @@ import dev.kickzwift.protocol.DeviceId
 enum class DeviceKind {
     RIDE,
     KICKR,
+    HEART_RATE,
     OTHER,
     ;
 
@@ -18,9 +19,19 @@ enum class DeviceKind {
 
         const val FTMS_SERVICE = "00001826-0000-1000-8000-00805f9b34fb"
 
+        /** Service standard de fréquence cardiaque, annoncé par les ceintures et brassards (COROS HRM). */
+        const val HEART_RATE_SERVICE = "0000180d-0000-1000-8000-00805f9b34fb"
+
         private val RIDE_NAMES = setOf("zwift ride", "zwift sf2")
 
-        /** Le Ride d'abord ; pour le KICKR, même règle que prototype/kickr_probe.py. */
+        /** Noms de capteurs cardiaques, pour ceux qui n'annoncent pas le service 0x180D (COROS HEART RATE …). */
+        private val HEART_RATE_NAMES = listOf("heart rate", "hrm")
+
+        /**
+         * Le Ride d'abord ; pour le KICKR, même règle que prototype/kickr_probe.py. Un capteur
+         * cardiaque ensuite, par son service ou son nom : le KICKR relaie aussi le service
+         * 0x180D, il doit passer avant.
+         */
         fun classify(
             name: String?,
             serviceUuids: Collection<String>,
@@ -30,6 +41,7 @@ enum class DeviceKind {
             return when {
                 RIDE_SERVICE in uuids || n in RIDE_NAMES -> RIDE
                 "kickr" in n || ZWIFT_SERVICE in uuids || FTMS_SERVICE in uuids -> KICKR
+                HEART_RATE_SERVICE in uuids || HEART_RATE_NAMES.any { it in n } -> HEART_RATE
                 else -> OTHER
             }
         }

@@ -43,12 +43,17 @@ jobs:
             exit 1
           fi
 
-      - name: Seule l'activité de lancement est exportée
+      - name: Composants exportés limités au lancement et à l'accès aux notifications
         run: |
           tree=$("$ANDROID_HOME/build-tools/36.0.0/aapt2" dump xmltree --file AndroidManifest.xml app/build/outputs/apk/release/app-release-unsigned.apk)
           exported=$(echo "$tree" | grep -c "android:exported(0x01010010)=true" || true)
           echo "composants exportés : $exported"
-          if [ "$exported" -ne 1 ]; then
-            echo "Un seul composant exporté admis, l'activité de lancement" >&2
+          if [ "$exported" -ne 2 ]; then
+            echo "Deux composants exportés admis : l'activité de lancement et MediaAccessService" >&2
+            exit 1
+          fi
+          # MediaAccessService : seul le système peut s'y lier.
+          if ! echo "$tree" | grep -q 'android:permission(0x01010006)="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"'; then
+            echo "MediaAccessService doit exiger BIND_NOTIFICATION_LISTENER_SERVICE" >&2
             exit 1
           fi

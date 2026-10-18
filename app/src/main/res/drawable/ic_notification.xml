@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Icône de notification : le pignon de l'icône de lancement, recadré en 24 dp. -->
+<!-- Icône de notification : le pignon de l'icône de lancement, recadré en 24 dp, dents
+     tournées de 22° comme elle. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
@@ -11,8 +12,13 @@
         <path
             android:fillColor="#FFFFFFFF"
             android:pathData="M54,30a24,24 0,1 1,0 48a24,24 0,1 1,0 -48zM54,42a12,12 0,1 0,0 24a12,12 0,1 0,0 -24z" />
-        <path
-            android:fillColor="#FFFFFFFF"
-            android:pathData="M51,24h6v8h-6zM51,76h6v8h-6zM24,51h8v6h-8zM76,51h8v6h-8z" />
+        <group
+            android:pivotX="54"
+            android:pivotY="54"
+            android:rotation="22">
+            <path
+                android:fillColor="#FFFFFFFF"
+                android:pathData="M51,24h6v8h-6zM51,76h6v8h-6zM24,51h8v6h-8zM76,51h8v6h-8z" />
+        </group>
     </group>
 </vector>

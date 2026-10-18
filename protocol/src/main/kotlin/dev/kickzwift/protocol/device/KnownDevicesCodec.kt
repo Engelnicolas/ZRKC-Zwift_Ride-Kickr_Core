@@ -11,7 +11,9 @@ import dev.kickzwift.protocol.wire.ProtoWriter
  *     message KnownDevices { repeated Device device = 1; }
  *     message Device { string address = 1; uint32 kind = 2; string name = 3; bool random_address = 4; }
  *
- * Une entrée dont l'adresse est invalide est écartée ; un fichier corrompu lève
+ * Une entrée dont l'adresse est invalide est écartée ; un appareil « autre » dont le nom est celui
+ * d'un capteur cardiaque devient un capteur cardiaque (mémorisé avant que l'app ne les
+ * reconnaisse) ; un fichier corrompu lève
  * [MalformedFrameException], que le DataStore traite en repartant d'une liste vide.
  */
 object KnownDevicesCodec {
@@ -22,7 +24,8 @@ object KnownDevicesCodec {
     private const val DEV_RANDOM = 4
 
     // Codes figés : l'ordre de l'enum peut changer, pas le fichier déjà écrit.
-    private val KIND_CODES = mapOf(DeviceKind.OTHER to 0L, DeviceKind.RIDE to 1L, DeviceKind.KICKR to 2L)
+    private val KIND_CODES =
+        mapOf(DeviceKind.OTHER to 0L, DeviceKind.RIDE to 1L, DeviceKind.KICKR to 2L, DeviceKind.HEART_RATE to 3L)
 
     fun encode(devices: List<KnownDevice>): ByteArray {
         val list = ProtoWriter()
@@ -71,6 +74,7 @@ object KnownDevicesCodec {
                 else -> r.skip(wire)
             }
         }
+        if (kind == DeviceKind.OTHER && DeviceKind.classify(name, emptyList()) == DeviceKind.HEART_RATE) kind = DeviceKind.HEART_RATE
         return if (KnownDevice.isValidAddress(address)) KnownDevice(DeviceId(address), kind, name, random) else null
     }
 

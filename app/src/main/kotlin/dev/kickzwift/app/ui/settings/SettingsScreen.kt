@@ -1,5 +1,7 @@
 package dev.kickzwift.app.ui.settings
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,9 +34,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dev.kickzwift.app.BuildConfig
 import dev.kickzwift.app.R
 import dev.kickzwift.app.ui.common.Format
+import dev.kickzwift.app.ui.common.HelpText
 import dev.kickzwift.app.ui.common.Stepper
 import dev.kickzwift.app.ui.common.actionText
 import dev.kickzwift.app.ui.common.buttonLabel
@@ -47,7 +52,7 @@ import dev.kickzwift.protocol.settings.OrientationChoice
 import dev.kickzwift.protocol.settings.ThemeChoice
 import kotlinx.coroutines.launch
 
-/** Écran Réglages : boutons, vitesses, cycliste, affichage, options avancées. */
+/** Écran Réglages : boutons, vitesses, cycliste, affichage, options avancées, à propos. */
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel) {
     val ui by viewModel.state.collectAsStateWithLifecycle()
@@ -58,6 +63,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
         riderSection(ui, viewModel)
         displaySection(ui, viewModel)
         advancedSection(ui, viewModel)
+        aboutSection()
     }
 }
 
@@ -74,7 +80,7 @@ private fun LazyListScope.buttonsSection(
     item {
         Section(stringResource(R.string.settings_buttons))
         SwitchRow(stringResource(R.string.settings_test), ui.testing, vm::setTesting)
-        if (ui.testing) Text(stringResource(R.string.settings_test_hint), style = MaterialTheme.typography.bodySmall)
+        if (ui.testing) HelpText(stringResource(R.string.settings_test_hint))
     }
     items(Button.entries, key = { it.name }) { button ->
         val highlight = if (ui.pressed == button) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
@@ -215,6 +221,27 @@ private fun LazyListScope.advancedSection(
         SwitchRow(stringResource(R.string.settings_fit), ui.settings.fitExport, vm::setFit)
         OutlinedButton(onClick = { scope.launch { context.shareFile(vm.exportLog(), "text/plain") } }) {
             Text(stringResource(R.string.settings_export_log))
+        }
+    }
+}
+
+/** Version et date du build, adresse de contact. */
+private fun LazyListScope.aboutSection() {
+    item {
+        val context = LocalContext.current
+        val email = stringResource(R.string.support_email)
+        val subject = stringResource(R.string.app_name) + " " + BuildConfig.VERSION_NAME
+        Section(stringResource(R.string.settings_about))
+        Text(stringResource(R.string.settings_version, BuildConfig.VERSION_NAME, BuildConfig.BUILD_DATE))
+        OutlinedButton(onClick = {
+            val intent = Intent(Intent.ACTION_SENDTO, "mailto:$email".toUri()).putExtra(Intent.EXTRA_SUBJECT, subject)
+            // Aucune app de messagerie : rien à ouvrir.
+            try {
+                context.startActivity(intent)
+            } catch (_: ActivityNotFoundException) {
+            }
+        }) {
+            Text(stringResource(R.string.settings_email_support))
         }
     }
 }

@@ -36,6 +36,7 @@ import dev.kickzwift.app.R
 import dev.kickzwift.app.route.GpxException
 import dev.kickzwift.app.route.RouteData
 import dev.kickzwift.app.ui.common.Format
+import dev.kickzwift.app.ui.common.HelpText
 import dev.kickzwift.app.ui.common.ProfileChart
 import dev.kickzwift.app.ui.common.Stepper
 
@@ -79,7 +80,7 @@ fun ModeScreen(
                         onMinus = { viewModel.stepErg(false) },
                         onPlus = { viewModel.stepErg(true) },
                     )
-                    Text(stringResource(R.string.mode_erg_note), style = MaterialTheme.typography.bodySmall)
+                    HelpText(stringResource(R.string.mode_erg_note))
                 }
             ModeChoice.ROUTE -> routeItems(ui, viewModel) { pick.launch(GPX_TYPES) }
         }

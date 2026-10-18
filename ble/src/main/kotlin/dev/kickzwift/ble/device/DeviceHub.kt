@@ -11,6 +11,7 @@ import android.os.SystemClock
 import dev.kickzwift.ble.link.GattLink
 import dev.kickzwift.ble.link.LinkSupervisor
 import dev.kickzwift.ble.nordic.FtmsManager
+import dev.kickzwift.ble.nordic.HeartRateManager
 import dev.kickzwift.ble.nordic.KickrManager
 import dev.kickzwift.ble.nordic.LinkManager
 import dev.kickzwift.ble.nordic.NordicGattLink
@@ -25,7 +26,8 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * Fabrique les liaisons des appareils de confiance, jointes par leur adresse sans scan, et
  * tient leurs points d'accès : le Ride reçoit un [RideManager], le KICKR un [KickrManager]
- * ou, en repli, un [FtmsManager] ; tout autre appareil un [LinkManager] générique.
+ * ou, en repli, un [FtmsManager] ; un capteur cardiaque un [HeartRateManager] ; tout autre
+ * appareil un [LinkManager] générique.
  *
  * [ftmsFallback] est relu à chaque tentative : le changer s'applique à la connexion suivante.
  */
@@ -41,6 +43,7 @@ class DeviceHub(
         }
     private val rides = ConcurrentHashMap<DeviceId, RideEndpoint>()
     private val trainers = ConcurrentHashMap<DeviceId, TrainerEndpoint>()
+    private val heartRates = ConcurrentHashMap<DeviceId, HeartRateEndpoint>()
     private val gears = FtmsGears()
 
     // Fil des rappels BLE, à part du fil principal (spécification, « Architecture »).
@@ -59,6 +62,7 @@ class DeviceHub(
                     } else {
                         KickrManager(context, handler, trainerEndpoint(device.id), now, log)
                     }
+                DeviceKind.HEART_RATE -> HeartRateManager(context, handler, heartRateEndpoint(device.id))
                 DeviceKind.OTHER -> LinkManager(context, handler)
             }
         return NordicGattLink(remoteDevice(device), manager)
@@ -78,6 +82,8 @@ class DeviceHub(
     fun rideEndpoint(id: DeviceId): RideEndpoint = rides.getOrPut(id) { RideEndpoint() }
 
     fun trainerEndpoint(id: DeviceId): TrainerEndpoint = trainers.getOrPut(id) { TrainerEndpoint() }
+
+    fun heartRateEndpoint(id: DeviceId): HeartRateEndpoint = heartRates.getOrPut(id) { HeartRateEndpoint() }
 
     // Sans le type d'adresse, Android tente une adresse publique et ne joint jamais
     // une adresse aléatoire qu'il n'a pas vue au scan depuis le démarrage du Bluetooth.

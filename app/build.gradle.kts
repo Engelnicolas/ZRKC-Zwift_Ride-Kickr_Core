@@ -12,7 +12,16 @@ android {
         minSdk = 31
         targetSdk = 37
         versionCode = 1
-        versionName = "0.1.0"
+        versionName = "1.0"
+        // Date du build, affichée dans les réglages. Lue par une commande externe : le cache de
+        // configuration la revérifie à chaque build, au lieu de figer la date du premier.
+        val buildDate =
+            providers
+                .exec { commandLine("date", "+%Y-%m-%d") }
+                .standardOutput.asText
+                .get()
+                .trim()
+        buildConfigField("String", "BUILD_DATE", "\"$buildDate\"")
     }
 
     // Signature de l'APK release : la clé reste hors du dépôt. Sans ces variables, l'APK
@@ -45,6 +54,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     // Logique de session et lecteur GPX testés sur la JVM.

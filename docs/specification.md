@@ -11,6 +11,7 @@ historique des activités. Ce document décrit le code tel qu'il est ; l'usage e
 |---|---|---|
 | Zwift Ride | firmware 1.2.0 | Deux manettes, chacune un périphérique BLE |
 | KICKR CORE « 85FF », Zwift Cog | firmware 1.5.36 | Home trainer piloté en protocole Zwift (repli FTMS) |
+| Capteur cardiaque (COROS HRM) | profil standard 0x180D | Fréquence cardiaque, facultatif ; non essayé sur le matériel |
 | Téléphone Android | Android 12 (API 31) minimum | Hôte de l'app ; testé sur Pixel 10 Pro, Android 17 (API 37) |
 
 Hors périmètre : iOS, Play Store, apps tierces, tout accès réseau, mise à jour des firmwares.
@@ -22,8 +23,8 @@ et Android sont isolés à côté.
 
 | Module | Contenu | Dépend de |
 |---|---|---|
-| `:protocol` (JVM pur) | Lecteur et écrivain protobuf minimaux ; décodeurs du Ride, du KICKR et FTMS ; gestes, correspondance boutons → actions, moteur de vitesses, profil de pente ; `RideSession` (logique de la sortie) ; réglages et leurs codecs ; encodeur FIT | kotlinx-coroutines |
-| `:ble` (Android) | Scan ; liaisons (`DeviceLink`, `LinkSupervisor`, `ReconnectPolicy`) ; managers Nordic du Ride, du KICKR et FTMS ; `TrainerWriter` | `:protocol`, Nordic BLE |
+| `:protocol` (JVM pur) | Lecteur et écrivain protobuf minimaux ; décodeurs du Ride, du KICKR, FTMS et de la fréquence cardiaque ; gestes, correspondance boutons → actions, moteur de vitesses, profil de pente ; `RideSession` (logique de la sortie) ; réglages et leurs codecs ; encodeur FIT | kotlinx-coroutines |
+| `:ble` (Android) | Scan ; liaisons (`DeviceLink`, `LinkSupervisor`, `ReconnectPolicy`) ; managers Nordic du Ride, du KICKR, FTMS et du capteur cardiaque ; `TrainerWriter` | `:protocol`, Nordic BLE |
 | `:app` (Android) | `RideService` (service de premier plan) ; `AppContainer` (injection manuelle) ; `SessionController` ; actions téléphone ; stockage ; GPX ; journaux ; écrans Compose | `:protocol`, `:ble` |
 
 Flux de données :
@@ -32,10 +33,12 @@ Flux de données :
    suffit, le pod droit n'est qu'un relais de secours. Les trames deviennent des gestes
    (appui, appui long, double appui).
 2. `SessionController` applique la correspondance boutons → actions : vitesses et pente vers
-   la session, musique et volume vers `PhoneActions`.
+   la session, musique, volume et ouverture de Spotify vers `PhoneActions`.
 3. `TrainerWriter` est le seul à écrire sur le KICKR : il n'envoie que la dernière consigne,
    au plus une fois par intervalle, puis relit le rapport (requête 520).
-4. La télémétrie du KICKR (puissance, cadence, vitesse) alimente la session et l'interface.
+4. La télémétrie du KICKR (puissance, cadence, vitesse, volant) alimente la session et
+   l'interface, avec la fréquence du capteur cardiaque (sinon celle que relaie le KICKR).
+   Pendant la sortie, le journal en garde une ligne par seconde, avec la consigne écrite.
 
 Fils : rappels BLE sur un `HandlerThread` dédié, jamais sur le fil principal ; logique de la
 sortie sur un fil unique (`Dispatchers.Default.limitedParallelism(1)`) où commandes, gestes
@@ -136,19 +139,20 @@ Aucun écran ne parle au Bluetooth : tout passe par le service, qui garde la sor
 
 | Écran | Contenu |
 |---|---|
-| Connexions (onglet) | Cartes d'appareils : état, batterie, firmware, alerte verrou ; recherche, mémorisation, oubli ; « Préparer la sortie » |
+| Connexions (onglet) | Encart « My devices », une ligne par appareil : état, batterie, firmware, fréquence cardiaque, alerte verrou ; recherche, mémorisation, oubli ; « Préparer la sortie » |
 | Activités (onglet) | « Démarrer une activité » ; historique, la plus récente en tête |
 | Activité | Bilan enregistré ; commentaire modifiable ; suppression confirmée |
 | Choix du mode | Pente libre, parcours GPX (import, aperçu, cinq derniers), ERG |
-| Sortie | Vitesse engagée et barre des rapports, puissance, cadence, vitesse, pente ou cible, temps, distance, profil GPX ; Pause, Terminer (appui long de 2 s) |
+| Sortie | Encart des capteurs ; vitesse engagée et barre des rapports, puissance, cadence, vitesse, pente ou cible, temps (h:mm:ss), distance, fréquence cardiaque, vitesse brute du volant, profil GPX ; lecteur (titre, lecture ou pause, volume, relu toutes les 500 ms) ; Pause, Terminer (appui de 3 s, décompte 3, 2, 1 sur le bouton) |
 | Bilan | Durée, distance, puissances, cadence, dénivelé, changements ; commentaire ; export FIT |
 | Réglages (onglet) | Correspondance boutons → actions avec « Tester », rapports, masses, affichage, options avancées (repli FTMS, export FIT, journaux) |
 
 Règles : écran allumé pendant la sortie, portrait ou paysage ; thème sombre par défaut ;
 cibles de 48 dp, 64 dp pour Pause et Terminer ; état des appareils signalé par la forme et le
 texte en plus de la couleur ; vibration au changement de vitesse, désactivable ; notification
-permanente avec Pause et Arrêter. Interface en anglais, en français sur un téléphone en
-français.
+permanente avec Pause et Arrêter. Interface en anglais seulement. Boutons et accents en rouge
+(esprit COROS), fonds neutres, noirs en thème sombre ; pastille « prêt » en vert ; logo discret
+en haut à droite de chaque écran. Durées en heures, minutes et secondes.
 
 ## Persistance
 
@@ -172,6 +176,10 @@ L'app n'a aucun accès réseau : sa surface d'attaque se limite au Bluetooth et 
   `FOREGROUND_SERVICE` et `FOREGROUND_SERVICE_CONNECTED_DEVICE`, `POST_NOTIFICATIONS`,
   `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`, `VIBRATE`. Absentes volontairement : `INTERNET`,
   localisation, stockage, accessibilité.
+- **Accès aux notifications** (facultatif, accordé dans les réglages d'Android) : ouvre la
+  liste des lecteurs actifs pour le titre et l'état du lecteur. Les notifications reçues sont
+  ignorées ; sans accès, le lecteur montre le volume et « de la musique joue ».
+- **Visibilité des paquets** : `<queries>` limité à `com.spotify.music`.
 - **Appareils de confiance** : seules les adresses mémorisées au premier appairage sont
   jointes, directement et sans scan.
 - **Trames et fichiers hostiles** : tout est vérifié et rejeté sans faire tomber la liaison ;
@@ -179,7 +187,8 @@ L'app n'a aucun accès réseau : sa surface d'attaque se limite au Bluetooth et 
 - **Trainer** : pente bornée, ERG plafonné ; à l'arrêt ou sur plantage, il reçoit une
   consigne à plat.
 - **Journaux** : adresses Bluetooth tronquées.
-- **Composants** : seule l'activité de lancement est exportée.
+- **Composants** : deux exportés, l'activité de lancement et `MediaAccessService`, auquel
+  seul le système peut se lier (`BIND_NOTIFICATION_LISTENER_SERVICE`).
 - **Build** : R8, clé de signature hors du dépôt, dépendances vérifiées par empreinte,
   actions GitHub épinglées par empreinte de commit.
 
@@ -187,12 +196,13 @@ L'app n'a aucun accès réseau : sa surface d'attaque se limite au Bluetooth et 
 
 - **Vecteurs de référence** : trames réelles du Ride et du KICKR, captées sur le matériel par
   le prototype Python (hors dépôt), rejouées par les tests JVM.
-- **Tests JVM** : 262 (220 dans `:protocol`, 26 dans `:ble`, 16 dans `:app`) ; couverture
+- **Tests JVM** : 268 (225 dans `:protocol`, 26 dans `:ble`, 17 dans `:app`) ; couverture
   de `:protocol` ≥ 90 % des lignes, bloquante (JaCoCo). Faux appareils derrière `Controller`
   et `Trainer` pour les liaisons, `TrainerWriter` et `SessionController`.
 - **Qualité** : Android Lint (avertissements bloquants), ktlint, detekt.
 - **CI** (`.github/workflows/ci.yml`, à chaque push et pull request) : `./gradlew build`,
-  puis contrôle de l'APK release : ni `INTERNET` ni localisation, un seul composant exporté.
+  puis contrôle de l'APK release : ni `INTERNET` ni localisation, deux composants exportés
+  dont `MediaAccessService` protégé par sa permission.
 - **Fuzzing nocturne** (`fuzz.yml`) : Jazzer, 4 cibles, 150 s chacune.
 
 ## État et points ouverts

@@ -29,9 +29,19 @@ class KnownDeviceTest {
     }
 
     @Test
+    fun `classement - capteur cardiaque par service 0x180D, apres le KICKR`() {
+        assertEquals(DeviceKind.HEART_RATE, DeviceKind.classify("Brassard", listOf("0000180D-0000-1000-8000-00805F9B34FB")))
+        assertEquals(DeviceKind.HEART_RATE, DeviceKind.classify("COROS HEART RATE 5A748B", emptyList()))
+        assertEquals(
+            DeviceKind.KICKR,
+            DeviceKind.classify("KICKR CORE 85FF", listOf(DeviceKind.HEART_RATE_SERVICE, DeviceKind.ZWIFT_SERVICE)),
+        )
+    }
+
+    @Test
     fun `classement - le Ride l'emporte, le reste est autre`() {
         assertEquals(DeviceKind.RIDE, DeviceKind.classify("Zwift Ride", listOf(DeviceKind.ZWIFT_SERVICE)))
-        assertEquals(DeviceKind.OTHER, DeviceKind.classify("Casque", listOf("0000180d-0000-1000-8000-00805f9b34fb")))
+        assertEquals(DeviceKind.OTHER, DeviceKind.classify("Casque", listOf("0000180f-0000-1000-8000-00805f9b34fb")))
         assertEquals(DeviceKind.OTHER, DeviceKind.classify(null, emptyList()))
     }
 
@@ -65,6 +75,14 @@ class KnownDeviceTest {
                 byteArrayOf(0x48, 0x01) +
                 KnownDevicesCodec.encode(listOf(rideLeft.copy(name = "Renommé")))
         assertEquals(listOf(rideLeft.copy(name = "Renommé")), KnownDevicesCodec.decode(bytes))
+    }
+
+    @Test
+    fun `codec - capteur cardiaque memorise comme autre, reclasse par son nom`() {
+        val coros = KnownDevice(DeviceId("C4:68:F9:FE:78:BF"), DeviceKind.OTHER, "COROS HEART RATE 5A748B", randomAddress = true)
+        val casque = KnownDevice(DeviceId("C4:68:F9:FE:78:C0"), DeviceKind.OTHER, "Casque", randomAddress = true)
+        val decoded = KnownDevicesCodec.decode(KnownDevicesCodec.encode(listOf(coros, casque)))
+        assertEquals(listOf(DeviceKind.HEART_RATE, DeviceKind.OTHER), decoded.map { it.kind })
     }
 
     @Test

@@ -48,6 +48,8 @@ data class DeviceCard(
     val state: LinkState?,
     val battery: Int?,
     val firmware: String?,
+    /** Dernière mesure d'un capteur cardiaque. */
+    val heartRate: Int? = null,
 ) {
     /** Firmware du Ride en 1.3 ou plus : verrou Zwift. */
     val locked: Boolean get() = device.kind == DeviceKind.RIDE && RideFirmware.isLocked(firmware)
@@ -102,11 +104,14 @@ class DevicesViewModel(
 
     private fun card(d: KnownDevice): Flow<DeviceCard> {
         val link = c.links.stateOf(d.id)
-        return if (d.kind == DeviceKind.RIDE) {
-            val e = c.hub.rideEndpoint(d.id)
-            combine(link, e.battery, e.firmware) { s, b, f -> DeviceCard(d, s, b, f) }
-        } else {
-            combine(link, flowOf(Unit)) { s, _ -> DeviceCard(d, s, null, null) }
+        return when (d.kind) {
+            DeviceKind.RIDE -> {
+                val e = c.hub.rideEndpoint(d.id)
+                combine(link, e.battery, e.firmware) { s, b, f -> DeviceCard(d, s, b, f) }
+            }
+            DeviceKind.HEART_RATE ->
+                combine(link, c.hub.heartRateEndpoint(d.id).bpm) { s, bpm -> DeviceCard(d, s, null, null, bpm) }
+            else -> combine(link, flowOf(Unit)) { s, _ -> DeviceCard(d, s, null, null) }
         }
     }
 

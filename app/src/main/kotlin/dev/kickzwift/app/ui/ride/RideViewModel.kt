@@ -1,11 +1,13 @@
 package dev.kickzwift.app.ui.ride
 
+import android.content.Intent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import dev.kickzwift.app.AppContainer
+import dev.kickzwift.app.phone.MediaState
 import dev.kickzwift.app.route.RouteData
 import dev.kickzwift.app.session.ActionNotice
 import dev.kickzwift.protocol.Action
@@ -38,6 +40,9 @@ data class RideUi(
     val imperial: Boolean = false,
     val haptics: Boolean = true,
     val orientation: OrientationChoice = OrientationChoice.AUTO,
+    /** Capteur cardiaque d'abord, sinon fréquence relayée par le trainer. */
+    val heartRate: Int? = null,
+    val media: MediaState = MediaState(),
 ) {
     val lost: List<DeviceStatus> get() = devices.filter { it.state != LinkState.READY }
 }
@@ -59,17 +64,25 @@ class RideViewModel(
     }
 
     val state: StateFlow<RideUi> =
-        combine(c.session.state, c.trusted, c.links.states, notice, c.settings) { session, trusted, states, n, s ->
-            RideUi(
-                snapshot = session.snapshot,
-                route = session.route,
-                devices = trusted.map { DeviceStatus(it, states[it.id]) },
-                notice = n,
-                imperial = s.imperial,
-                haptics = s.haptics,
-                orientation = s.orientation,
-            )
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), RideUi())
+        combine(
+            combine(c.session.state, c.trusted, c.links.states, notice, c.settings) { session, trusted, states, n, s ->
+                RideUi(
+                    snapshot = session.snapshot,
+                    route = session.route,
+                    devices = trusted.map { DeviceStatus(it, states[it.id]) },
+                    notice = n,
+                    imperial = s.imperial,
+                    haptics = s.haptics,
+                    orientation = s.orientation,
+                    heartRate = session.heartRate,
+                )
+            },
+            c.media.state,
+        ) { ui, media -> ui.copy(media = media) }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), RideUi())
+
+    /** Réglages d'Android où accorder l'accès aux notifications, pour le titre du lecteur. */
+    fun mediaAccess(): Intent = c.media.accessSettings()
 
     fun togglePause() {
         when (c.session.state.value.snapshot.phase) {

@@ -27,6 +27,7 @@ import dev.kickzwift.app.R
 import dev.kickzwift.app.data.Activity
 import dev.kickzwift.app.data.ActivityMode
 import dev.kickzwift.app.ui.common.Format
+import dev.kickzwift.app.ui.common.HelpText
 
 /** Écran Activités : « Démarrer une activité », puis l'historique, la plus récente en tête. */
 @Composable
@@ -48,7 +49,7 @@ fun ActivitiesScreen(
                 enabled = ui.canStart,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp),
             ) { Text(stringResource(R.string.activities_start)) }
-            if (!ui.canStart) Text(stringResource(R.string.devices_prepare_hint), style = MaterialTheme.typography.bodySmall)
+            if (!ui.canStart) HelpText(stringResource(R.string.devices_prepare_hint))
         }
         val list = ui.activities
         if (list != null && list.isEmpty()) item { Text(stringResource(R.string.activities_empty)) }

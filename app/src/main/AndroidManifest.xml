@@ -28,6 +28,12 @@
         android:name="android.permission.BLUETOOTH_ADMIN"
         tools:node="remove" />
 
+    <!-- Spotify, ouvert depuis le Power-up droit : sans cette déclaration, Android 11 et plus
+         le cachent à l'app. -->
+    <queries>
+        <package android:name="com.spotify.music" />
+    </queries>
+
     <application
         android:name=".KickZwiftApp"
         android:allowBackup="false"
@@ -39,7 +45,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.KickZwift">
 
-        <!-- Seul composant exporté : l'activité de lancement. -->
+        <!-- Composants exportés : cette activité de lancement et MediaAccessService. -->
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -65,6 +71,18 @@
             android:name=".service.RideService"
             android:exported="false"
             android:foregroundServiceType="connectedDevice" />
+
+        <!-- Rend possible l'accès aux notifications, qui ouvre la liste des lecteurs actifs
+             (titre et état du lecteur de l'écran Sortie). Exporté parce qu'Android l'exige,
+             mais seul le système peut s'y lier (BIND_NOTIFICATION_LISTENER_SERVICE). -->
+        <service
+            android:name=".phone.MediaAccessService"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
 
         <!-- Apporté par androidx.profileinstaller, exporté (protégé par DUMP) : ramené à
              exported=false, la spécification n'admettant aucun récepteur exporté. Les profils
