@@ -11,10 +11,6 @@ on:
 permissions:
   contents: read
 
-env:
-  JAZZER_VERSION: v0.30.0
-  JAZZER_SHA256: 6eeaf0026d75599b07527d93b576593ce847cfca8b337a579971a5a9cdf792d0
-
 jobs:
   fuzz:
     runs-on: ubuntu-latest
@@ -34,11 +30,16 @@ jobs:
         run: ./gradlew :protocol:writeFuzzClasspath --console=plain
 
       # Exécutable Jazzer épinglé par version et vérifié par empreinte.
+      # Pas de préfixe JAZZER_ : Jazzer lit toute variable JAZZER_* comme une option
+      # (JAZZER_VERSION devenait --version=v0.30.0 et faisait échouer chaque cible).
       - name: Jazzer
+        env:
+          FUZZER_VERSION: v0.30.0
+          FUZZER_SHA256: 6eeaf0026d75599b07527d93b576593ce847cfca8b337a579971a5a9cdf792d0
         run: |
           curl -sSL -o jazzer.tar.gz \
-            "https://github.com/CodeIntelligenceTesting/jazzer/releases/download/${JAZZER_VERSION}/jazzer-linux-x86-64.tar.gz"
-          echo "${JAZZER_SHA256}  jazzer.tar.gz" | sha256sum -c -
+            "https://github.com/CodeIntelligenceTesting/jazzer/releases/download/${FUZZER_VERSION}/jazzer-linux-x86-64.tar.gz"
+          echo "${FUZZER_SHA256}  jazzer.tar.gz" | sha256sum -c -
           mkdir -p "$RUNNER_TEMP/jazzer" && tar xzf jazzer.tar.gz -C "$RUNNER_TEMP/jazzer"
 
       - name: Fuzzing, 150 s par cible
