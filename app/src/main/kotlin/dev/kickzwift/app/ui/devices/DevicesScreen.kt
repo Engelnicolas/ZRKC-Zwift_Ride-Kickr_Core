@@ -89,7 +89,6 @@ fun DevicesScreen(
             }
         }
         items(ui.found, key = { "found-" + it.id.address }) { FoundRow(it) { viewModel.trust(it) } }
-        item { Text(stringResource(R.string.devices_coros), style = MaterialTheme.typography.bodyMedium) }
         item {
             PrepareButton(ui.canPrepare) {
                 viewModel.prepare()

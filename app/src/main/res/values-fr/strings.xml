@@ -39,7 +39,6 @@
     <string name="devices_battery">Batterie %1$d %%</string>
     <string name="devices_firmware">Firmware %1$s</string>
     <string name="devices_locked">Firmware 1.3 ou plus : Zwift verrouille le Ride. Ne le mettez plus à jour.</string>
-    <string name="devices_coros">Connectez la montre COROS directement au KICKR, en mode Vélo intérieur.</string>
     <string name="devices_prepare">Préparer la sortie</string>
     <string name="devices_prepare_hint">Il faut le KICKR et au moins une manette prêts.</string>
     <string name="devices_search_failed">Recherche refusée par Android (code %1$d)</string>
@@ -129,7 +128,6 @@
     <string name="summary_cadence">Cadence moyenne</string>
     <string name="summary_elevation">Dénivelé</string>
     <string name="summary_shifts">Changements de vitesse</string>
-    <string name="summary_coros">La sortie est enregistrée sur la montre COROS.</string>
     <string name="summary_share_fit">Partager le fichier FIT</string>
     <string name="summary_close">Fermer</string>
     <string name="summary_saved">La sortie est enregistrée dans Activités ; le commentaire s\'y ajoute à la fermeture.</string>

@@ -39,7 +39,6 @@
     <string name="devices_battery">Battery %1$d %%</string>
     <string name="devices_firmware">Firmware %1$s</string>
     <string name="devices_locked">Firmware 1.3 or later: Zwift locks the Ride. Do not update it any further.</string>
-    <string name="devices_coros">Connect the COROS watch directly to the KICKR, in Indoor Bike mode.</string>
     <string name="devices_prepare">Prepare the ride</string>
     <string name="devices_prepare_hint">The KICKR and at least one controller must be ready.</string>
     <string name="devices_search_failed">Search refused by Android (code %1$d)</string>
@@ -129,7 +128,6 @@
     <string name="summary_cadence">Average cadence</string>
     <string name="summary_elevation">Elevation gain</string>
     <string name="summary_shifts">Gear changes</string>
-    <string name="summary_coros">The ride is recorded on the COROS watch.</string>
     <string name="summary_share_fit">Share the FIT file</string>
     <string name="summary_close">Close</string>
     <string name="summary_saved">The ride is saved in Activities; the comment is added when you close.</string>

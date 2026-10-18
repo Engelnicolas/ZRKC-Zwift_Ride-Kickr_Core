@@ -67,7 +67,6 @@ fun SummaryScreen(
             CommentField(comment, onChange = { comment = it })
             Text(stringResource(R.string.summary_saved), style = MaterialTheme.typography.bodySmall)
         }
-        Text(stringResource(R.string.summary_coros))
         ui.fitFile?.let { file ->
             OutlinedButton(
                 onClick = { context.shareFile(file, "application/vnd.ant.fit") },
