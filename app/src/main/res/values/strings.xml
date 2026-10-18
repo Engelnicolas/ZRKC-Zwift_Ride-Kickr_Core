@@ -105,7 +105,7 @@
     <string name="ride_pause">Pause</string>
     <string name="ride_resume">Resume</string>
     <string name="ride_finish">Hold to finish</string>
-    <string name="ride_finish_description">Finish the ride: hold for 3 seconds</string>
+    <string name="ride_finish_description">Finish the ride: hold for 2 seconds</string>
     <string name="ride_lost">%1$s lost</string>
     <string name="ride_paused_trainer">Paused: KICKR lost for more than 30 s</string>
     <string name="ride_paused_route">Route finished: hold Finish</string>
@@ -178,7 +178,12 @@
     <string name="settings_reset_mapping">Default mapping</string>
     <string name="settings_gears">Gears</string>
     <string name="settings_gear_table">Gear ratio table</string>
-    <string name="settings_gear_table_error">Positive ratios, strictly increasing, separated by commas.</string>
+    <string name="settings_gear_table_error">Positive ratios, strictly increasing, separated by commas; 60 at most.</string>
+    <string name="settings_gear_mode">Gears by</string>
+    <string name="settings_gear_mode_power">Power (app)</string>
+    <string name="settings_gear_mode_trainer">KICKR</string>
+    <string name="settings_gear_mode_power_hint">Every second, the app works out the speed of a real bike from your cadence and gear, and sets the KICKR to the power that speed takes on the current grade. Pedal faster or shift up and it gets harder.</string>
+    <string name="settings_gear_mode_trainer_hint">The KICKR receives the gear ratio and applies it itself (or a grade offset with the FTMS fallback).</string>
     <string name="settings_apply">Apply</string>
     <string name="settings_zwift_preset">Zwift preset</string>
     <string name="settings_start_gear">Starting gear</string>

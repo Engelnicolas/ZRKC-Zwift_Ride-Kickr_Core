@@ -3,7 +3,9 @@ package dev.kickzwift.protocol.session
 import dev.kickzwift.protocol.Action
 import dev.kickzwift.protocol.RidingData
 import dev.kickzwift.protocol.TrainerTarget
+import dev.kickzwift.protocol.gear.FlywheelCadence
 import dev.kickzwift.protocol.gear.GearTable
+import dev.kickzwift.protocol.gear.PowerGears
 import dev.kickzwift.protocol.grade.GradeProfile
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -242,6 +244,49 @@ class RideSessionTest {
         assertEquals(RideStats(elapsedMs = 0), s.stats(5_000))
         assertEquals(13, s.gear)
         assertFalse(s.onAction(Action.PlayPause, 0))
+    }
+
+    private fun powerRiding(mode: RideMode = RideMode.FreeGrade()) =
+        RideSession(config.copy(powerGears = true)).apply {
+            prepare()
+            start(mode, 0)
+        }
+
+    /** 60 rpm, volant au rapport par défaut de [FlywheelCadence] : cadence estimée à 60 rpm. */
+    private fun pedal60(at: Long) = RidingData(40, 60, 9.9, null, at, flywheelRaw = (60 * FlywheelCadence.DEFAULT_PER_RPM).toInt())
+
+    @Test
+    fun `vitesses par la puissance - consigne ERG d'apres cadence, rapport et pente`() {
+        val s = powerRiding()
+        repeat(31) { s.onRidingData(pedal60(it * 1_000L)) }
+        val mass = config.riderKg + config.bikeKg
+        // Vitesse 12 (2,40) à 60 rpm, allure stable : 18,2 km/h, environ 50 W à plat.
+        assertEquals(TrainerTarget.Erg(PowerGears.targetWatts(60.0, 2.40, 0.0, mass, config.ergMaxW)), s.target())
+        assertEquals(PowerGears.speedKmh(60.0, 2.40), s.snapshot(30_000).last!!.speedKmh, 0.05, "vitesse du vélo virtuel")
+        // Cinq vitesses de plus à cadence égale : relance, plus dur que le plat en vitesse 17.
+        repeat(5) { s.onAction(Action.Shift(+1), 31_000L + it * 200) }
+        val high = (s.target() as TrainerTarget.Erg).watts
+        assertTrue(high > PowerGears.targetWatts(60.0, 3.49, 0.0, mass, config.ergMaxW))
+        // La pente s'ajoute.
+        s.onAction(Action.Grade(+0.5), 32_000)
+        assertTrue((s.target() as TrainerTarget.Erg).watts > high)
+        s.pause(33_000)
+        assertEquals(TrainerTarget.Erg(0), s.target(), "pause : puissance nulle")
+    }
+
+    @Test
+    fun `vitesses par la puissance - roue libre, distance a la vitesse du velo, ERG inchange`() {
+        val s = powerRiding()
+        repeat(31) { s.onRidingData(pedal60(it * 1_000L)) }
+        val before = s.stats(30_000).distanceM
+        s.onRidingData(RidingData(0, 0, 0.0, null, 31_000, flywheelRaw = 15_000))
+        assertEquals(TrainerTarget.Erg(0), s.target(), "pédales arrêtées : roue libre")
+        assertTrue(s.snapshot(31_000).last!!.speedKmh > 17.0, "la vitesse décroît doucement")
+        assertTrue(s.stats(31_000).distanceM > before, "la distance continue en roue libre")
+        val erg = powerRiding(RideMode.Erg(150))
+        erg.onRidingData(pedal60(0))
+        assertEquals(TrainerTarget.Erg(150), erg.target())
+        assertEquals(9.9, erg.snapshot(0).last!!.speedKmh, 0.0, "en ERG, la vitesse du trainer")
     }
 
     @Test

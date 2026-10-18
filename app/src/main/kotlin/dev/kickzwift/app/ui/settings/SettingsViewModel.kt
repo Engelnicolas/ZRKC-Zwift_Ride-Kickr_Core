@@ -13,6 +13,7 @@ import dev.kickzwift.protocol.device.DeviceKind
 import dev.kickzwift.protocol.gear.GearTable
 import dev.kickzwift.protocol.mapping.ButtonMapping
 import dev.kickzwift.protocol.settings.AppSettings
+import dev.kickzwift.protocol.settings.GearMode
 import dev.kickzwift.protocol.settings.OrientationChoice
 import dev.kickzwift.protocol.settings.ThemeChoice
 import kotlinx.coroutines.Dispatchers
@@ -128,6 +129,8 @@ class SettingsViewModel(
 
     fun setFtms(on: Boolean) = update { it.copy(ftmsFallback = on) }
 
+    fun setGearMode(mode: GearMode) = update { it.copy(gearMode = mode) }
+
     /** Essai des vitesses (Advanced › Gear test). */
     val gearTest = c.session.gearTest
 
@@ -154,7 +157,8 @@ class SettingsViewModel(
 
         fun parseGears(text: String): List<Double>? {
             val values = text.split(',', ';', ' ', '\n').filter { it.isNotBlank() }.map { it.trim().toDoubleOrNull() ?: return null }
-            val valid = values.isNotEmpty() && values.first() > 0 && values.zipWithNext().all { (a, b) -> a < b }
+            val valid =
+                values.size in 1..AppSettings.MAX_GEARS && values.first() > 0 && values.zipWithNext().all { (a, b) -> a < b }
             return values.takeIf { valid }
         }
 

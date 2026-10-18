@@ -3,7 +3,9 @@ package dev.kickzwift.protocol.session
 import dev.kickzwift.protocol.Action
 import dev.kickzwift.protocol.RidingData
 import dev.kickzwift.protocol.TrainerTarget
+import dev.kickzwift.protocol.gear.FlywheelCadence
 import dev.kickzwift.protocol.gear.GearEngine
+import dev.kickzwift.protocol.gear.VirtualBike
 import dev.kickzwift.protocol.grade.GradeLimits
 import dev.kickzwift.protocol.grade.GradeProfile
 import kotlin.math.max
@@ -52,6 +54,8 @@ data class SessionConfig(
     val maxShiftsPerSecond: Int = 10,
     val trainerLostPauseMs: Long = 30_000,
     val powerWindowMs: Long = 3_000,
+    /** Vitesses calculées par l'app ([dev.kickzwift.protocol.gear.PowerGears]) plutôt qu'appliquées par le trainer. */
+    val powerGears: Boolean = false,
 ) {
     init {
         require(riderKg > 0 && bikeKg > 0) { "masses nulles" }
@@ -100,6 +104,10 @@ data class SessionSnapshot(
  *   Neutral : la pause l'emporte.
  * - Distance = intégrale de la vitesse reçue, en RIDING seulement ; un trou de plus de 3 s
  *   entre deux mesures n'est pas intégré.
+ * - Vitesses par la puissance ([SessionConfig.powerGears], hors ERG) : un [VirtualBike] suit la
+ *   cadence (estimée par le volant), le rapport et la pente, avec roue libre et inertie ; sa
+ *   puissance est la consigne, sa vitesse celle qui s'affiche et s'intègre. Il repart arrêté au
+ *   départ et à chaque reprise ; en pause et à la fin, la consigne est une puissance nulle.
  */
 class RideSession(
     private val config: SessionConfig,
@@ -128,6 +136,9 @@ class RideSession(
     private var shifts = 0
     private val recentShifts = ArrayDeque<Long>()
     private var trainerLostSince: Long? = null
+    private val flywheelCadence = FlywheelCadence()
+    private var cadenceRpm = 0.0
+    private val bike = VirtualBike(config.riderKg + config.bikeKg)
 
     val gear: Int get() = engine.gear.value
 
@@ -151,6 +162,7 @@ class RideSession(
         }
         phase = RidePhase.RIDING
         ridingSince = nowMs
+        bike.reset()
     }
 
     fun pause(
@@ -169,6 +181,7 @@ class RideSession(
         pauseReason = null
         ridingSince = nowMs
         lastSample = null
+        bike.reset()
     }
 
     /** RIDING ou PAUSED → FINISHED : bilan figé. */
@@ -204,7 +217,15 @@ class RideSession(
             else -> false
         }
 
-    fun onRidingData(data: RidingData) {
+    fun onRidingData(received: RidingData) {
+        val data =
+            if (usesPowerGears()) {
+                cadenceRpm = flywheelCadence.update(received)
+                if (phase == RidePhase.RIDING) bike.advance(received.atMs, cadenceRpm, engine.ratio, currentGrade())
+                received.copy(speedKmh = bike.speedKmh)
+            } else {
+                received
+            }
         window.addLast(data)
         while (window.isNotEmpty() && data.atMs - window.first().atMs > config.powerWindowMs) window.removeFirst()
         if (phase != RidePhase.RIDING) {
@@ -245,10 +266,11 @@ class RideSession(
     fun target(): TrainerTarget? =
         when (phase) {
             RidePhase.IDLE, RidePhase.PREPARING -> null
-            RidePhase.PAUSED, RidePhase.FINISHED -> TrainerTarget.Neutral
+            RidePhase.PAUSED, RidePhase.FINISHED -> if (config.powerGears) TrainerTarget.Erg(0) else TrainerTarget.Neutral
             RidePhase.RIDING ->
-                when (mode) {
-                    is RideMode.Erg -> TrainerTarget.Erg(ergWatts)
+                when {
+                    mode is RideMode.Erg -> TrainerTarget.Erg(ergWatts)
+                    config.powerGears -> TrainerTarget.Erg(bike.targetWatts(cadenceRpm, engine.ratio, currentGrade(), config.ergMaxW))
                     else -> TrainerTarget.Simulation(currentGrade(), engine.ratio, config.riderKg, config.bikeKg)
                 }
         }
@@ -361,6 +383,8 @@ class RideSession(
         shifts = 0
         pauseReason = null
     }
+
+    private fun usesPowerGears() = config.powerGears && mode !is RideMode.Erg
 
     private fun clampGrade(pct: Double) = pct.coerceIn(config.gradeLimits.minPct, config.gradeLimits.maxPct)
 

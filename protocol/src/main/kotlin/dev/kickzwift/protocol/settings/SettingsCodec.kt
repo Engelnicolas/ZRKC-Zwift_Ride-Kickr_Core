@@ -26,6 +26,7 @@ import kotlin.math.roundToLong
  *       sint32 grade_min_x100 = 13; sint32 grade_max_x100 = 14; uint32 erg_max_w = 15;
  *       string theme = 16; string orientation = 17;
  *       uint32 haptics = 18; uint32 imperial = 19; uint32 ftms_fallback = 20; uint32 fit_export = 21;
+ *       string gear_mode = 22;
  *     }
  *
  * Les énumérations sont écrites par leur nom : l'ordre du code peut changer sans casser le
@@ -53,6 +54,7 @@ object SettingsCodec {
     private const val HAPTICS = 18
     private const val IMPERIAL = 19
     private const val FTMS = 20
+    private const val GEAR_MODE = 22
     private const val FIT = 21
 
     private const val B_BUTTON = 1
@@ -99,6 +101,7 @@ object SettingsCodec {
             .varint(IMPERIAL, flag(s.imperial))
             .varint(FTMS, flag(s.ftmsFallback))
             .varint(FIT, flag(s.fitExport))
+            .message(GEAR_MODE, s.gearMode.name.encodeToByteArray())
         return w.toByteArray()
     }
 
@@ -124,6 +127,7 @@ object SettingsCodec {
             imperial = flagOf(f, IMPERIAL, D.imperial),
             ftmsFallback = flagOf(f, FTMS, D.ftmsFallback),
             fitExport = flagOf(f, FIT, D.fitExport),
+            gearMode = enumOf(f, GEAR_MODE, D.gearMode),
         )
     }
 
@@ -157,7 +161,7 @@ object SettingsCodec {
     private fun flag(b: Boolean) = if (b) 1L else 0L
 
     private fun validGears(gears: List<Double>) =
-        gears.isNotEmpty() && gears.size <= MAX_GEARS && gears.first() > 0 && gears.zipWithNext().all { (a, b) -> a < b }
+        gears.isNotEmpty() && gears.size <= AppSettings.MAX_GEARS && gears.first() > 0 && gears.zipWithNext().all { (a, b) -> a < b }
 
     private fun timing(f: Fields): GestureTiming =
         try {
@@ -190,7 +194,6 @@ object SettingsCodec {
             if (button == null || gesture == null || known == null) m else m.with(button, gesture, known)
         }
 
-    private const val MAX_GEARS = 60
     private val GRADE_RANGE = -40.0..40.0
 
     /** Actions par leur nom, paramètre à part : pente en dixièmes de %. */

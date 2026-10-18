@@ -25,13 +25,17 @@ controllers. The app reads each controller's version and warns you.
    and the KICKR. Only remembered devices are joined afterwards.
 2. **Ride**: Prepare the ride (or Start an activity in the Activities tab), choose the mode,
    Start. Everything is then controlled from the controllers; to finish, hold Finish while it
-   counts down 3, 2, 1.
+   counts down 2, 1.
 3. **Activities**: the summary offers a short comment, and every finished ride is listed in
    the Activities tab, most recent first, to review, comment or delete.
 
 Default mapping: Shift up and Shift down for gears, Up and Down arrows for grade (or the ERG
 target), Left and Right arrows for tracks, A play/pause, Y and B volume, Z pause, right
 Power-up opens Spotify. Everything can be changed in Settings.
+
+Gears are worked out by the app by default (Settings › Gears › Gears by: Power): every second it
+takes the speed of a real bike at your cadence and gear and sets the KICKR to the power that
+speed needs on the current grade. The gear table holds up to 60 ratios.
 
 A heart rate monitor using the standard Bluetooth profile (such as the COROS HRM) can be
 remembered like the other devices. The ride screen shows the track playing and the volume;

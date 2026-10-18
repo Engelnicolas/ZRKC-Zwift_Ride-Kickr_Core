@@ -1,6 +1,6 @@
 package dev.kickzwift.protocol.trainer
 
-import kotlin.math.pow
+import dev.kickzwift.protocol.gear.PowerGears
 
 /**
  * Essai des vitesses (Réglages › Gear test) : quatre façons d'envoyer un rapport au KICKR,
@@ -16,15 +16,6 @@ object GearTestPlan {
 
     /** Début d'étape ignoré, le temps que la résistance se stabilise. */
     const val SETTLE_MS = 10_000L
-
-    /** Roue de 700c. */
-    const val WHEEL_M = 2.105
-
-    private const val CWA_SCALE = 10_000.0
-    private const val CRR_SCALE = 100_000.0
-    private const val G = 9.81
-    private const val S_PER_MIN = 60.0
-    private const val MS_PER_KMH = 3.6
 
     enum class Way {
         /** Le rapport seul, comme le script du 17 octobre. */
@@ -99,12 +90,7 @@ object GearTestPlan {
         cadenceRpm: Double,
         ratio: Double,
         massKg: Double,
-    ): Double {
-        val v = cadenceRpm / S_PER_MIN * ratio * WHEEL_M
-        val aero = TrainerCodec.DEFAULT_CWA / CWA_SCALE / 2 * v.pow(3)
-        val rolling = TrainerCodec.DEFAULT_CRR / CRR_SCALE * massKg * G * v
-        return aero + rolling
-    }
+    ): Double = PowerGears.roadWatts(PowerGears.speedKmh(cadenceRpm, ratio), 0.0, massKg)
 
     /** Moyennes de fin d'étape ; null pour l'échauffement ou sans pédalage mesuré. */
     fun result(
@@ -132,5 +118,5 @@ object GearTestPlan {
     fun realBikeKmh(
         cadenceRpm: Double,
         ratio: Double,
-    ): Double = cadenceRpm / S_PER_MIN * ratio * WHEEL_M * MS_PER_KMH
+    ): Double = PowerGears.speedKmh(cadenceRpm, ratio)
 }

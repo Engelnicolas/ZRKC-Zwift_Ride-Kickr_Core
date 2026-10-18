@@ -12,6 +12,13 @@ enum class ThemeChoice { DARK, LIGHT, SYSTEM }
 enum class OrientationChoice { AUTO, PORTRAIT, LANDSCAPE }
 
 /**
+ * Qui fait les vitesses : l'app, en consigne de puissance calculée chaque seconde d'après la
+ * cadence et le rapport ([dev.kickzwift.protocol.gear.PowerGears]), ou le trainer, qui reçoit le
+ * rapport (protocole Zwift) ou un décalage de pente (repli FTMS).
+ */
+enum class GearMode { POWER, TRAINER }
+
+/**
  * Réglages de l'app (spécification, écran Réglages), tous modifiables sans recompiler.
  * Valeurs par défaut : celles de la spécification, « Comportements temps réel ».
  */
@@ -36,6 +43,8 @@ data class AppSettings(
     val ftmsFallback: Boolean = false,
     /** Écrit un fichier FIT de la sortie, à partager (options avancées). */
     val fitExport: Boolean = false,
+    /** Vitesses par la puissance par défaut : le KICKR relevé n'applique pas le rapport du protocole Zwift. */
+    val gearMode: GearMode = GearMode.POWER,
 ) {
     init {
         require(gears.isNotEmpty() && gears.zipWithNext().all { (a, b) -> a < b } && gears.first() > 0) { "table de rapports invalide" }
@@ -54,10 +63,14 @@ data class AppSettings(
             bikeKg = bikeKg,
             gradeLimits = gradeLimits,
             ergMaxW = ergMaxW,
+            powerGears = gearMode == GearMode.POWER,
         )
 
     companion object {
         const val DEFAULT_START_GEAR = 12
+
+        /** Taille maximale de la table des rapports, à la saisie comme à la relecture. */
+        const val MAX_GEARS = 60
         const val DEFAULT_RIDER_KG = 75.0
         const val DEFAULT_BIKE_KG = 9.5
         const val DEFAULT_WRITE_INTERVAL_MS = 150L

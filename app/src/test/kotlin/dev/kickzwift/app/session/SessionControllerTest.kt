@@ -17,6 +17,7 @@ import dev.kickzwift.protocol.session.PauseReason
 import dev.kickzwift.protocol.session.RideMode
 import dev.kickzwift.protocol.session.RidePhase
 import dev.kickzwift.protocol.settings.AppSettings
+import dev.kickzwift.protocol.settings.GearMode
 import dev.kickzwift.protocol.trainer.GearTestPlan
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -135,8 +136,12 @@ class SessionControllerTest {
         val trainer: FakeTrainer,
     )
 
-    private fun TestScope.rig(settings: AppSettings = AppSettings()): Rig {
-        val env = Env(this, settings)
+    /** Vitesses par le KICKR sauf [power] : la plupart des tests suivent la consigne de simulation. */
+    private fun TestScope.rig(
+        settings: AppSettings = AppSettings(),
+        power: Boolean = false,
+    ): Rig {
+        val env = Env(this, settings.copy(gearMode = if (power) GearMode.POWER else GearMode.TRAINER))
         val dispatcher = StandardTestDispatcher(testScheduler)
         val c = SessionController(env, backgroundScope, dispatcher)
         val left = FakeController("E2:93:3B:6A:0F:BC")
@@ -438,6 +443,25 @@ class SessionControllerTest {
             advanceTimeBy(200)
             assertTrue(r.controller.gearTest.value is GearTestState.Stopped)
             assertEquals(RidePhase.PREPARING, r.controller.state.value.snapshot.phase)
+        }
+
+    @Test
+    fun `vitesses par la puissance - consigne ERG chaque seconde, puissance nulle en pause`() =
+        runTest {
+            val r = rig(power = true)
+            r.ride()
+            pedal(r)
+            advanceTimeBy(2_500)
+            val low = r.trainer.writes.last() as TrainerTarget.Erg
+            r.left.press(Button.SHIFT_UP_LEFT)
+            r.left.press(Button.SHIFT_UP_RIGHT)
+            advanceTimeBy(1_500)
+            val high = r.trainer.writes.last() as TrainerTarget.Erg
+            assertTrue(high.watts > low.watts, "deux vitesses de plus, à cadence égale : plus dur")
+            assertTrue(r.trainer.writes.none { it is TrainerTarget.Simulation })
+            r.controller.pause()
+            advanceTimeBy(500)
+            assertEquals(TrainerTarget.Erg(0), r.trainer.writes.last())
         }
 
     @Test

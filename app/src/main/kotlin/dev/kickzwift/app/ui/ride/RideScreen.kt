@@ -257,7 +257,7 @@ private fun GearBlock(
     Column(modifier.semantics { contentDescription = description }, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             if (s.mode is RideMode.Erg) "—" else s.gear.toString(),
-            fontSize = 128.sp,
+            fontSize = GEAR_SIZE,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.scale(pulse.value),
         )
@@ -522,7 +522,7 @@ private fun Controls(
                 style = MaterialTheme.typography.titleLarge,
             )
         }
-        // Terminer demande d'appuyer 3 s, décompte 3, 2, 1 sur le bouton : pas de fin de sortie
+        // Terminer demande d'appuyer 2 s, décompte 2, 1 sur le bouton : pas de fin de sortie
         // par mégarde. Relâcher avant la fin annule.
         val label = stringResource(R.string.ride_finish_description)
         var countdown by remember { mutableStateOf<Int?>(null) }
@@ -569,8 +569,9 @@ private fun Controls(
 }
 
 private const val PULSE_SCALE = 1.25f
+private val GEAR_SIZE = 88.sp
 private const val BLINK_ALPHA = 0.2f
-private const val FINISH_COUNTDOWN = 3
+private const val FINISH_COUNTDOWN = 2
 private const val FINISH_STEP_MS = 1_000L
 private const val SENSORS_PER_ROW = 2
 

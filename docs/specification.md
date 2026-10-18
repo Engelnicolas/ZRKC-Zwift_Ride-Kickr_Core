@@ -79,6 +79,27 @@ InclineX100     = round(pente en % × 100)  // +2,5 % → 250
 BikeWeightx100  = round(masse en kg × 100) // 9,5 kg → 950
 ```
 
+### Vitesses par la puissance (par défaut)
+
+Le KICKR relevé applique fidèlement l'ERG et la pente, pas le rapport du protocole Zwift (Gear
+test du 18 oct. : 50 à 56 W quel que soit le rapport). Réglage « Gears by » : Power (app), par
+défaut, ou KICKR. En Power, chaque seconde (`PowerGears`, `FlywheelCadence`) :
+
+```
+cadence   = volant / k          // k ≈ 305 par rpm, calé en continu sur la cadence publiée
+v_pédales = cadence / 60 × rapport × 2,105 m
+F(v)      = CWa/2 × v² + Crr × m × g + m × g × pente              // CWa 0,51, Crr 0,004
+v_libre   = v − F(v) / m × dt                                     // vélo virtuel (VirtualBike)
+v         = v_pédales > v_libre ? max(v_libre, v + (v_pédales − v) × dt / 4 s) : v_libre
+consigne  = roue libre (v_pédales < v) ? 0 W : (F(v_pédales) + m × (v_pédales − v) / 4 s) × v_pédales
+```
+
+La consigne ERG est bornée à [0, plafond ERG]. La vitesse affichée et la distance sont celles du
+vélo virtuel : roue libre quand les pédales tournent moins vite que la roue (la vitesse décroît
+à plat, croît en descente jusqu'à sa vitesse limite, environ 44 km/h à −5 %) ; une relance coûte
+la puissance qui accélère la masse. Le vélo repart arrêté au départ et à chaque reprise ; en
+pause et à la fin, consigne de 0 W. Le mode ERG des sorties n'est pas concerné.
+
 ### FTMS, repli
 
 Service 0x1826, Indoor Bike Data 0x2AD2, point de contrôle 0x2AD9 (0x00 prise de contrôle,
@@ -145,9 +166,9 @@ Aucun écran ne parle au Bluetooth : tout passe par le service, qui garde la sor
 | Activités (onglet) | « Démarrer une activité » ; distance et temps du mois et de l'année en cours ; historique, la plus récente en tête (liseré rouge, date et mode, temps, distance, puissance moyenne, commentaire) |
 | Activité | Bilan enregistré ; commentaire modifiable ; suppression confirmée |
 | Choix du mode | Pente libre, parcours GPX (import, aperçu, cinq derniers), ERG |
-| Sortie | Notifications des autres apps en haut, poussant l'écran vers le bas (8 s, trois au plus) ; encart des capteurs ; vitesse engagée et barre des rapports, puissance, cadence, vitesse, pente ou cible, temps (h:mm:ss), distance, fréquence cardiaque, vitesse brute du volant, profil GPX ; lecteur, Spotify d'abord (titre, lecture ou pause, volume, relu toutes les 500 ms ; boutons précédent, lecture/pause, suivant, volume − et +) ; boutons ± de la cible en ERG seulement, la pente libre se règle aux manettes ; Pause, Terminer (appui de 3 s, décompte 3, 2, 1 sur le bouton) |
+| Sortie | Notifications des autres apps en haut, poussant l'écran vers le bas (8 s, trois au plus) ; encart des capteurs ; vitesse engagée et barre des rapports, puissance, cadence, vitesse, pente ou cible, temps (h:mm:ss), distance, fréquence cardiaque, vitesse brute du volant, profil GPX ; lecteur, Spotify d'abord (titre, lecture ou pause, volume, relu toutes les 500 ms ; boutons précédent, lecture/pause, suivant, volume − et +) ; boutons ± de la cible en ERG seulement, la pente libre se règle aux manettes ; Pause, Terminer (appui de 2 s, décompte 2, 1 sur le bouton) |
 | Bilan | Durée, distance, puissances, cadence, dénivelé, changements ; commentaire ; export FIT |
-| Réglages (onglet) | Correspondance boutons → actions avec « Tester », rapports, masses, affichage, options avancées (repli FTMS, export FIT, journaux, essai des vitesses « Gear test » : Debug start, Debug stop) |
+| Réglages (onglet) | Correspondance boutons → actions avec « Tester », vitesses par la puissance ou par le KICKR (« Gears by »), rapports (60 au plus), masses, affichage, options avancées (repli FTMS, export FIT, journaux, essai des vitesses « Gear test » : Debug start, Debug stop) |
 
 Règles : écran allumé pendant la sortie, portrait ou paysage ; thème sombre par défaut ;
 cibles de 48 dp, 64 dp pour Pause et Terminer ; état des appareils signalé par la forme et le
@@ -204,7 +225,7 @@ L'app n'a aucun accès réseau : sa surface d'attaque se limite au Bluetooth et 
 
 - **Vecteurs de référence** : trames réelles du Ride et du KICKR, captées sur le matériel par
   le prototype Python (hors dépôt), rejouées par les tests JVM.
-- **Tests JVM** : 279 (230 dans `:protocol`, 26 dans `:ble`, 23 dans `:app`) ; couverture
+- **Tests JVM** : 292 (242 dans `:protocol`, 26 dans `:ble`, 24 dans `:app`) ; couverture
   de `:protocol` ≥ 90 % des lignes, bloquante (JaCoCo). Faux appareils derrière `Controller`
   et `Trainer` pour les liaisons, `TrainerWriter` et `SessionController`.
 - **Qualité** : Android Lint (avertissements bloquants), ktlint, detekt.
@@ -234,7 +255,9 @@ Questions ouvertes :
   pic de quelques secondes (vitesse 24 à 67 rpm : 44 W, au lieu d'environ 400 W pour un vrai
   vélo). L'essai des vitesses des réglages (`GearTestPlan`, comme `kickr_sequence.py vitesses`)
   compare quatre façons d'envoyer le rapport : seul, seul après une pente, avec les masses
-  (l'app), pente, rapport et masses en une trame.
+  (l'app), pente, rapport et masses en une trame. Résultat : aucune ne tient (50 à 56 W partout),
+  KICKR redémarré ou non ; seul le premier rapport après un redémarrage donne un pic. D'où les
+  vitesses par la puissance, par défaut ; ressenti à confirmer sur le vélo.
 - Unité de la vitesse virtuelle du 0x03 (centième de km/h ou de m/s) : à reporter dans
   `TrainerCodec.SPEED_RAW_TO_KMH` ; sens du champ 6.
 - Mode ERG du KICKR (champ PowerTarget) et bornes de pente réelles du CORE.

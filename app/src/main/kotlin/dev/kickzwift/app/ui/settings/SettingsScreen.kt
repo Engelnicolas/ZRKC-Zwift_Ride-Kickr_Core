@@ -51,6 +51,7 @@ import dev.kickzwift.app.ui.common.shareFile
 import dev.kickzwift.protocol.Button
 import dev.kickzwift.protocol.Gesture
 import dev.kickzwift.protocol.mapping.ButtonMapping
+import dev.kickzwift.protocol.settings.GearMode
 import dev.kickzwift.protocol.settings.OrientationChoice
 import dev.kickzwift.protocol.settings.ThemeChoice
 import dev.kickzwift.protocol.trainer.GearTestPlan
@@ -128,6 +129,29 @@ private fun LazyListScope.gearsSection(
 ) {
     item {
         Section(stringResource(R.string.settings_gears))
+        Text(stringResource(R.string.settings_gear_mode))
+        Chips(
+            GearMode.entries,
+            ui.settings.gearMode,
+            label = {
+                stringResource(
+                    when (it) {
+                        GearMode.POWER -> R.string.settings_gear_mode_power
+                        GearMode.TRAINER -> R.string.settings_gear_mode_trainer
+                    },
+                )
+            },
+            onPick = vm::setGearMode,
+        )
+        Text(
+            stringResource(
+                when (ui.settings.gearMode) {
+                    GearMode.POWER -> R.string.settings_gear_mode_power_hint
+                    GearMode.TRAINER -> R.string.settings_gear_mode_trainer_hint
+                },
+            ),
+            style = MaterialTheme.typography.bodySmall,
+        )
         var text by remember(ui.settings.gears) { mutableStateOf(SettingsViewModel.formatGears(ui.settings.gears)) }
         var error by remember { mutableStateOf(false) }
         OutlinedTextField(
