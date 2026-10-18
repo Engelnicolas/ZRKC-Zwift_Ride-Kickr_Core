@@ -32,6 +32,7 @@ import dev.kickzwift.protocol.Gesture
 import dev.kickzwift.protocol.LinkState
 import dev.kickzwift.protocol.device.DeviceKind
 import java.time.Instant
+import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -238,6 +239,15 @@ object Format {
     fun signedPct(value: Double): String = "%+.1f %%".format(LOCALE, value)
 
     fun kg(value: Double): String = "%.1f kg".format(LOCALE, value)
+
+    /** Temps cumulé en heures et minutes : 3 h 05 min. */
+    fun hours(ms: Long): String {
+        val min = ms / MS_PER_S / S_PER_MIN
+        return "%d h %02d min".format(Locale.ROOT, min / S_PER_MIN, min % S_PER_MIN)
+    }
+
+    /** Mois en toutes lettres : October 2026. */
+    fun month(month: YearMonth): String = month.format(DateTimeFormatter.ofPattern("MMMM yyyy", LOCALE))
 
     /** Date et heure locales d'une heure Unix en millisecondes. */
     fun dateTime(epochMs: Long): String =

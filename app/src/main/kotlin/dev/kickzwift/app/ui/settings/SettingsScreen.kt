@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
@@ -38,6 +39,8 @@ import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.kickzwift.app.BuildConfig
 import dev.kickzwift.app.R
+import dev.kickzwift.app.session.GearTestFailure
+import dev.kickzwift.app.session.GearTestState
 import dev.kickzwift.app.ui.common.Format
 import dev.kickzwift.app.ui.common.HelpText
 import dev.kickzwift.app.ui.common.Stepper
@@ -50,7 +53,9 @@ import dev.kickzwift.protocol.Gesture
 import dev.kickzwift.protocol.mapping.ButtonMapping
 import dev.kickzwift.protocol.settings.OrientationChoice
 import dev.kickzwift.protocol.settings.ThemeChoice
+import dev.kickzwift.protocol.trainer.GearTestPlan
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 /** Écran Réglages : boutons, vitesses, cycliste, affichage, options avancées, à propos. */
 @Composable
@@ -222,6 +227,80 @@ private fun LazyListScope.advancedSection(
         OutlinedButton(onClick = { scope.launch { context.shareFile(vm.exportLog(), "text/plain") } }) {
             Text(stringResource(R.string.settings_export_log))
         }
+        val test by vm.gearTest.collectAsStateWithLifecycle()
+        GearTestBlock(test, vm::startGearTest, vm::stopGearTest)
+    }
+}
+
+/** Essai des vitesses : Debug start et Debug stop, étape en cours, résultats. */
+@Composable
+private fun GearTestBlock(
+    state: GearTestState,
+    onStart: () -> Unit,
+    onStop: () -> Unit,
+) {
+    Column(Modifier.fillMaxWidth().padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(stringResource(R.string.gear_test_title), style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.gear_test_hint), style = MaterialTheme.typography.bodySmall)
+        val running = state is GearTestState.Running
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Button(onClick = onStart, enabled = !running) { Text(stringResource(R.string.gear_test_start)) }
+            OutlinedButton(onClick = onStop, enabled = running) { Text(stringResource(R.string.gear_test_stop)) }
+        }
+        when (state) {
+            GearTestState.Idle -> Unit
+            is GearTestState.Running -> {
+                val step = state.step.ratio?.let { "${state.step.code} · ${"%.2f".format(Locale.ROOT, it)}" }
+                Text(
+                    stringResource(
+                        R.string.gear_test_running,
+                        state.index,
+                        state.count,
+                        step ?: stringResource(R.string.gear_test_warmup),
+                        state.remainingS,
+                    ),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                GearTestResults(state.results)
+            }
+            is GearTestState.Done -> {
+                Text(stringResource(R.string.gear_test_done))
+                GearTestResults(state.results)
+            }
+            is GearTestState.Stopped -> {
+                Text(stringResource(R.string.gear_test_stopped))
+                GearTestResults(state.results)
+            }
+            is GearTestState.Failed -> {
+                val reason =
+                    when (state.reason) {
+                        GearTestFailure.NO_TRAINER -> R.string.gear_test_no_trainer
+                        GearTestFailure.RIDING -> R.string.gear_test_riding
+                        GearTestFailure.FTMS -> R.string.gear_test_ftms
+                        GearTestFailure.WRITE -> R.string.gear_test_write
+                    }
+                Text(stringResource(R.string.gear_test_failed, stringResource(reason)), color = MaterialTheme.colorScheme.error)
+            }
+        }
+    }
+}
+
+@Composable
+private fun GearTestResults(results: List<GearTestPlan.Result>) {
+    results.forEach { r ->
+        val way =
+            when (r.step.way) {
+                GearTestPlan.Way.GEAR_ONLY -> R.string.gear_test_way_a
+                GearTestPlan.Way.AFTER_GRADE -> R.string.gear_test_way_b
+                GearTestPlan.Way.WITH_MASSES -> R.string.gear_test_way_c
+                GearTestPlan.Way.COMBINED, null -> R.string.gear_test_way_d
+            }
+        val step = "${r.step.code} · ${"%.2f".format(Locale.ROOT, r.step.ratio ?: 0.0)} · ${stringResource(way)}"
+        Text(
+            stringResource(R.string.gear_test_result, step, r.powerW, r.cadenceRpm, r.realBikeW),
+            style = MaterialTheme.typography.bodyMedium,
+        )
     }
 }
 

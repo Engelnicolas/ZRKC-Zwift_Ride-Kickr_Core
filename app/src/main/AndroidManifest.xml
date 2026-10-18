@@ -17,6 +17,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Mode « ZRKC ride » pendant la sortie (RideQuiet) ; accordé avec l'accès aux notifications. -->
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
     <!-- Apportées par la bibliothèque Nordic pour Android 11 et avant (maxSdkVersion 30) :
          sans effet avec minSdk 31, retirées pour que le manifeste fusionné reste celui de la

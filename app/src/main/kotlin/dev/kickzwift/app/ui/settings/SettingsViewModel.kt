@@ -128,6 +128,13 @@ class SettingsViewModel(
 
     fun setFtms(on: Boolean) = update { it.copy(ftmsFallback = on) }
 
+    /** Essai des vitesses (Advanced › Gear test). */
+    val gearTest = c.session.gearTest
+
+    fun startGearTest() = c.session.startGearTest()
+
+    fun stopGearTest() = c.session.stopGearTest()
+
     fun setFit(on: Boolean) = update { it.copy(fitExport = on) }
 
     /** Journal complet, prêt à partager. */

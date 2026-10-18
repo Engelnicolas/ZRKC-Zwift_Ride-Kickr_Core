@@ -100,6 +100,25 @@ object TrainerCodec {
     /** 0x04 avec la seule pente (vent 0, CdA et Crr de Zwift). Vérifié sur le matériel (0 % et +2 %). */
     fun simulation(gradePct: Double): ByteArray = HubEncoder.command(simulation = HubEncoder.simulation(gradePct))
 
+    /** 0x04 avec le rapport et les masses : la seconde trame d'une consigne de simulation. */
+    fun physical(
+        ratio: Double,
+        bikeKg: Double,
+        riderKg: Double,
+    ): ByteArray = HubEncoder.command(physical = HubEncoder.physical(ratio, bikeKg, riderKg))
+
+    /** 0x04 unique avec la pente, le rapport et les masses. Non vérifié sur le matériel. */
+    fun combined(
+        gradePct: Double,
+        ratio: Double,
+        bikeKg: Double,
+        riderKg: Double,
+    ): ByteArray =
+        HubEncoder.command(
+            simulation = HubEncoder.simulation(gradePct),
+            physical = HubEncoder.physical(ratio, bikeKg, riderKg),
+        )
+
     /** 0x04 en mode ERG, champ PowerTarget de virtual-cog. Non vérifié sur le matériel. */
     fun powerTarget(watts: Int): ByteArray {
         require(watts >= 0) { "puissance cible négative" }
@@ -119,10 +138,7 @@ object TrainerCodec {
     fun encode(target: TrainerTarget): List<ByteArray> =
         when (target) {
             is TrainerTarget.Simulation ->
-                listOf(
-                    simulation(target.gradePct),
-                    HubEncoder.command(physical = HubEncoder.physical(target.gearRatio, target.bikeKg, target.riderKg)),
-                )
+                listOf(simulation(target.gradePct), physical(target.gearRatio, target.bikeKg, target.riderKg))
             is TrainerTarget.Erg -> listOf(powerTarget(target.watts))
             TrainerTarget.Neutral -> listOf(simulation(0.0))
         }

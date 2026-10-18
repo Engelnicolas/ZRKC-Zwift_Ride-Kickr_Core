@@ -194,6 +194,8 @@ class KickrManager(
         TrainerCodec.encode(target).forEach { write(it) }
     }
 
+    override suspend fun writeRaw(frame: ByteArray) = write(frame)
+
     override suspend fun readGearRatio(): Double? =
         request(TrainerCodec.infoRequest(), REPLY_TIMEOUT) { frame ->
             (TrainerCodec.decode(frame) as? TrainerFrame.GearRatio)?.gearRatioX10000

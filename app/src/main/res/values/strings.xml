@@ -115,6 +115,9 @@
     <string name="ride_gear_description">Current gear: %1$d/%2$d</string>
     <string name="ride_profile_description">Route profile, current position marked</string>
 
+    <!-- Mode Android actif pendant la sortie, visible dans Paramètres › Modes -->
+    <string name="ride_mode_name">ZRKC ride</string>
+
     <!-- Lecteur de l'écran Sortie -->
     <string name="player_music">Music</string>
     <string name="player_playing">Playing</string>
@@ -153,6 +156,11 @@
     <string name="activities_title">Activities</string>
     <string name="activities_start">Start an activity</string>
     <string name="activities_empty">No activities yet. Finished rides appear here, most recent first.</string>
+    <string name="activities_month">This month · %1$s</string>
+    <string name="activities_year">This year · %1$d</string>
+    <string name="activities_distance">Distance</string>
+    <string name="activities_time">Time</string>
+    <string name="activities_avg_power">Avg power</string>
     <string name="activity_title">Activity</string>
     <string name="activity_not_found">This activity no longer exists.</string>
     <string name="activity_comment">Comment</string>
@@ -196,6 +204,24 @@
     <string name="settings_ftms_hint">Applies on the next connection; gears are then simulated through the grade.</string>
     <string name="settings_fit">FIT export of the ride</string>
     <string name="settings_export_log">Export the log</string>
+    <string name="gear_test_title">Gear test (debug)</string>
+    <string name="gear_test_hint">Measures how the KICKR applies the gears: four ways of sending a gear, each in gear 12 then 17, about 4 minutes. Pedal at a steady cadence, around 60 rpm, from start to finish, even when the resistance changes. Not during a ride.</string>
+    <string name="gear_test_start">Debug start</string>
+    <string name="gear_test_stop">Debug stop</string>
+    <string name="gear_test_warmup">Warm-up</string>
+    <string name="gear_test_running">Step %1$d/%2$d · %3$s · %4$d s left</string>
+    <string name="gear_test_done">Done. The KICKR is back to flat, gear 12. Results are also in the log.</string>
+    <string name="gear_test_stopped">Stopped. The KICKR is back to flat, gear 12.</string>
+    <string name="gear_test_failed">Test not possible: %1$s.</string>
+    <string name="gear_test_no_trainer">the KICKR is not ready</string>
+    <string name="gear_test_riding">a ride is in progress</string>
+    <string name="gear_test_ftms">the FTMS fallback is on</string>
+    <string name="gear_test_write">a write to the KICKR failed</string>
+    <string name="gear_test_way_a">gear only</string>
+    <string name="gear_test_way_b">gear only, after a grade frame</string>
+    <string name="gear_test_way_c">gear and weights (app)</string>
+    <string name="gear_test_way_d">grade, gear and weights in one frame</string>
+    <string name="gear_test_result">%1$s · %2$d W at %3$d rpm · real bike %4$d W</string>
     <string name="settings_about">About</string>
     <string name="settings_version">Version %1$s · built %2$s</string>
     <string name="settings_email_support">Email support</string>

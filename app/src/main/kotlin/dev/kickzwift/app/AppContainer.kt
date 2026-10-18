@@ -12,7 +12,9 @@ import dev.kickzwift.app.data.TrustedDevices
 import dev.kickzwift.app.log.FileLog
 import dev.kickzwift.app.phone.AndroidPhoneActions
 import dev.kickzwift.app.phone.MediaMonitor
+import dev.kickzwift.app.phone.NotificationMirror
 import dev.kickzwift.app.phone.PhoneActions
+import dev.kickzwift.app.phone.RideQuiet
 import dev.kickzwift.app.route.RouteLibrary
 import dev.kickzwift.app.session.SessionController
 import dev.kickzwift.app.session.SessionDevices
@@ -24,6 +26,7 @@ import dev.kickzwift.ble.link.ReconnectPolicy
 import dev.kickzwift.ble.scan.DeviceScanner
 import dev.kickzwift.protocol.device.DeviceKind
 import dev.kickzwift.protocol.device.KnownDevice
+import dev.kickzwift.protocol.session.RidePhase
 import dev.kickzwift.protocol.settings.AppSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +35,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -102,10 +106,10 @@ class AppContainer(
     /** Fichiers à partager (FIT, journal), servis par le FileProvider de l'app. */
     val exportsDir = File(this.context.cacheDir, "exports")
 
-    private val phone: PhoneActions = AndroidPhoneActions(this.context)
-
     /** Lecture en cours sur le téléphone, pour le lecteur de l'écran Sortie. */
     val media = MediaMonitor(this.context)
+
+    private val phone: PhoneActions = AndroidPhoneActions(this.context, media)
 
     val session =
         SessionController(
@@ -113,6 +117,22 @@ class AppContainer(
             scope = scope,
             dispatcher = Dispatchers.Default.limitedParallelism(1),
         )
+
+    private val quiet = RideQuiet(this.context, log::log)
+
+    init {
+        // Pendant la sortie : mode « ZRKC ride » et notifications recopiées dans l'écran Sortie.
+        // La première valeur (pas de sortie) désactive un mode resté actif.
+        scope.launch {
+            session.state
+                .map { it.snapshot.phase == RidePhase.RIDING || it.snapshot.phase == RidePhase.PAUSED }
+                .distinctUntilChanged()
+                .collect { riding ->
+                    NotificationMirror.active = riding
+                    quiet.set(riding)
+                }
+        }
+    }
 
     /** Manettes et trainer des appareils de confiance, mis à jour quand la liste change. */
     fun sessionDevices(): Flow<SessionDevices> =

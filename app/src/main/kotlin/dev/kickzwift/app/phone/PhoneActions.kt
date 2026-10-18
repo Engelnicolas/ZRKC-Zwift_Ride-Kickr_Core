@@ -12,6 +12,9 @@ import dev.kickzwift.protocol.Action
 fun interface PhoneActions {
     /** Rend vrai si [action] était une action téléphone, et l'a exécutée. */
     fun perform(action: Action): Boolean
+
+    /** Au départ de la sortie : reprend la musique de Spotify, sans quitter l'écran Sortie. */
+    fun startMusic() = Unit
 }
 
 /**
@@ -21,6 +24,7 @@ fun interface PhoneActions {
  */
 class AndroidPhoneActions(
     context: Context,
+    private val media: MediaMonitor,
 ) : PhoneActions {
     private val context = context.applicationContext
     private val audio = context.getSystemService(AudioManager::class.java)
@@ -36,6 +40,8 @@ class AndroidPhoneActions(
         }
         return true
     }
+
+    override fun startMusic() = media.playSpotify()
 
     /**
      * Faux si Spotify n'est pas installé. Android n'ouvre une app depuis la nôtre que si elle est
@@ -57,7 +63,7 @@ class AndroidPhoneActions(
         audio.dispatchMediaKeyEvent(KeyEvent(at, at, KeyEvent.ACTION_UP, code, 0))
     }
 
-    private companion object {
+    companion object {
         const val SPOTIFY = "com.spotify.music"
     }
 }

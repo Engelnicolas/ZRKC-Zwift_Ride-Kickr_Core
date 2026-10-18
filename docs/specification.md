@@ -33,7 +33,9 @@ Flux de données :
    suffit, le pod droit n'est qu'un relais de secours. Les trames deviennent des gestes
    (appui, appui long, double appui).
 2. `SessionController` applique la correspondance boutons → actions : vitesses et pente vers
-   la session, musique, volume et ouverture de Spotify vers `PhoneActions`.
+   la session, musique, volume et ouverture de Spotify vers `PhoneActions`. Au départ de la
+   sortie, la lecture de Spotify reprend en arrière-plan (session Spotify, sinon touche
+   « lecture » adressée à Spotify seul).
 3. `TrainerWriter` est le seul à écrire sur le KICKR : il n'envoie que la dernière consigne,
    au plus une fois par intervalle, puis relit le rapport (requête 520).
 4. La télémétrie du KICKR (puissance, cadence, vitesse, volant) alimente la session et
@@ -140,12 +142,12 @@ Aucun écran ne parle au Bluetooth : tout passe par le service, qui garde la sor
 | Écran | Contenu |
 |---|---|
 | Connexions (onglet) | Encart « My devices », une ligne par appareil : état, batterie, firmware, fréquence cardiaque, alerte verrou ; recherche, mémorisation, oubli ; « Préparer la sortie » |
-| Activités (onglet) | « Démarrer une activité » ; historique, la plus récente en tête |
+| Activités (onglet) | « Démarrer une activité » ; distance et temps du mois et de l'année en cours ; historique, la plus récente en tête (liseré rouge, date et mode, temps, distance, puissance moyenne, commentaire) |
 | Activité | Bilan enregistré ; commentaire modifiable ; suppression confirmée |
 | Choix du mode | Pente libre, parcours GPX (import, aperçu, cinq derniers), ERG |
-| Sortie | Encart des capteurs ; vitesse engagée et barre des rapports, puissance, cadence, vitesse, pente ou cible, temps (h:mm:ss), distance, fréquence cardiaque, vitesse brute du volant, profil GPX ; lecteur (titre, lecture ou pause, volume, relu toutes les 500 ms) ; Pause, Terminer (appui de 3 s, décompte 3, 2, 1 sur le bouton) |
+| Sortie | Notifications des autres apps en haut, poussant l'écran vers le bas (8 s, trois au plus) ; encart des capteurs ; vitesse engagée et barre des rapports, puissance, cadence, vitesse, pente ou cible, temps (h:mm:ss), distance, fréquence cardiaque, vitesse brute du volant, profil GPX ; lecteur, Spotify d'abord (titre, lecture ou pause, volume, relu toutes les 500 ms ; boutons précédent, lecture/pause, suivant, volume − et +) ; boutons ± de la cible en ERG seulement, la pente libre se règle aux manettes ; Pause, Terminer (appui de 3 s, décompte 3, 2, 1 sur le bouton) |
 | Bilan | Durée, distance, puissances, cadence, dénivelé, changements ; commentaire ; export FIT |
-| Réglages (onglet) | Correspondance boutons → actions avec « Tester », rapports, masses, affichage, options avancées (repli FTMS, export FIT, journaux) |
+| Réglages (onglet) | Correspondance boutons → actions avec « Tester », rapports, masses, affichage, options avancées (repli FTMS, export FIT, journaux, essai des vitesses « Gear test » : Debug start, Debug stop) |
 
 Règles : écran allumé pendant la sortie, portrait ou paysage ; thème sombre par défaut ;
 cibles de 48 dp, 64 dp pour Pause et Terminer ; état des appareils signalé par la forme et le
@@ -174,11 +176,17 @@ L'app n'a aucun accès réseau : sa surface d'attaque se limite au Bluetooth et 
 
 - **Permissions** : `BLUETOOTH_SCAN` (neverForLocation), `BLUETOOTH_CONNECT`,
   `FOREGROUND_SERVICE` et `FOREGROUND_SERVICE_CONNECTED_DEVICE`, `POST_NOTIFICATIONS`,
-  `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`, `VIBRATE`. Absentes volontairement : `INTERNET`,
+  `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`, `VIBRATE`, `ACCESS_NOTIFICATION_POLICY`. Absentes volontairement : `INTERNET`,
   localisation, stockage, accessibilité.
 - **Accès aux notifications** (facultatif, accordé dans les réglages d'Android) : ouvre la
-  liste des lecteurs actifs pour le titre et l'état du lecteur. Les notifications reçues sont
-  ignorées ; sans accès, le lecteur montre le volume et « de la musique joue ».
+  liste des lecteurs actifs pour le titre et l'état du lecteur ; sans accès, le lecteur montre
+  le volume et « de la musique joue ». Hors sortie, les notifications reçues sont ignorées ;
+  pendant la sortie, celles qui auraient surgi en bandeau (importance haute, hors appels) sont
+  recopiées dans l'écran Sortie, en mémoire seulement, jamais journalisées.
+- **Mode « ZRKC ride »** (`ACCESS_NOTIFICATION_POLICY`, accordé avec l'accès aux notifications) :
+  actif de RIDING à la fin de la sortie, il supprime les bandeaux flottants ; les notifications
+  restent dans le volet mais sans son ni vibration ; appels, alarmes et musique passent. Désactivé
+  au lancement de l'app s'il était resté actif.
 - **Visibilité des paquets** : `<queries>` limité à `com.spotify.music`.
 - **Appareils de confiance** : seules les adresses mémorisées au premier appairage sont
   jointes, directement et sans scan.
@@ -196,7 +204,7 @@ L'app n'a aucun accès réseau : sa surface d'attaque se limite au Bluetooth et 
 
 - **Vecteurs de référence** : trames réelles du Ride et du KICKR, captées sur le matériel par
   le prototype Python (hors dépôt), rejouées par les tests JVM.
-- **Tests JVM** : 268 (225 dans `:protocol`, 26 dans `:ble`, 17 dans `:app`) ; couverture
+- **Tests JVM** : 279 (230 dans `:protocol`, 26 dans `:ble`, 23 dans `:app`) ; couverture
   de `:protocol` ≥ 90 % des lignes, bloquante (JaCoCo). Faux appareils derrière `Controller`
   et `Trainer` pour les liaisons, `TrainerWriter` et `SessionController`.
 - **Qualité** : Android Lint (avertissements bloquants), ktlint, detekt.
@@ -221,6 +229,12 @@ téléphone. Restent les essais sur le matériel, dans l'ordre :
 
 Questions ouvertes :
 
+- **Vitesses peu ressenties** (sortie du 18 oct., 15:49) : le KICKR relit bien chaque rapport,
+  mais la vitesse simulée suit la puissance et non le rapport ; un changement ne donne qu'un
+  pic de quelques secondes (vitesse 24 à 67 rpm : 44 W, au lieu d'environ 400 W pour un vrai
+  vélo). L'essai des vitesses des réglages (`GearTestPlan`, comme `kickr_sequence.py vitesses`)
+  compare quatre façons d'envoyer le rapport : seul, seul après une pente, avec les masses
+  (l'app), pente, rapport et masses en une trame.
 - Unité de la vitesse virtuelle du 0x03 (centième de km/h ou de m/s) : à reporter dans
   `TrainerCodec.SPEED_RAW_TO_KMH` ; sens du champ 6.
 - Mode ERG du KICKR (champ PowerTarget) et bornes de pente réelles du CORE.

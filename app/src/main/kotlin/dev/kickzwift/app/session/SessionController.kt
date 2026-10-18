@@ -12,7 +12,6 @@ import dev.kickzwift.protocol.Action
 import dev.kickzwift.protocol.ButtonEvent
 import dev.kickzwift.protocol.LinkState
 import dev.kickzwift.protocol.RidingData
-import dev.kickzwift.protocol.TrainerTarget
 import dev.kickzwift.protocol.fit.FitEncoder
 import dev.kickzwift.protocol.fit.FitSample
 import dev.kickzwift.protocol.fit.FitSummary
@@ -27,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -45,7 +45,6 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.util.Locale
 import kotlin.time.Duration.Companion.milliseconds
 
 /** Les appareils d'une sortie : les manettes de confiance, le trainer et le capteur cardiaque, s'il y en a. */
@@ -127,7 +126,9 @@ class SessionController(
     private val samples = mutableListOf<FitSample>()
     private var startedWallMs = 0L
     private var gearSave: Job? = null
-    private var lastRidingLogMs: Long? = null
+    private val ridingLog = RidingLog(env)
+    private var trainer: Trainer? = null
+    private var gearTestJob: Job? = null
     private var sensorHeartRate: Int? = null
 
     private val mutableState = MutableStateFlow(SessionUi(session.snapshot(env.now())))
@@ -144,8 +145,37 @@ class SessionController(
     /** Mode « Tester » des réglages : les gestes sont montrés, pas appliqués. */
     val testing = MutableStateFlow(false)
 
+    private val mutableGearTest = MutableStateFlow<GearTestState>(GearTestState.Idle)
+
+    /** Essai des vitesses des réglages ([GearTest]). */
+    val gearTest: StateFlow<GearTestState> = mutableGearTest.asStateFlow()
+
+    /** Lance l'essai des vitesses, hors sortie seulement, KICKR prêt en protocole Zwift. */
+    fun startGearTest() =
+        command {
+            if (gearTestJob?.isActive == true) return@command
+            val t = trainer
+            val failure =
+                when {
+                    session.phase != RidePhase.IDLE -> GearTestFailure.RIDING
+                    env.settings.value.ftmsFallback -> GearTestFailure.FTMS
+                    t == null || !trainerReady -> GearTestFailure.NO_TRAINER
+                    else -> null
+                }
+            if (failure != null || t == null) {
+                mutableGearTest.value = GearTestState.Failed(failure ?: GearTestFailure.NO_TRAINER)
+            } else {
+                gearTestJob = scope.launch(dispatcher) { GearTest(env, t) { mutableGearTest.value = it }.run() }
+            }
+        }
+
+    /** Arrête l'essai ; le trainer est remis à plat en vitesse 12. */
+    fun stopGearTest() = command { gearTestJob?.cancelAndJoin() }
+
     fun prepare() =
         command {
+            // Un essai des vitesses en cours s'arrête, remise à plat comprise, avant la sortie.
+            gearTestJob?.cancelAndJoin()
             if (session.phase == RidePhase.IDLE) {
                 val s = env.settings.value
                 val start = env.lastGear()?.takeIf { it in 1..s.gears.size } ?: s.startGear
@@ -163,10 +193,11 @@ class SessionController(
         if (session.phase == RidePhase.PREPARING) {
             route = routeData
             samples.clear()
-            lastRidingLogMs = null
+            ridingLog.reset()
             startedWallMs = env.wallClock()
             session.start(mode, env.now())
             env.log("sortie démarrée : ${mode::class.simpleName}")
+            env.phone.startMusic()
         }
     }
 
@@ -218,6 +249,7 @@ class SessionController(
                     )
                 }
             writer = w
+            this@SessionController.trainer = trainer
             trainerReady = false
             try {
                 if (trainer != null && w != null) {
@@ -238,6 +270,7 @@ class SessionController(
                 awaitCancellation()
             } finally {
                 writer = null
+                this@SessionController.trainer = null
                 sensorHeartRate = null
             }
         }
@@ -265,7 +298,7 @@ class SessionController(
 
     private fun onData(data: RidingData) {
         session.onRidingData(data)
-        if (session.phase == RidePhase.RIDING) logRiding(data)
+        if (session.phase == RidePhase.RIDING) ridingLog.log(data, sensorHeartRate, session.gear, writer?.lastSent)
         if (session.phase == RidePhase.RIDING && env.settings.value.fitExport) {
             samples +=
                 FitSample(
@@ -279,34 +312,6 @@ class SessionController(
         }
         publish()
     }
-
-    /**
-     * Une ligne par seconde au plus pendant la sortie : mesures du trainer et consigne
-     * écrite, pour voir si la puissance suit les changements de rapport.
-     */
-    private fun logRiding(data: RidingData) {
-        val now = env.now()
-        if (lastRidingLogMs?.let { now - it < RIDING_LOG_MS } == true) return
-        lastRidingLogMs = now
-        val speed = "%.1f".format(Locale.ROOT, data.speedKmh)
-        val extras =
-            listOfNotNull(
-                data.flywheelRaw?.let { "volant $it" },
-                (sensorHeartRate ?: data.heartRate)?.let { "FC $it" },
-            ).joinToString("") { ", $it" }
-        env.log(
-            "pédalage : ${data.powerW} W, ${data.cadenceRpm} rpm, $speed km/h$extras, " +
-                "vitesse ${session.gear}, consigne ${describe(writer?.lastSent)}",
-        )
-    }
-
-    private fun describe(target: TrainerTarget?): String =
-        when (target) {
-            is TrainerTarget.Simulation -> "rapport ${target.gearRatio}, pente ${target.gradePct} %"
-            is TrainerTarget.Erg -> "ERG ${target.watts} W"
-            TrainerTarget.Neutral -> "à plat"
-            null -> "aucune"
-        }
 
     private fun onTrainerLink(state: LinkState) {
         val ready = state == LinkState.READY
@@ -410,6 +415,5 @@ class SessionController(
         const val TICK_MS = 250L
         const val TICKS_PER_SECOND = 4
         const val GEAR_SAVE_DELAY_MS = 2_000L
-        const val RIDING_LOG_MS = 1_000L
     }
 }

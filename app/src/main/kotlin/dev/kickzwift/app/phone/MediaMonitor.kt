@@ -1,15 +1,21 @@
 package dev.kickzwift.app.phone
 
+import android.app.Notification
+import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.MediaMetadata
 import android.media.session.MediaController
 import android.media.session.MediaSessionManager
 import android.media.session.PlaybackState
+import android.os.SystemClock
 import android.provider.Settings
 import android.service.notification.NotificationListenerService
+import android.service.notification.StatusBarNotification
+import android.view.KeyEvent
 import androidx.core.app.NotificationManagerCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -35,7 +41,8 @@ data class MediaState(
  *
  * Le volume et « de la musique joue » viennent du flux musique, sans permission. Le titre et
  * l'état du lecteur exigent l'accès aux notifications, que la personne accorde dans les
- * réglages d'Android ([accessSettings]) ; l'app ne lit aucune notification.
+ * réglages d'Android ([accessSettings]) ; l'app ne lit aucune notification. Spotify passe
+ * avant les autres lecteurs.
  */
 class MediaMonitor(
     context: Context,
@@ -53,16 +60,43 @@ class MediaMonitor(
             }
         }.distinctUntilChanged().flowOn(Dispatchers.Default)
 
+    /**
+     * Reprend la lecture de Spotify en arrière-plan : par sa session s'il en a une, sinon par une
+     * touche « lecture » adressée à Spotify seul, qui le démarre s'il est fermé. Sans effet si
+     * Spotify n'est pas installé ; la lecture déjà en cours continue.
+     */
+    fun playSpotify() {
+        if (context.packageManager.getLaunchIntentForPackage(AndroidPhoneActions.SPOTIFY) == null) return
+        val session = runCatching { sessions(access()).firstOrNull { it.packageName == AndroidPhoneActions.SPOTIFY } }.getOrNull()
+        if (session != null) {
+            if (session.playbackState?.state != PlaybackState.STATE_PLAYING) session.transportControls.play()
+            return
+        }
+        val at = SystemClock.uptimeMillis()
+        for (action in listOf(KeyEvent.ACTION_DOWN, KeyEvent.ACTION_UP)) {
+            context.sendBroadcast(
+                Intent(Intent.ACTION_MEDIA_BUTTON)
+                    .setPackage(AndroidPhoneActions.SPOTIFY)
+                    .putExtra(Intent.EXTRA_KEY_EVENT, KeyEvent(at, at, action, KeyEvent.KEYCODE_MEDIA_PLAY, 0)),
+            )
+        }
+    }
+
     /** Page des réglages d'Android où accorder l'accès aux notifications à l'app. */
     fun accessSettings(): Intent =
         Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS)
             .putExtra(Settings.EXTRA_NOTIFICATION_LISTENER_COMPONENT_NAME, listener.flattenToString())
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 
+    private fun access(): Boolean = NotificationManagerCompat.getEnabledListenerPackages(context).contains(context.packageName)
+
+    // Sans accès, getActiveSessions lève SecurityException ; l'accès peut aussi être retiré entre-temps.
+    private fun sessions(access: Boolean): List<MediaController> =
+        if (access) runCatching { sessions.getActiveSessions(listener) }.getOrDefault(emptyList()) else emptyList()
+
     private fun read(): MediaState {
-        val access = NotificationManagerCompat.getEnabledListenerPackages(context).contains(context.packageName)
-        // Sans accès, getActiveSessions lève SecurityException ; l'accès peut aussi être retiré entre-temps.
-        val controller = if (access) runCatching { pick(sessions.getActiveSessions(listener)) }.getOrNull() else null
+        val access = access()
+        val controller = pick(sessions(access))
         val metadata = controller?.metadata
         return MediaState(
             title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE),
@@ -74,9 +108,12 @@ class MediaMonitor(
         )
     }
 
-    // Le lecteur qui joue, sinon le plus récent : Android les rend du plus récent au plus ancien.
+    // Spotify d'abord, puis le lecteur qui joue, sinon le plus récent : Android les rend du plus
+    // récent au plus ancien.
     private fun pick(list: List<MediaController>): MediaController? =
-        list.firstOrNull { it.playbackState?.state == PlaybackState.STATE_PLAYING } ?: list.firstOrNull()
+        list.firstOrNull { it.packageName == AndroidPhoneActions.SPOTIFY }
+            ?: list.firstOrNull { it.playbackState?.state == PlaybackState.STATE_PLAYING }
+            ?: list.firstOrNull()
 
     private companion object {
         const val POLL_MS = 500L
@@ -85,6 +122,44 @@ class MediaMonitor(
 
 /**
  * Présent pour que l'accès aux notifications puisse être accordé, ce qui ouvre la liste des
- * lecteurs actifs à [MediaMonitor]. Les notifications reçues sont ignorées.
+ * lecteurs actifs à [MediaMonitor] et le mode « ZRKC ride » à [RideQuiet]. Hors sortie, les
+ * notifications reçues sont ignorées ; pendant la sortie, celles qui auraient surgi en bandeau
+ * (importance haute, hors appels et notifications permanentes) passent à [NotificationMirror].
  */
-class MediaAccessService : NotificationListenerService()
+class MediaAccessService : NotificationListenerService() {
+    override fun onNotificationPosted(
+        sbn: StatusBarNotification,
+        rankingMap: RankingMap,
+    ) {
+        val n = sbn.notification
+        val title = n.extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
+        val text = n.extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()
+        val readable = title != null || text != null
+        if (readable && NotificationMirror.active && wouldPopUp(sbn, rankingMap)) {
+            NotificationMirror.post(PhoneNotice(sbn.key, appLabel(sbn.packageName), title, text))
+        }
+    }
+
+    /** Ce qu'Android aurait montré en bandeau : importance haute, hors appels, résumés de groupe et permanentes. */
+    private fun wouldPopUp(
+        sbn: StatusBarNotification,
+        rankingMap: RankingMap,
+    ): Boolean {
+        val n = sbn.notification
+        val ranking = Ranking()
+        return sbn.packageName != packageName &&
+            !sbn.isOngoing &&
+            n.flags and Notification.FLAG_GROUP_SUMMARY == 0 &&
+            n.category != Notification.CATEGORY_CALL &&
+            rankingMap.getRanking(sbn.key, ranking) &&
+            ranking.importance >= NotificationManager.IMPORTANCE_HIGH
+    }
+
+    // Le nom d'une app n'est lisible que si Android la rend visible à la nôtre ; sinon, rien.
+    private fun appLabel(pkg: String): String? =
+        try {
+            packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0)).toString()
+        } catch (_: PackageManager.NameNotFoundException) {
+            null
+        }
+}

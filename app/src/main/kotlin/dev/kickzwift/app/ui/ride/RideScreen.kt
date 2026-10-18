@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,9 +21,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -49,6 +52,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.role
@@ -60,6 +64,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.kickzwift.app.R
 import dev.kickzwift.app.phone.MediaState
+import dev.kickzwift.app.phone.PhoneNotice
 import dev.kickzwift.app.ui.common.Format
 import dev.kickzwift.app.ui.common.ProfileChart
 import dev.kickzwift.app.ui.common.StatusDot
@@ -90,6 +95,7 @@ fun RideScreen(viewModel: RideViewModel) {
         BoxWithConstraints(Modifier.safeDrawingPadding().padding(12.dp)) {
             val landscape = maxWidth > maxHeight
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                PhoneNotices(ui.phoneNotices)
                 SensorsCard(ui)
                 Banners(ui, s)
                 if (landscape) {
@@ -100,7 +106,7 @@ fun RideScreen(viewModel: RideViewModel) {
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             Metrics(s, ui)
-                            Player(ui.media, grantMedia)
+                            Player(ui.media, grantMedia, viewModel::act)
                             ModeZone(s, ui, viewModel::act)
                         }
                     }
@@ -108,7 +114,7 @@ fun RideScreen(viewModel: RideViewModel) {
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         GearBlock(s, Modifier.fillMaxWidth())
                         Metrics(s, ui)
-                        Player(ui.media, grantMedia)
+                        Player(ui.media, grantMedia, viewModel::act)
                         ModeZone(s, ui, viewModel::act)
                     }
                 }
@@ -147,6 +153,26 @@ private fun GearFeedback(
     LaunchedEffect(gear) {
         if (gear != first[0] && haptics) feedback.performHapticFeedback(HapticFeedbackType.LongPress)
         first[0] = gear
+    }
+}
+
+/**
+ * Notifications des autres apps, en haut de l'écran : elles poussent l'encart des capteurs et le
+ * reste vers le bas au lieu de le recouvrir comme un bandeau Android.
+ */
+@Composable
+private fun PhoneNotices(notices: List<PhoneNotice>) {
+    notices.forEach { n ->
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.secondaryContainer, MaterialTheme.shapes.medium)
+                .padding(horizontal = 12.dp, vertical = 8.dp),
+        ) {
+            n.app?.let { Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSecondaryContainer) }
+            n.title?.let { Text(it, style = MaterialTheme.typography.titleSmall, maxLines = 1, overflow = TextOverflow.Ellipsis) }
+            n.text?.let { Text(it, style = MaterialTheme.typography.bodyMedium, maxLines = 2, overflow = TextOverflow.Ellipsis) }
+        }
     }
 }
 
@@ -312,36 +338,42 @@ private fun Metrics(
 }
 
 /**
- * Lecteur : titre, lecture ou pause, volume. Relu deux fois par seconde : ce que font les
- * manettes s'y voit aussitôt. Sans l'accès aux notifications, ni titre ni état précis.
+ * Lecteur, Spotify d'abord : titre, lecture ou pause, volume, et les commandes précédent,
+ * lecture/pause, suivant, volume − et +, qui passent par les mêmes actions que les manettes.
+ * Relu deux fois par seconde : ce que font les manettes s'y voit aussitôt. Sans l'accès aux
+ * notifications, ni titre ni état précis.
  */
 @Composable
 private fun Player(
     media: MediaState,
     onGrant: () -> Unit,
+    act: (Action) -> Unit,
 ) {
     Column(
         Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium).padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            PlayIcon(media.playing, Modifier.size(28.dp))
-            Column(Modifier.weight(1f)) {
-                val title =
-                    when {
-                        media.title != null -> media.title
-                        media.access -> stringResource(R.string.player_unknown_title)
-                        else -> stringResource(R.string.player_music)
-                    }
-                Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                val state = stringResource(if (media.playing) R.string.player_playing else R.string.player_paused)
-                Text(
-                    listOfNotNull(media.artist, state).joinToString(" · "),
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+        val title =
+            when {
+                media.title != null -> media.title
+                media.access -> stringResource(R.string.player_unknown_title)
+                else -> stringResource(R.string.player_music)
             }
+        Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        val state = stringResource(if (media.playing) R.string.player_playing else R.string.player_paused)
+        Text(
+            listOfNotNull(media.artist, state).joinToString(" · "),
+            style = MaterialTheme.typography.bodyMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+            MediaButton(stringResource(R.string.action_previous), { act(Action.PreviousTrack) }) { TrackIcon(next = false) }
+            // L'icône montre ce que fait l'appui : pause pendant la lecture, lecture sinon.
+            MediaButton(stringResource(R.string.action_play_pause), { act(Action.PlayPause) }) { PlayIcon(!media.playing) }
+            MediaButton(stringResource(R.string.action_next), { act(Action.NextTrack) }) { TrackIcon(next = true) }
+            MediaButton(stringResource(R.string.action_volume_down), { act(Action.VolumeDown) }) { Text("−") }
+            MediaButton(stringResource(R.string.action_volume_up), { act(Action.VolumeUp) }) { Text("+") }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.player_volume, media.volume, media.maxVolume), style = MaterialTheme.typography.labelLarge)
@@ -358,16 +390,28 @@ private fun Player(
     }
 }
 
-/** Triangle en lecture, deux barres en pause. */
+/** Bouton du lecteur, cible de 56 dp ; [label] est lu par les lecteurs d'écran à la place de l'icône. */
 @Composable
-private fun PlayIcon(
-    playing: Boolean,
-    modifier: Modifier,
+private fun MediaButton(
+    label: String,
+    onClick: () -> Unit,
+    icon: @Composable () -> Unit,
 ) {
+    FilledTonalButton(
+        onClick = onClick,
+        modifier = Modifier.sizeIn(minWidth = 56.dp, minHeight = 56.dp).clearAndSetSemantics { contentDescription = label },
+        contentPadding = PaddingValues(0.dp),
+    ) {
+        Box(Modifier.size(MEDIA_ICON), contentAlignment = Alignment.Center) { icon() }
+    }
+}
+
+/** Triangle de lecture, ou deux barres de pause. */
+@Composable
+private fun PlayIcon(play: Boolean) {
     val color = MaterialTheme.colorScheme.primary
-    val label = stringResource(if (playing) R.string.player_playing else R.string.player_paused)
-    Canvas(modifier.semantics { contentDescription = label }) {
-        if (playing) {
+    Canvas(Modifier.size(MEDIA_ICON)) {
+        if (play) {
             val path =
                 Path().apply {
                     moveTo(size.width * ICON_INSET, 0f)
@@ -381,6 +425,32 @@ private fun PlayIcon(
             drawRect(color, Offset(size.width * PAUSE_LEFT, 0f), Size(bar, size.height))
             drawRect(color, Offset(size.width * PAUSE_RIGHT, 0f), Size(bar, size.height))
         }
+    }
+}
+
+/** Piste suivante (triangle puis barre) ou précédente (barre puis triangle). */
+@Composable
+private fun TrackIcon(next: Boolean) {
+    val color = MaterialTheme.colorScheme.primary
+    Canvas(Modifier.size(MEDIA_ICON)) {
+        val w = size.width
+        val bar = w * TRACK_BAR
+        val tip = w - bar
+        val path =
+            Path().apply {
+                if (next) {
+                    moveTo(0f, 0f)
+                    lineTo(tip, size.height / 2)
+                    lineTo(0f, size.height)
+                } else {
+                    moveTo(w, 0f)
+                    lineTo(bar, size.height / 2)
+                    lineTo(w, size.height)
+                }
+                close()
+            }
+        drawPath(path, color)
+        drawRect(color, Offset(if (next) tip else 0f, 0f), Size(bar, size.height))
     }
 }
 
@@ -426,10 +496,8 @@ private fun ModeZone(
                     onPlus = { act(Action.Grade(GRADE_STEP)) },
                 )
             }
-        else ->
-            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                Stepper(Format.pct(s.gradePct), onMinus = { act(Action.Grade(-GRADE_STEP)) }, onPlus = { act(Action.Grade(GRADE_STEP)) })
-            }
+        // Pente libre : pas de boutons à l'écran, la pente se règle aux manettes et s'affiche dans les mesures.
+        else -> Unit
     }
 }
 
@@ -506,7 +574,9 @@ private const val FINISH_COUNTDOWN = 3
 private const val FINISH_STEP_MS = 1_000L
 private const val SENSORS_PER_ROW = 2
 
-// Icône du lecteur, en fractions de sa largeur.
+// Icônes du lecteur, en fractions de leur largeur.
+private val MEDIA_ICON = 22.dp
+private const val TRACK_BAR = 0.2f
 private const val ICON_INSET = 0.2f
 private const val PAUSE_BAR = 0.3f
 private const val PAUSE_LEFT = 0.1f

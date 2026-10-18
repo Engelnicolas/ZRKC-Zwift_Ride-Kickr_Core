@@ -7,16 +7,20 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import dev.kickzwift.app.AppContainer
 import dev.kickzwift.app.data.Activity
+import dev.kickzwift.app.data.ActivityTotals
 import dev.kickzwift.app.ui.devices.readyToPrepare
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import java.time.ZoneId
 
 data class ActivitiesUi(
     /** null tant que la base n'a pas répondu. */
     val activities: List<Activity>? = null,
+    /** Mois et année en cours ; null tant que la base n'a pas répondu. */
+    val totals: ActivityTotals? = null,
     val canStart: Boolean = false,
     val imperial: Boolean = false,
 )
@@ -29,6 +33,7 @@ class ActivitiesViewModel(
         combine(c.activities.activities, c.trusted, c.links.states, c.links.running, c.settings) { list, trusted, states, running, s ->
             ActivitiesUi(
                 activities = list,
+                totals = ActivityTotals.of(list, System.currentTimeMillis(), ZoneId.systemDefault()),
                 canStart = running && readyToPrepare(trusted.map { it.kind to states[it.id] }),
                 imperial = s.imperial,
             )
