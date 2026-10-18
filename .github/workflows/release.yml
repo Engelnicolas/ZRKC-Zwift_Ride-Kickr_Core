@@ -1,0 +1,92 @@
+name: Release
+
+# APK release signé, publié en pièce jointe d'une release GitHub, pour les testeurs.
+# Déclenché par une étiquette de version : git tag v1.2 && git push origin v1.2.
+# L'étiquette doit reprendre versionName (app/build.gradle.kts), précédé de « v ».
+#
+# Secrets du dépôt (README, « Signed release APK ») :
+#   KICKZWIFT_KEYSTORE_BASE64  la clé (release.jks) encodée en base64
+#   KICKZWIFT_STORE_PASSWORD   KICKZWIFT_KEY_ALIAS   KICKZWIFT_KEY_PASSWORD
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # Actions épinglées par empreinte de commit, comme dans ci.yml.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - name: Étiquette conforme à versionName
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version=$(sed -n 's/^ *versionName = "\(.*\)"/\1/p' app/build.gradle.kts)
+          echo "étiquette $TAG, versionName $version"
+          if [ "$TAG" != "v$version" ]; then
+            echo "L'étiquette doit valoir v$version : changer versionName (et versionCode) d'abord" >&2
+            exit 1
+          fi
+
+      - name: Paquets du SDK Android
+        run: |
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
+          "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "platforms;android-37.0" "build-tools;36.0.0"
+
+      # La clé n'existe que le temps du job, dans le dossier temporaire de la machine.
+      - name: Clé de signature
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KICKZWIFT_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "Secret KICKZWIFT_KEYSTORE_BASE64 absent" >&2
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          echo "KICKZWIFT_STORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+
+      # Mêmes contrôles que la CI (tests, lint, ktlint, detekt), puis l'APK release signé.
+      - name: Build
+        env:
+          KICKZWIFT_STORE_PASSWORD: ${{ secrets.KICKZWIFT_STORE_PASSWORD }}
+          KICKZWIFT_KEY_ALIAS: ${{ secrets.KICKZWIFT_KEY_ALIAS }}
+          KICKZWIFT_KEY_PASSWORD: ${{ secrets.KICKZWIFT_KEY_PASSWORD }}
+        run: ./gradlew build --console=plain
+
+      - name: Signature vérifiée, APK nommé et empreinte
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          apk=app/build/outputs/apk/release/app-release.apk
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs "$apk"
+          mkdir -p dist
+          cp "$apk" "dist/ZRKC-$TAG.apk"
+          (cd dist && sha256sum "ZRKC-$TAG.apk" > "ZRKC-$TAG.apk.sha256")
+          rm -f "$RUNNER_TEMP/release.jks"
+
+      - name: Release GitHub
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG" dist/* \
+            --title "ZRKC $TAG" \
+            --generate-notes \
+            --notes "APK signé pour Android 12 et plus. Installation : télécharger ZRKC-$TAG.apk sur le téléphone, l'ouvrir, autoriser l'installation d'apps de cette source."

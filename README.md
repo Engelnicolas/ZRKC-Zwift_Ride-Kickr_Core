@@ -68,7 +68,25 @@ Modules: `protocol/` (pure Kotlin logic, tested on the JVM against real frames),
     export KICKZWIFT_STORE_PASSWORD=... KICKZWIFT_KEY_ALIAS=kickzwift KICKZWIFT_KEY_PASSWORD=...
     ./gradlew :app:assembleRelease
 
-Without these variables, the release APK is built unsigned.
+Without these variables, the release APK is built unsigned. Back up the key: without it, no
+update installs over a version already handed out.
+
+**Releases for testers.** Pushing a version tag builds the signed APK on GitHub and attaches
+it to a release (`.github/workflows/release.yml`). The tag must match `versionName` in
+`app/build.gradle.kts`; raise `versionCode` too, or the update won't install over the
+previous one.
+
+    git tag v1.2 && git push origin v1.2
+
+The workflow reads four repository secrets: `KICKZWIFT_KEYSTORE_BASE64` (the key file,
+`base64 -w0 release.jks`), `KICKZWIFT_STORE_PASSWORD`, `KICKZWIFT_KEY_ALIAS` and
+`KICKZWIFT_KEY_PASSWORD`.
+
+To install, testers open the APK from the
+[Releases](https://github.com/Engelnicolas/ZRKC-Zwift_Ride-Kickr_Core/releases) page on the
+phone (Android 12 or later) and allow installs from that source. A debug build, signed with
+another key, must be uninstalled first. [Obtainium](https://github.com/ImranR98/Obtainium)
+can watch the page and offer updates.
 
 **Dependencies.** Versions are pinned in `gradle/libs.versions.toml` and every artifact is
 verified by its SHA-256 checksum (`gradle/verification-metadata.xml`). After a version bump,
