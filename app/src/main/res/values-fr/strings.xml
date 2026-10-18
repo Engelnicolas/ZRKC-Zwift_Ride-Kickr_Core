@@ -14,6 +14,7 @@
 
     <!-- Navigation -->
     <string name="tab_devices">Connexions</string>
+    <string name="tab_activities">Activités</string>
     <string name="tab_settings">Réglages</string>
     <string name="back">Retour</string>
 
@@ -131,6 +132,20 @@
     <string name="summary_coros">La sortie est enregistrée sur la montre COROS.</string>
     <string name="summary_share_fit">Partager le fichier FIT</string>
     <string name="summary_close">Fermer</string>
+    <string name="summary_saved">La sortie est enregistrée dans Activités ; le commentaire s\'y ajoute à la fermeture.</string>
+
+    <!-- Écran Activités -->
+    <string name="activities_title">Activités</string>
+    <string name="activities_start">Démarrer une activité</string>
+    <string name="activities_empty">Aucune activité pour l\'instant. Les sorties terminées s\'affichent ici, la plus récente en tête.</string>
+    <string name="activity_title">Activité</string>
+    <string name="activity_not_found">Cette activité n\'existe plus.</string>
+    <string name="activity_comment">Commentaire</string>
+    <string name="activity_comment_hint">Comment ça s\'est passé ?</string>
+    <string name="activity_comment_save">Enregistrer le commentaire</string>
+    <string name="activity_delete">Supprimer</string>
+    <string name="activity_delete_title">Supprimer cette activité ?</string>
+    <string name="activity_delete_text">Elle disparaîtra de l\'historique, avec son commentaire. C\'est définitif.</string>
 
     <!-- Écran Réglages -->
     <string name="settings_title">Réglages</string>

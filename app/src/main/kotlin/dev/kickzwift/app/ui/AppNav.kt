@@ -19,12 +19,18 @@ import androidx.compose.ui.res.vectorResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import dev.kickzwift.app.AppContainer
 import dev.kickzwift.app.R
+import dev.kickzwift.app.ui.activities.ActivitiesScreen
+import dev.kickzwift.app.ui.activities.ActivitiesViewModel
+import dev.kickzwift.app.ui.activities.ActivityScreen
+import dev.kickzwift.app.ui.activities.ActivityViewModel
 import dev.kickzwift.app.ui.devices.DevicesScreen
 import dev.kickzwift.app.ui.devices.DevicesViewModel
 import dev.kickzwift.app.ui.mode.ModeScreen
@@ -39,8 +45,9 @@ import dev.kickzwift.protocol.session.RidePhase
 
 /**
  * Une seule activité, Navigation Compose. L'app s'ouvre sur Connexions ; la phase de la sortie
- * impose l'écran : une sortie en cours rouvre l'écran Sortie, une sortie finie le Bilan. La
- * barre de navigation n'existe que sur Connexions et Réglages.
+ * impose l'écran : une sortie en cours rouvre l'écran Sortie, une sortie finie le Bilan, dont la
+ * fermeture mène à l'historique des activités. La barre de navigation n'existe que sur
+ * Connexions, Activités et Réglages.
  */
 @Composable
 fun AppNav(c: AppContainer) {
@@ -53,9 +60,10 @@ fun AppNav(c: AppContainer) {
 
     Scaffold(
         bottomBar = {
-            if (route == Routes.DEVICES || route == Routes.SETTINGS) {
+            if (route in TAB_ROUTES) {
                 NavigationBar {
                     Tab(nav, route, Routes.DEVICES, R.string.tab_devices, ImageVector.vectorResource(R.drawable.ic_tab_devices))
+                    Tab(nav, route, Routes.ACTIVITIES, R.string.tab_activities, ImageVector.vectorResource(R.drawable.ic_tab_activities))
                     Tab(nav, route, Routes.SETTINGS, R.string.tab_settings, ImageVector.vectorResource(R.drawable.ic_tab_settings))
                 }
             }
@@ -75,7 +83,21 @@ fun AppNav(c: AppContainer) {
                 }
                 composable(Routes.RIDE) { RideScreen(viewModel(factory = RideViewModel.factory(c))) }
                 composable(Routes.SUMMARY) {
-                    SummaryScreen(viewModel(factory = SummaryViewModel.factory(c)), onClosed = { home(nav) })
+                    SummaryScreen(
+                        viewModel(factory = SummaryViewModel.factory(c)),
+                        onClosed = { nav.navigate(Routes.ACTIVITIES) { popUpTo(Routes.DEVICES) } },
+                    )
+                }
+                composable(Routes.ACTIVITIES) {
+                    ActivitiesScreen(
+                        viewModel(factory = ActivitiesViewModel.factory(c)),
+                        onPrepare = { nav.navigate(Routes.MODE) },
+                        onOpen = { nav.navigate(Routes.activity(it)) },
+                    )
+                }
+                composable(Routes.ACTIVITY, arguments = listOf(navArgument("id") { type = NavType.LongType })) { entry ->
+                    val id = entry.arguments?.getLong("id") ?: 0L
+                    ActivityScreen(viewModel(factory = ActivityViewModel.factory(c, id)), onBack = { nav.popBackStack() })
                 }
                 composable(Routes.SETTINGS) { SettingsScreen(viewModel(factory = SettingsViewModel.factory(c))) }
             }
@@ -99,6 +121,8 @@ private fun follow(
         if (wanted == Routes.DEVICES) home(nav) else nav.navigate(wanted) { popUpTo(Routes.DEVICES) }
     }
 }
+
+private val TAB_ROUTES = setOf(Routes.DEVICES, Routes.ACTIVITIES, Routes.SETTINGS)
 
 private fun home(nav: NavHostController) {
     nav.navigate(Routes.DEVICES) { popUpTo(Routes.DEVICES) { inclusive = true } }

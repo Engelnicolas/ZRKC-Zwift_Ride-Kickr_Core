@@ -3,7 +3,6 @@ package dev.kickzwift.app.ui.summary
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -16,13 +15,18 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.kickzwift.app.R
+import dev.kickzwift.app.ui.activities.CommentField
 import dev.kickzwift.app.ui.common.Format
+import dev.kickzwift.app.ui.common.StatLine
 import dev.kickzwift.app.ui.common.shareFile
 import dev.kickzwift.protocol.session.RideMode
 
@@ -34,29 +38,35 @@ fun SummaryScreen(
     val context = LocalContext.current
     val ui by viewModel.session.collectAsStateWithLifecycle()
     val settings by viewModel.settings.collectAsStateWithLifecycle()
+    var comment by rememberSaveable { mutableStateOf("") }
     val stats = ui.snapshot.stats
     val imperial = settings.imperial
+    // Fermer, par le bouton ou le retour, joint le commentaire à l'activité enregistrée.
     val close = {
-        viewModel.close()
+        viewModel.close(comment)
         onClosed()
     }
     BackHandler(onBack = close)
 
     Column(Modifier.verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Text(stringResource(R.string.summary_title), style = MaterialTheme.typography.headlineSmall)
-        Line(stringResource(R.string.summary_duration), Format.duration(stats.elapsedMs))
-        Line(stringResource(R.string.summary_distance), Format.distance(stats.distanceM, imperial))
-        Line(stringResource(R.string.summary_avg_power), stringResource(R.string.unit_w, stats.avgPowerW))
-        Line(stringResource(R.string.summary_max_power), stringResource(R.string.unit_w, stats.maxPowerW))
-        Line(stringResource(R.string.summary_cadence), stringResource(R.string.unit_rpm, stats.avgCadenceRpm))
+        StatLine(stringResource(R.string.summary_duration), Format.duration(stats.elapsedMs))
+        StatLine(stringResource(R.string.summary_distance), Format.distance(stats.distanceM, imperial))
+        StatLine(stringResource(R.string.summary_avg_power), stringResource(R.string.unit_w, stats.avgPowerW))
+        StatLine(stringResource(R.string.summary_max_power), stringResource(R.string.unit_w, stats.maxPowerW))
+        StatLine(stringResource(R.string.summary_cadence), stringResource(R.string.unit_rpm, stats.avgCadenceRpm))
         if (ui.snapshot.mode !is RideMode.Erg) {
-            Line(
+            StatLine(
                 stringResource(R.string.summary_elevation),
                 Format.elevation(stats.elevationGainM, imperial),
             )
         }
-        Line(stringResource(R.string.summary_shifts), stats.shifts.toString())
+        StatLine(stringResource(R.string.summary_shifts), stats.shifts.toString())
         HorizontalDivider()
+        if (ui.activityId != null) {
+            CommentField(comment, onChange = { comment = it })
+            Text(stringResource(R.string.summary_saved), style = MaterialTheme.typography.bodySmall)
+        }
         Text(stringResource(R.string.summary_coros))
         ui.fitFile?.let { file ->
             OutlinedButton(
@@ -64,16 +74,5 @@ fun SummaryScreen(
             ) { Text(stringResource(R.string.summary_share_fit)) }
         }
         Button(onClick = close, modifier = Modifier.fillMaxWidth().heightIn(min = 64.dp)) { Text(stringResource(R.string.summary_close)) }
-    }
-}
-
-@Composable
-private fun Line(
-    label: String,
-    value: String,
-) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text(label, style = MaterialTheme.typography.bodyLarge)
-        Text(value, style = MaterialTheme.typography.titleLarge)
     }
 }

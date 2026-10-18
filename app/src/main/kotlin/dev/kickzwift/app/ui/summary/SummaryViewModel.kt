@@ -13,7 +13,12 @@ class SummaryViewModel(
     val session = c.session.state
     val settings = c.settings
 
-    fun close() = c.session.close()
+    /** Joint le commentaire à l'activité enregistrée, puis referme la sortie. */
+    fun close(comment: String) {
+        val id = session.value.activityId
+        if (id != null && comment.isNotBlank()) c.saveComment(id, comment)
+        c.session.close()
+    }
 
     companion object {
         fun factory(c: AppContainer): ViewModelProvider.Factory = viewModelFactory { initializer { SummaryViewModel(c) } }

@@ -59,12 +59,13 @@ data class DevicesUi(
     val cards: List<DeviceCard> = emptyList(),
     val found: List<ScannedDevice> = emptyList(),
 ) {
-    /** « Préparer la sortie » : le KICKR et au moins une manette prêts. */
-    val canPrepare: Boolean
-        get() =
-            cards.any { it.device.kind == DeviceKind.KICKR && it.state == LinkState.READY } &&
-                cards.any { it.device.kind == DeviceKind.RIDE && it.state == LinkState.READY }
+    val canPrepare: Boolean get() = readyToPrepare(cards.map { it.device.kind to it.state })
 }
+
+/** « Préparer la sortie » : le KICKR et au moins une manette prêts. */
+fun readyToPrepare(devices: List<Pair<DeviceKind, LinkState?>>): Boolean =
+    devices.any { (kind, state) -> kind == DeviceKind.KICKR && state == LinkState.READY } &&
+        devices.any { (kind, state) -> kind == DeviceKind.RIDE && state == LinkState.READY }
 
 /** Écran Connexions (lot 8). */
 @OptIn(ExperimentalCoroutinesApi::class)

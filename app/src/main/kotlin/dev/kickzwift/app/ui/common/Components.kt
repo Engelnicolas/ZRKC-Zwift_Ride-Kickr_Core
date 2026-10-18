@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.FilledTonalButton
@@ -28,6 +29,10 @@ import dev.kickzwift.protocol.Button
 import dev.kickzwift.protocol.Gesture
 import dev.kickzwift.protocol.LinkState
 import dev.kickzwift.protocol.device.DeviceKind
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
 /**
@@ -144,6 +149,18 @@ fun Stepper(
     }
 }
 
+/** Ligne de bilan : libellé à gauche, valeur en grand à droite. */
+@Composable
+fun StatLine(
+    label: String,
+    value: String,
+) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+        Text(value, style = MaterialTheme.typography.titleLarge)
+    }
+}
+
 /** Profil d'altitude, position marquée à [position] (0 à 1) si connue. */
 @Composable
 fun ProfileChart(
@@ -213,4 +230,11 @@ object Format {
     fun signedPct(value: Double): String = "%+.1f %%".format(Locale.getDefault(), value)
 
     fun kg(value: Double): String = "%.1f kg".format(Locale.getDefault(), value)
+
+    /** Date et heure locales d'une heure Unix en millisecondes. */
+    fun dateTime(epochMs: Long): String =
+        DateTimeFormatter
+            .ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+            .withZone(ZoneId.systemDefault())
+            .format(Instant.ofEpochMilli(epochMs))
 }

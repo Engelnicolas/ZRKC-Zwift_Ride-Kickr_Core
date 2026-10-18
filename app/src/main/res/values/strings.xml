@@ -14,6 +14,7 @@
 
     <!-- Navigation -->
     <string name="tab_devices">Connections</string>
+    <string name="tab_activities">Activities</string>
     <string name="tab_settings">Settings</string>
     <string name="back">Back</string>
 
@@ -131,6 +132,20 @@
     <string name="summary_coros">The ride is recorded on the COROS watch.</string>
     <string name="summary_share_fit">Share the FIT file</string>
     <string name="summary_close">Close</string>
+    <string name="summary_saved">The ride is saved in Activities; the comment is added when you close.</string>
+
+    <!-- Écran Activités -->
+    <string name="activities_title">Activities</string>
+    <string name="activities_start">Start an activity</string>
+    <string name="activities_empty">No activities yet. Finished rides appear here, most recent first.</string>
+    <string name="activity_title">Activity</string>
+    <string name="activity_not_found">This activity no longer exists.</string>
+    <string name="activity_comment">Comment</string>
+    <string name="activity_comment_hint">How did it go?</string>
+    <string name="activity_comment_save">Save the comment</string>
+    <string name="activity_delete">Delete</string>
+    <string name="activity_delete_title">Delete this activity?</string>
+    <string name="activity_delete_text">It will be removed from the history, along with its comment. This cannot be undone.</string>
 
     <!-- Écran Réglages -->
     <string name="settings_title">Settings</string>

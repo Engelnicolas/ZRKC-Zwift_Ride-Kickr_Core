@@ -1,5 +1,7 @@
 package dev.kickzwift.app.session
 
+import dev.kickzwift.app.data.Activity
+import dev.kickzwift.app.data.ActivityMode
 import dev.kickzwift.app.phone.PhoneActions
 import dev.kickzwift.app.route.RouteData
 import dev.kickzwift.ble.Controller
@@ -16,6 +18,7 @@ import dev.kickzwift.protocol.fit.FitSummary
 import dev.kickzwift.protocol.session.RideMode
 import dev.kickzwift.protocol.session.RidePhase
 import dev.kickzwift.protocol.session.RideSession
+import dev.kickzwift.protocol.session.RideStats
 import dev.kickzwift.protocol.session.SessionSnapshot
 import dev.kickzwift.protocol.settings.AppSettings
 import kotlinx.coroutines.CoroutineDispatcher
@@ -61,6 +64,8 @@ data class SessionUi(
     val route: RouteData? = null,
     /** Fichier FIT de la dernière sortie, si l'option est active. */
     val fitFile: File? = null,
+    /** Activité enregistrée à la fin de la sortie, pour y joindre le commentaire du bilan. */
+    val activityId: Long? = null,
 )
 
 /** Ce dont le contrôleur a besoin hors de la sortie elle-même ; remplacé par des faux en test. */
@@ -80,6 +85,9 @@ interface SessionEnvironment {
 
     /** Enregistre le FIT de la sortie ; rend le fichier à partager. */
     suspend fun saveFit(bytes: ByteArray): File?
+
+    /** Ajoute la sortie terminée à l'historique ; rend son identifiant, ou null en cas d'échec. */
+    suspend fun saveActivity(activity: Activity): Long?
 
     fun log(message: String)
 }
@@ -107,6 +115,7 @@ class SessionController(
     private var session = RideSession(env.settings.value.sessionConfig())
     private var route: RouteData? = null
     private var fitFile: File? = null
+    private var activityId: Long? = null
     private var writer: TrainerWriter? = null
     private var trainerReady = false
     private val samples = mutableListOf<FitSample>()
@@ -135,6 +144,7 @@ class SessionController(
                 session = RideSession(s.sessionConfig().copy(startGear = start))
                 session.prepare()
                 fitFile = null
+                activityId = null
             }
         }
 
@@ -159,8 +169,10 @@ class SessionController(
         command {
             if (session.phase == RidePhase.RIDING || session.phase == RidePhase.PAUSED) {
                 session.finish(env.now())
-                env.log("sortie terminée : ${session.stats(env.now())}")
+                val stats = session.stats(env.now())
+                env.log("sortie terminée : $stats")
                 fitFile = exportFit()
+                activityId = env.saveActivity(activityOf(stats))
             }
         }
 
@@ -313,6 +325,27 @@ class SessionController(
         return env.saveFit(bytes)
     }
 
+    private fun activityOf(stats: RideStats): Activity {
+        val mode = session.mode
+        return Activity(
+            startedAtMs = startedWallMs,
+            mode =
+                when (mode) {
+                    is RideMode.Erg -> ActivityMode.ERG
+                    is RideMode.Route -> ActivityMode.ROUTE
+                    else -> ActivityMode.FREE
+                },
+            routeName = (mode as? RideMode.Route)?.name,
+            durationMs = stats.elapsedMs,
+            distanceM = stats.distanceM,
+            avgPowerW = stats.avgPowerW,
+            maxPowerW = stats.maxPowerW,
+            avgCadenceRpm = stats.avgCadenceRpm,
+            elevationGainM = stats.elevationGainM,
+            shifts = stats.shifts,
+        )
+    }
+
     private fun command(block: suspend () -> Unit) {
         scope.launch(dispatcher) {
             block()
@@ -322,7 +355,7 @@ class SessionController(
     }
 
     private fun publish() {
-        mutableState.value = SessionUi(session.snapshot(env.now()), route, fitFile)
+        mutableState.value = SessionUi(session.snapshot(env.now()), route, fitFile, activityId)
     }
 
     private companion object {

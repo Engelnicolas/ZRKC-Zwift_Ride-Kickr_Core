@@ -1,5 +1,7 @@
 package dev.kickzwift.app.session
 
+import dev.kickzwift.app.data.Activity
+import dev.kickzwift.app.data.ActivityMode
 import dev.kickzwift.app.phone.PhoneActions
 import dev.kickzwift.ble.Controller
 import dev.kickzwift.ble.Trainer
@@ -80,6 +82,7 @@ class SessionControllerTest {
         override val phone = PhoneActions { a -> (a == Action.PlayPause || a == Action.VolumeUp).also { if (it) phoneDone += a } }
         var savedGear: Int? = null
         var fit: ByteArray? = null
+        val activities = mutableListOf<Activity>()
         val logs = mutableListOf<String>()
 
         override fun now(): Long = scope.currentTime
@@ -95,6 +98,11 @@ class SessionControllerTest {
         override suspend fun saveFit(bytes: ByteArray): File? {
             fit = bytes
             return File("sortie.fit")
+        }
+
+        override suspend fun saveActivity(activity: Activity): Long {
+            activities += activity
+            return activities.size.toLong()
         }
 
         override fun log(message: String) {
@@ -275,6 +283,38 @@ class SessionControllerTest {
             advanceTimeBy(200)
             assertEquals(11, r.controller.state.value.snapshot.gear)
             assertEquals(RidePhase.PREPARING, r.controller.state.value.snapshot.phase)
+        }
+
+    @Test
+    fun `fin de sortie - activite enregistree avec le bilan, identifiant publie puis oublie`() =
+        runTest {
+            val r = rig()
+            r.ride(RideMode.Erg(180))
+            advanceTimeBy(200)
+            repeat(4) {
+                r.trainer.data.value = RidingData(180 + it * 20, 85, 30.0, null, currentTime)
+                advanceTimeBy(1_000)
+            }
+            r.controller.pause()
+            advanceTimeBy(5_000) // la pause ne compte pas dans la durée
+            r.controller.finish()
+            advanceTimeBy(200)
+
+            val saved = r.env.activities.single()
+            assertEquals(1_792_000_000_000L, saved.startedAtMs)
+            assertEquals(ActivityMode.ERG, saved.mode)
+            assertEquals(null, saved.routeName)
+            assertEquals(4_200L, saved.durationMs)
+            assertEquals(210, saved.avgPowerW)
+            assertEquals(240, saved.maxPowerW)
+            assertEquals(85, saved.avgCadenceRpm)
+            assertEquals("", saved.comment)
+            assertEquals(1L, r.controller.state.value.activityId)
+
+            r.controller.close()
+            r.controller.prepare()
+            advanceTimeBy(200)
+            assertEquals(null, r.controller.state.value.activityId)
         }
 
     @Test

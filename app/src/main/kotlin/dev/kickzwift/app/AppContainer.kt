@@ -2,7 +2,10 @@ package dev.kickzwift.app
 
 import android.app.Application
 import android.content.Context
+import android.database.sqlite.SQLiteException
 import android.os.SystemClock
+import dev.kickzwift.app.data.Activity
+import dev.kickzwift.app.data.ActivityStore
 import dev.kickzwift.app.data.MemoryStore
 import dev.kickzwift.app.data.SettingsStore
 import dev.kickzwift.app.data.TrustedDevices
@@ -31,6 +34,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -70,6 +74,30 @@ class AppContainer(
 
     val routes = RouteLibrary(this.context, memory)
 
+    /** Historique des sorties terminées. */
+    val activities = ActivityStore(this.context)
+
+    /** Commentaire d'une activité, écrit dans la portée de l'app : il aboutit même si l'écran se ferme. */
+    fun saveComment(
+        id: Long,
+        text: String,
+    ) = writeActivity("commentaire non enregistré") { activities.comment(id, text) }
+
+    fun deleteActivity(id: Long) = writeActivity("activité non supprimée") { activities.delete(id) }
+
+    private fun writeActivity(
+        failure: String,
+        block: suspend () -> Unit,
+    ) {
+        scope.launch {
+            try {
+                block()
+            } catch (e: SQLiteException) {
+                log.log("$failure : $e")
+            }
+        }
+    }
+
     /** Fichiers à partager (FIT, journal), servis par le FileProvider de l'app. */
     val exportsDir = File(this.context.cacheDir, "exports")
 
@@ -107,6 +135,14 @@ class AppContainer(
             withContext(Dispatchers.IO) {
                 exportsDir.mkdirs()
                 File(exportsDir, "sortie-${LocalDateTime.now().format(FIT_NAME)}.fit").apply { writeBytes(bytes) }
+            }
+
+        override suspend fun saveActivity(activity: Activity): Long? =
+            try {
+                activities.add(activity)
+            } catch (e: SQLiteException) {
+                log.log("activité non enregistrée : $e")
+                null
             }
 
         override fun log(message: String) = log.log(message)

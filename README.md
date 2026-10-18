@@ -29,8 +29,11 @@ later, the language can also be chosen per app in Settings › Apps › ZRKC ›
    and the KICKR. Only remembered devices are joined afterwards.
 2. Connect the COROS watch directly to the KICKR, in Indoor Bike mode: the watch records
    the ride.
-3. Prepare the ride, choose the mode, Start. During the ride, everything is controlled from
-   the controllers; Finish needs a 2 s long press.
+3. Prepare the ride (from Connections, or Start an activity in the Activities tab), choose the
+   mode, Start. During the ride, everything is controlled from the controllers; Finish needs a
+   2 s long press.
+4. The summary offers a short comment. Every finished ride is saved in the app's database and
+   listed in the Activities tab, most recent first; tap one to review it, edit its comment or delete it.
 
 Default mapping: Shift up and Shift down on both controllers for gears, Up arrow and Down
 arrow for grade (or the ERG target), Left and Right arrows for tracks, A play/pause, Y and B
@@ -45,7 +48,8 @@ volume, Z pause the ride. Everything can be changed in Settings.
                 for the Ride, the KICKR and the FTMS fallback, scanning, TrainerWriter (the
                 trainer's only writer). Link state machines and TrainerWriter tested on the JVM.
     app/        Android: RideService (foreground service), SessionController, phone
-                actions, settings (DataStore), GPX routes, logs, the five screens.
+                actions, settings (DataStore), activity history (SQLite), GPX routes, logs,
+                the screens.
 
 ## Building
 
