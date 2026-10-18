@@ -34,7 +34,7 @@ import dev.kickzwift.app.R
 
 // Préalables d'une liaison : permissions d'exécution et exemption de l'optimisation de batterie.
 
-/** Permissions demandées à l'exécution (spécification, « Sécurité et permissions »). */
+/** Permissions demandées à l'exécution (spécification, « Sécurité »). */
 internal val RUNTIME_PERMISSIONS =
     buildList {
         add(Manifest.permission.BLUETOOTH_SCAN)

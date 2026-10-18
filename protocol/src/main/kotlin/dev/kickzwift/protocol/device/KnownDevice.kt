@@ -38,7 +38,7 @@ enum class DeviceKind {
 
 /**
  * Appareil de confiance : mémorisé au premier appairage, seul autorisé à la connexion
- * (spécification, « Sécurité et permissions »).
+ * (spécification, « Sécurité »).
  */
 data class KnownDevice(
     val id: DeviceId,

@@ -22,7 +22,7 @@ class GpxException(
 }
 
 /**
- * Lecteur GPX sur XmlPullParser, sans dépendance (spécification, « Environnement »).
+ * Lecteur GPX sur XmlPullParser, sans dépendance (spécification, « Architecture »).
  *
  * Lit les points de trace (`trkpt`) et, à défaut, de route (`rtept`) : latitude, longitude,
  * altitude. Un point sans altitude reprend la précédente (0 au début). Fichier hostile :

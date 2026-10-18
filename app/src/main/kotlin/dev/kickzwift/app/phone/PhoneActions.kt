@@ -14,7 +14,7 @@ fun interface PhoneActions {
 
 /**
  * Musique par touches média sur le lecteur actif, volume par le flux musique : ni service
- * d'accessibilité ni permission en plus (plan de développement, phase 7).
+ * d'accessibilité ni permission en plus (spécification, « Sécurité »).
  */
 class AndroidPhoneActions(
     context: Context,

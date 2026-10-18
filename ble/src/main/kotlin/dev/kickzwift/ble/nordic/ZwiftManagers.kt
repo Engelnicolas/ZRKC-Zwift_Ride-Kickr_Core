@@ -28,7 +28,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * Protocole Zwift commun au Ride et au KICKR (spécification, « Spécification des protocoles ») :
+ * Protocole Zwift commun au Ride et au KICKR (spécification, « Protocoles ») :
  * dans [service], `…0002` en notification, `…0003` en écriture sans réponse, `…0004` en
  * indication. Poignée de main : s'abonner aux deux, écrire « RideOn », attendre l'écho sur `…0004`.
  */

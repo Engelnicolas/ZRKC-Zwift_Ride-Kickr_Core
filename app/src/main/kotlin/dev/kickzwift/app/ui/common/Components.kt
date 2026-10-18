@@ -36,7 +36,7 @@ import java.time.format.FormatStyle
 import java.util.Locale
 
 /**
- * État d'un appareil par la forme autant que par la couleur (spécification, « Accessibilité ») :
+ * État d'un appareil par la forme autant que par la couleur (spécification, « Interface ») :
  * pastille pleine si prêt, cerclée pendant une connexion, barrée si perdu ou absent.
  */
 @Composable

@@ -1,6 +1,6 @@
 package dev.kickzwift.app.ui
 
-/** Routes des écrans (plan, « Navigation »), plus l'historique des activités. */
+/** Routes des écrans (spécification, « Interface »). */
 object Routes {
     const val DEVICES = "devices"
     const val MODE = "mode"

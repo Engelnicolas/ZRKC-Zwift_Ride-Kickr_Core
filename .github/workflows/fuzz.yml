@@ -1,7 +1,7 @@
 name: Fuzzing nocturne
 
 # Décodeurs des trames reçues et des fichiers lus, 10 min en tout (spécification,
-# « Stratégie de tests »). Cibles : protocol/src/fuzz.
+# « Tests et CI »). Cibles : protocol/src/fuzz.
 
 on:
   schedule:

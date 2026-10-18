@@ -1,6 +1,6 @@
 package dev.kickzwift.protocol
 
-// Types communs, contrat entre lots (spécification, « Modèle de données et interfaces »).
+// Types communs, contrat entre lots (spécification, « Architecture »).
 
 enum class LinkState { NOT_FOUND, SCANNING, CONNECTING, HANDSHAKE, READY, RECONNECTING, LOST }
 

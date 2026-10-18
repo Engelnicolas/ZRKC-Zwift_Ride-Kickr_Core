@@ -7,7 +7,7 @@ import dev.kickzwift.protocol.device.KnownDevicesCodec
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Appareils de confiance (spécification, « Sécurité et permissions ») : l'adresse de chaque
+ * Appareils de confiance (spécification, « Sécurité ») : l'adresse de chaque
  * appareil est mémorisée au premier appairage, et l'app ne se connecte qu'à ces adresses.
  */
 class TrustedDevices(

@@ -8,7 +8,7 @@ import dev.kickzwift.protocol.trainer.FtmsCodec
 import dev.kickzwift.protocol.trainer.TrainerCodec
 import dev.kickzwift.protocol.wire.MalformedFrameException
 
-// Cibles Jazzer (CI nocturne, spécification « Stratégie de tests ») : une trame reçue ou un
+// Cibles Jazzer (CI nocturne, spécification « Tests et CI ») : une trame reçue ou un
 // fichier lu, quels qu'ils soient, ne lèvent jamais d'exception non gérée. Jazzer appelle la
 // méthode statique fuzzerTestOneInput ; aucune dépendance à Jazzer n'est nécessaire.
 

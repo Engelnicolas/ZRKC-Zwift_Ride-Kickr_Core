@@ -3,7 +3,7 @@ package dev.kickzwift.protocol.device
 import dev.kickzwift.protocol.DeviceId
 
 // Journaux sans donnée personnelle : adresses Bluetooth tronquées aux deux derniers octets
-// (spécification, « Sécurité et permissions »).
+// (spécification, « Sécurité »).
 
 /** « E2:93:3B:6A:0F:BC » devient « …:0F:BC ». */
 fun DeviceId.redacted(): String = Redaction.addresses(address)

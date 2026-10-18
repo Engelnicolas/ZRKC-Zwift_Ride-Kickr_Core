@@ -8,7 +8,7 @@ import dev.kickzwift.protocol.TrainerTarget
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
-// Contrat entre lots (spécification, « Modèle de données et interfaces »).
+// Contrat entre lots (spécification, « Architecture »).
 // Implémenté au lot 4 (couche BLE) puis aux lots 5 et 6 par RideManager et KickrManager.
 
 /** Une manette : pour le Ride, la liaison au pod gauche, qui agrège les 16 commandes. */

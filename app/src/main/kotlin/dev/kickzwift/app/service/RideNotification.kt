@@ -14,7 +14,7 @@ import dev.kickzwift.protocol.session.SessionSnapshot
 
 /**
  * Notification permanente du service, canal « Sortie » à importance basse : vitesse engagée,
- * puissance et état des connexions, actions Pause et Arrêter (plan, « Notification permanente »).
+ * puissance et état des connexions, actions Pause et Arrêter (spécification, « Interface »).
  */
 object RideNotification {
     const val ID = 1

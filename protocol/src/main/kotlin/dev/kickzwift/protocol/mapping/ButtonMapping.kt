@@ -51,7 +51,7 @@ class ButtonMapping private constructor(
     override fun hashCode(): Int = table.hashCode()
 
     companion object {
-        /** Actions proposées dans les réglages (plan de développement, écran Réglages). */
+        /** Actions proposées dans les réglages (spécification, « Interface »). */
         val CHOICES: List<Action> =
             listOf(
                 Action.Shift(+1),

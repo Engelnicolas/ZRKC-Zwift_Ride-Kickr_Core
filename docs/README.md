@@ -1,9 +1,7 @@
 # Documentation et traces
 
-    Spécification technique — app Android Zwift Ride ↔ KICKR CORE.docx
-        Référence : protocoles, architecture, lots, avancement, points ouverts.
-    Pont open source Zwift Ride ↔ KICKR CORE plan de développement.docx
-        Phases, spécification de l'interface, risques.
+    specification.md    spécification technique : architecture, protocoles, comportements,
+                        interface, stockage, sécurité, tests, points ouverts
     ride.md             protocole des manettes du Ride (service 0xFC82), en texte
     protocole_fc82.html fiche protocole illustrée, publiée sur
                         https://claude.ai/code/artifact/7428625e-320a-4337-b1d2-ae035639e581

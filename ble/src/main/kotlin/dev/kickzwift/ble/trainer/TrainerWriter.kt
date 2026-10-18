@@ -12,7 +12,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-/** Bornes physiques appliquées à toute consigne (spécification, « Sécurité et permissions »). */
+/** Bornes physiques appliquées à toute consigne (spécification, « Sécurité »). */
 data class TrainerLimits(
     val grade: GradeLimits = GradeLimits(),
     val ergMaxW: Int = 600,

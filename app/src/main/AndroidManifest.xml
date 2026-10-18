@@ -6,7 +6,7 @@
         android:name="android.hardware.bluetooth_le"
         android:required="true" />
 
-    <!-- Permissions de la section « Sécurité et permissions » de la spécification.
+    <!-- Permissions de la section « Sécurité » de la spécification.
          Absentes volontairement : INTERNET, localisation, stockage, accessibilité. -->
     <uses-permission
         android:name="android.permission.BLUETOOTH_SCAN"

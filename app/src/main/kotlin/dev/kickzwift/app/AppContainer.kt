@@ -42,7 +42,7 @@ import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-/** Injection manuelle (spécification, « Environnement ») : un objet de chaque, pour toute l'app. */
+/** Injection manuelle (spécification, « Architecture ») : un objet de chaque, pour toute l'app. */
 @OptIn(ExperimentalCoroutinesApi::class)
 class AppContainer(
     context: Context,
@@ -161,7 +161,7 @@ class KickZwiftApp : Application() {
         super.onCreate()
         container = AppContainer(this)
         // Plantage : le trainer reçoit Neutral avant que le processus ne s'arrête
-        // (spécification, « Sécurité et permissions »).
+        // (spécification, « Sécurité »).
         val previous = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { thread, error ->
             runCatching {

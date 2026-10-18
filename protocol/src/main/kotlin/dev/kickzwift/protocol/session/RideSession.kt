@@ -9,7 +9,7 @@ import dev.kickzwift.protocol.grade.GradeProfile
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-/** Machine à états de la sortie (spécification, « Machine à états de la sortie »). */
+/** Machine à états de la sortie (spécification, « Machines à états »). */
 enum class RidePhase { IDLE, PREPARING, RIDING, PAUSED, FINISHED }
 
 /** Pourquoi la sortie est en pause. */
