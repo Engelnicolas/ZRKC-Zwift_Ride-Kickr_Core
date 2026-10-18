@@ -25,7 +25,7 @@ import kotlin.math.roundToLong
  *       uint32 paddle_press = 11; uint32 paddle_release = 12;
  *       sint32 grade_min_x100 = 13; sint32 grade_max_x100 = 14; uint32 erg_max_w = 15;
  *       string theme = 16; string orientation = 17;
- *       uint32 haptics = 18; uint32 imperial = 19; uint32 ftms_fallback = 20; uint32 fit_export = 21;
+ *       uint32 haptics = 18; uint32 imperial = 19; uint32 ftms_fallback = 20; (21, fit_export, retiré : le FIT est toujours écrit)
  *       string gear_mode = 22;
  *     }
  *
@@ -55,7 +55,6 @@ object SettingsCodec {
     private const val IMPERIAL = 19
     private const val FTMS = 20
     private const val GEAR_MODE = 22
-    private const val FIT = 21
 
     private const val B_BUTTON = 1
     private const val B_GESTURE = 2
@@ -100,7 +99,6 @@ object SettingsCodec {
             .varint(HAPTICS, flag(s.haptics))
             .varint(IMPERIAL, flag(s.imperial))
             .varint(FTMS, flag(s.ftmsFallback))
-            .varint(FIT, flag(s.fitExport))
             .message(GEAR_MODE, s.gearMode.name.encodeToByteArray())
         return w.toByteArray()
     }
@@ -126,7 +124,6 @@ object SettingsCodec {
             haptics = flagOf(f, HAPTICS, D.haptics),
             imperial = flagOf(f, IMPERIAL, D.imperial),
             ftmsFallback = flagOf(f, FTMS, D.ftmsFallback),
-            fitExport = flagOf(f, FIT, D.fitExport),
             gearMode = enumOf(f, GEAR_MODE, D.gearMode),
         )
     }

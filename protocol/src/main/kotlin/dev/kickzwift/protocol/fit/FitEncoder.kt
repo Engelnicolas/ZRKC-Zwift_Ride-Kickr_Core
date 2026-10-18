@@ -30,12 +30,19 @@ data class FitSummary(
  * file_id, une mesure (record) par échantillon, un tour (lap), la séance (session, vélo en
  * intérieur) et l'activité, puis le CRC. Échelles du profil FIT : vitesse en mm/s, distance
  * en cm, durées en ms, horodatage en secondes depuis le 31 décembre 1989.
- * Option désactivée par défaut : c'est la montre COROS qui enregistre la sortie.
+ *
+ * COROS Training Hub refuserait comme vides les fichiers de moins de 20 Ko (relevé tiers, non
+ * confirmé par COROS) : un fichier plus petit que [minBytes] est complété par des messages de
+ * remplissage d'un numéro réservé aux fabricants (0xFF00), que les lecteurs ignorent.
  */
 object FitEncoder {
+    /** 20 Ko et une marge. */
+    const val MIN_IMPORT_BYTES = 21_000
+
     fun encode(
         samples: List<FitSample>,
         summary: FitSummary,
+        minBytes: Int = MIN_IMPORT_BYTES,
     ): ByteArray {
         val w = FitWriter()
         w.define(LOCAL_FILE_ID, Mesg.FILE_ID, Field.FILE_TYPE, Field.MANUFACTURER, Field.PRODUCT, Field.TIME_CREATED)
@@ -88,6 +95,7 @@ object FitEncoder {
             Field.EVENT_TYPE,
         )
         w.data(LOCAL_ACTIVITY, fitTime(summary.endEpochMs), summary.timerMs.coerceAtLeast(0), 1L, 0L, Value.EVENT_ACTIVITY, Value.STOP)
+        w.padTo(minBytes)
         return w.file()
     }
 
@@ -282,6 +290,27 @@ private class FitWriter {
         }
     }
 
+    /**
+     * Complète les données pour que le fichier atteigne [fileBytes] : messages de 250 octets
+     * (valeur invalide 0xFF) d'un message propre au fabricant, sans signification.
+     */
+    fun padTo(fileBytes: Int) {
+        val dataBytes = fileBytes - HEADER_SIZE - CRC_SIZE
+        if (out.size() >= dataBytes) return
+        u8(DEFINITION or LOCAL_PAD)
+        u8(0) // réservé
+        u8(0) // petit-boutiste
+        u16(PAD_MESG)
+        u8(1)
+        u8(0) // champ 0
+        u8(PAD_CHUNK)
+        u8(BASE_BYTE)
+        while (out.size() < dataBytes) {
+            u8(LOCAL_PAD)
+            repeat(PAD_CHUNK) { u8(FitEncoder.BYTE) }
+        }
+    }
+
     fun file(): ByteArray {
         val data = out.toByteArray()
         out.reset()
@@ -312,6 +341,11 @@ private class FitWriter {
     private companion object {
         const val DEFINITION = 0x40
         const val HEADER_SIZE = 14
+        const val CRC_SIZE = 2
+        const val LOCAL_PAD = 15
+        const val PAD_MESG = 0xFF00
+        const val PAD_CHUNK = 250
+        const val BASE_BYTE = 0x0D
         const val PROTOCOL_VERSION = 0x20
         const val PROFILE_VERSION = 2140
         const val BITS_8 = 8

@@ -41,6 +41,11 @@ A heart rate monitor using the standard Bluetooth profile (such as the COROS HRM
 remembered like the other devices. The ride screen shows the track playing and the volume;
 the track title needs notification access, which the app asks for from that screen.
 
+Export for COROS, on the summary, sends the ride's FIT file to your COROS account (Settings ›
+COROS account: region, e-mail, password, kept encrypted on the phone as an MD5). COROS has no
+public upload API: this uses the private one behind Training Hub and may stop working without
+notice. This is the app's only use of the network.
+
 The interface is in English only.
 
 ## Building

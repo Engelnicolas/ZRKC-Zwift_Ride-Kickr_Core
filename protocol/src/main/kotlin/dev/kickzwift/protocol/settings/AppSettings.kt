@@ -41,8 +41,6 @@ data class AppSettings(
     val imperial: Boolean = false,
     /** Pilote le KICKR en FTMS plutôt qu'en protocole Zwift (options avancées). */
     val ftmsFallback: Boolean = false,
-    /** Écrit un fichier FIT de la sortie, à partager (options avancées). */
-    val fitExport: Boolean = false,
     /** Vitesses par la puissance par défaut : le KICKR relevé n'applique pas le rapport du protocole Zwift. */
     val gearMode: GearMode = GearMode.POWER,
 ) {

@@ -26,7 +26,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -65,7 +64,7 @@ data class ActionNotice(
 data class SessionUi(
     val snapshot: SessionSnapshot,
     val route: RouteData? = null,
-    /** Fichier FIT de la dernière sortie, si l'option est active. */
+    /** Fichier FIT de la dernière sortie, à partager ou envoyer à COROS. */
     val fitFile: File? = null,
     /** Activité enregistrée à la fin de la sortie, pour y joindre le commentaire du bilan. */
     val activityId: Long? = null,
@@ -127,8 +126,6 @@ class SessionController(
     private var startedWallMs = 0L
     private var gearSave: Job? = null
     private val ridingLog = RidingLog(env)
-    private var trainer: Trainer? = null
-    private var gearTestJob: Job? = null
     private var sensorHeartRate: Int? = null
 
     private val mutableState = MutableStateFlow(SessionUi(session.snapshot(env.now())))
@@ -145,37 +142,8 @@ class SessionController(
     /** Mode « Tester » des réglages : les gestes sont montrés, pas appliqués. */
     val testing = MutableStateFlow(false)
 
-    private val mutableGearTest = MutableStateFlow<GearTestState>(GearTestState.Idle)
-
-    /** Essai des vitesses des réglages ([GearTest]). */
-    val gearTest: StateFlow<GearTestState> = mutableGearTest.asStateFlow()
-
-    /** Lance l'essai des vitesses, hors sortie seulement, KICKR prêt en protocole Zwift. */
-    fun startGearTest() =
-        command {
-            if (gearTestJob?.isActive == true) return@command
-            val t = trainer
-            val failure =
-                when {
-                    session.phase != RidePhase.IDLE -> GearTestFailure.RIDING
-                    env.settings.value.ftmsFallback -> GearTestFailure.FTMS
-                    t == null || !trainerReady -> GearTestFailure.NO_TRAINER
-                    else -> null
-                }
-            if (failure != null || t == null) {
-                mutableGearTest.value = GearTestState.Failed(failure ?: GearTestFailure.NO_TRAINER)
-            } else {
-                gearTestJob = scope.launch(dispatcher) { GearTest(env, t) { mutableGearTest.value = it }.run() }
-            }
-        }
-
-    /** Arrête l'essai ; le trainer est remis à plat en vitesse 12. */
-    fun stopGearTest() = command { gearTestJob?.cancelAndJoin() }
-
     fun prepare() =
         command {
-            // Un essai des vitesses en cours s'arrête, remise à plat comprise, avant la sortie.
-            gearTestJob?.cancelAndJoin()
             if (session.phase == RidePhase.IDLE) {
                 val s = env.settings.value
                 val start = env.lastGear()?.takeIf { it in 1..s.gears.size } ?: s.startGear
@@ -249,7 +217,6 @@ class SessionController(
                     )
                 }
             writer = w
-            this@SessionController.trainer = trainer
             trainerReady = false
             try {
                 if (trainer != null && w != null) {
@@ -270,7 +237,6 @@ class SessionController(
                 awaitCancellation()
             } finally {
                 writer = null
-                this@SessionController.trainer = null
                 sensorHeartRate = null
             }
         }
@@ -299,7 +265,7 @@ class SessionController(
     private fun onData(data: RidingData) {
         session.onRidingData(data)
         if (session.phase == RidePhase.RIDING) ridingLog.log(data, sensorHeartRate, session.gear, writer?.lastSent)
-        if (session.phase == RidePhase.RIDING && env.settings.value.fitExport) {
+        if (session.phase == RidePhase.RIDING) {
             samples +=
                 FitSample(
                     epochMs = env.wallClock() - (env.now() - data.atMs),
@@ -359,7 +325,7 @@ class SessionController(
     }
 
     private suspend fun exportFit(): File? {
-        if (!env.settings.value.fitExport || samples.isEmpty()) return null
+        if (samples.isEmpty()) return null
         val stats = session.stats(env.now())
         val bytes =
             FitEncoder.encode(

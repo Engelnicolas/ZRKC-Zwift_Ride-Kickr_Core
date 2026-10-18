@@ -34,12 +34,18 @@ jobs:
       - name: Build
         run: ./gradlew build --console=plain
 
-      - name: Aucune permission INTERNET ni de localisation
+      # INTERNET n'est admise que pour « Export for COROS » (spécification, « Sécurité »).
+      - name: Aucune permission de localisation, trafic en clair refusé
         run: |
           perms=$("$ANDROID_HOME/build-tools/36.0.0/aapt2" dump permissions app/build/outputs/apk/release/app-release-unsigned.apk)
           echo "$perms"
-          if echo "$perms" | grep -E "permission.(INTERNET|ACCESS_(FINE|COARSE|BACKGROUND)_LOCATION)"; then
+          if echo "$perms" | grep -E "permission.ACCESS_(FINE|COARSE|BACKGROUND)_LOCATION"; then
             echo "Permission interdite par la spécification" >&2
+            exit 1
+          fi
+          tree=$("$ANDROID_HOME/build-tools/36.0.0/aapt2" dump xmltree --file AndroidManifest.xml app/build/outputs/apk/release/app-release-unsigned.apk)
+          if echo "$tree" | grep -q "usesCleartextTraffic(0x010104ec)=true"; then
+            echo "Trafic en clair interdit" >&2
             exit 1
           fi
 

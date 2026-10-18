@@ -29,9 +29,6 @@ interface TrainerConnection {
 
     /** Rapport appliqué par le trainer, ou null s'il ne le publie pas ou ne répond pas. */
     suspend fun readGearRatio(): Double?
-
-    /** Trame brute du protocole Zwift ; lève [UnsupportedOperationException] en FTMS. */
-    suspend fun writeRaw(frame: ByteArray): Unit = throw UnsupportedOperationException("trames brutes réservées au protocole Zwift")
 }
 
 /** Ce que publie le trainer, d'une connexion à l'autre. */

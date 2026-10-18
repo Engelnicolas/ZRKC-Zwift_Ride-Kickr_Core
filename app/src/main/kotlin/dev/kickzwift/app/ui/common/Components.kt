@@ -25,6 +25,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.kickzwift.app.R
+import dev.kickzwift.app.coros.CorosFailure
+import dev.kickzwift.app.coros.CorosStatus
 import dev.kickzwift.app.ui.ReadyGreen
 import dev.kickzwift.protocol.Action
 import dev.kickzwift.protocol.Button
@@ -132,6 +134,32 @@ fun actionText(action: Action): String =
         Action.OpenSpotify -> stringResource(R.string.action_open_spotify)
         Action.None -> stringResource(R.string.action_none)
     }
+
+/** Où en est l'envoi à COROS, ou la vérification du compte ([doneText]). */
+@Composable
+fun CorosStatusText(
+    status: CorosStatus,
+    @StringRes doneText: Int = R.string.coros_sent,
+) {
+    val (text, error) =
+        when (status) {
+            CorosStatus.Idle -> return
+            is CorosStatus.Sending -> R.string.coros_sending to false
+            is CorosStatus.Done -> doneText to false
+            is CorosStatus.Failed ->
+                when (status.failure) {
+                    null -> R.string.coros_no_account
+                    CorosFailure.LOGIN -> R.string.coros_failed_login
+                    CorosFailure.NETWORK -> R.string.coros_failed_network
+                    CorosFailure.SERVICE -> R.string.coros_failed_service
+                } to true
+        }
+    Text(
+        stringResource(text),
+        style = MaterialTheme.typography.bodyMedium,
+        color = if (error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+    )
+}
 
 /** Texte d'aide, petit et centré sur la largeur de l'écran. */
 @Composable

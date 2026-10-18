@@ -31,11 +31,4 @@ interface Trainer {
 
     /** Requête 520 : rapport réellement appliqué par le trainer. */
     suspend fun readGearRatio(): Double?
-
-    /**
-     * Trame brute du protocole Zwift, pour l'essai des vitesses des réglages seulement : hors de
-     * [TrainerWriter][dev.kickzwift.ble.trainer.TrainerWriter], sans bornes. Échoue en FTMS.
-     */
-    suspend fun writeFrame(frame: ByteArray): Result<Unit> =
-        Result.failure(UnsupportedOperationException("trames brutes non prises en charge"))
 }

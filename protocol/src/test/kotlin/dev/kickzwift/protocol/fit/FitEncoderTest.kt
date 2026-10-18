@@ -1,6 +1,8 @@
 package dev.kickzwift.protocol.fit
 
+import org.junit.jupiter.api.Assertions.assertArrayEquals
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -10,9 +12,13 @@ class FitEncoderTest {
 
     private fun le(bytes: ByteArray) = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
 
-    private fun encode(n: Int): ByteArray {
+    /** Sans remplissage par défaut : les tests de structure comparent des tailles exactes. */
+    private fun encode(
+        n: Int,
+        minBytes: Int = 0,
+    ): ByteArray {
         val samples = (0 until n).map { FitSample(start + it * 1_000L, 200 + it, 90, 36.0, it * 10.0, if (it % 2 == 0) 140 else null) }
-        return FitEncoder.encode(samples, FitSummary(start, start + n * 1_000L, n * 1_000L, n * 10.0, 210, 260, 90))
+        return FitEncoder.encode(samples, FitSummary(start, start + n * 1_000L, n * 1_000L, n * 10.0, 210, 260, 90), minBytes)
     }
 
     @Test
@@ -45,5 +51,24 @@ class FitEncoderTest {
         assertEquals(0, small[firstData].toInt())
         assertEquals(4, small[firstData + 1].toInt())
         assertEquals(start / 1000 - 631_065_600L, le(small).getInt(firstData + 6).toLong() and 0xFFFFFFFFL)
+    }
+
+    @Test
+    fun `remplissage - au moins 21 000 octets, en-tete et CRC valides, rien au-dela du necessaire`() {
+        val padded = encode(3, minBytes = FitEncoder.MIN_IMPORT_BYTES)
+        assertTrue(padded.size >= FitEncoder.MIN_IMPORT_BYTES)
+        assertTrue(padded.size < FitEncoder.MIN_IMPORT_BYTES + 251, "un message de remplissage de trop au plus")
+        assertEquals(padded.size - 14 - 2, le(padded).getInt(4))
+        assertEquals(0, FitEncoder.crc(padded))
+        // Les données d'origine sont en tête, intactes ; le remplissage suit.
+        val plain = encode(3)
+        assertArrayEquals(plain.copyOfRange(14, plain.size - 2), padded.copyOfRange(14, plain.size - 2))
+        // Définition du remplissage : message 0xFF00, un champ de 250 octets de type byte.
+        val def = plain.size - 2
+        assertEquals(0x40 or 15, padded[def].toInt() and 0xFF)
+        assertEquals(0xFF00, le(padded).getShort(def + 3).toInt() and 0xFFFF)
+        // Un grand fichier n'est pas touché.
+        val big = encode(2_000, minBytes = FitEncoder.MIN_IMPORT_BYTES)
+        assertArrayEquals(encode(2_000), big)
     }
 }

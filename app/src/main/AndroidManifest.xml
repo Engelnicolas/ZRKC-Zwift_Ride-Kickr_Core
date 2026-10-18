@@ -7,7 +7,7 @@
         android:required="true" />
 
     <!-- Permissions de la section « Sécurité » de la spécification.
-         Absentes volontairement : INTERNET, localisation, stockage, accessibilité. -->
+         Absentes volontairement : localisation, stockage, accessibilité. -->
     <uses-permission
         android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation" />
@@ -17,6 +17,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- « Export for COROS » seulement, à la demande, en HTTPS (CorosClient). -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <!-- Mode « ZRKC ride » pendant la sortie (RideQuiet) ; accordé avec l'accès aux notifications. -->
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
@@ -45,6 +47,7 @@
         android:localeConfig="@xml/locales_config"
         tools:targetApi="tiramisu"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="false"
         android:theme="@style/Theme.KickZwift">
 
         <!-- Composants exportés : cette activité de lancement et MediaAccessService. -->

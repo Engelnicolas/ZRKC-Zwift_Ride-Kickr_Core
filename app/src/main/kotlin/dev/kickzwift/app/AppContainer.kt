@@ -4,6 +4,9 @@ import android.app.Application
 import android.content.Context
 import android.database.sqlite.SQLiteException
 import android.os.SystemClock
+import dev.kickzwift.app.coros.CorosAccountStore
+import dev.kickzwift.app.coros.CorosClient
+import dev.kickzwift.app.coros.CorosExport
 import dev.kickzwift.app.data.Activity
 import dev.kickzwift.app.data.ActivityStore
 import dev.kickzwift.app.data.MemoryStore
@@ -103,6 +106,10 @@ class AppContainer(
         }
     }
 
+    /** Compte COROS chiffré, et envois du FIT à COROS Training Hub. */
+    val corosAccounts = CorosAccountStore(this.context)
+    val coros = CorosExport(corosAccounts, CorosClient(log::log), scope)
+
     /** Fichiers à partager (FIT, journal), servis par le FileProvider de l'app. */
     val exportsDir = File(this.context.cacheDir, "exports")
 
@@ -159,7 +166,7 @@ class AppContainer(
         override suspend fun saveFit(bytes: ByteArray): File =
             withContext(Dispatchers.IO) {
                 exportsDir.mkdirs()
-                File(exportsDir, "sortie-${LocalDateTime.now().format(FIT_NAME)}.fit").apply { writeBytes(bytes) }
+                File(exportsDir, "zrkc-ride-${LocalDateTime.now().format(FIT_NAME)}.fit").apply { writeBytes(bytes) }
             }
 
         override suspend fun saveActivity(activity: Activity): Long? =

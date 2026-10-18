@@ -44,7 +44,6 @@ class SettingsCodecTest {
             haptics = false,
             imperial = true,
             ftmsFallback = true,
-            fitExport = true,
         )
 
     @Test

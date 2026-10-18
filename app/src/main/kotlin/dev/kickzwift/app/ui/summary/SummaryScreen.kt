@@ -24,7 +24,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.kickzwift.app.R
+import dev.kickzwift.app.coros.CorosStatus
 import dev.kickzwift.app.ui.activities.CommentField
+import dev.kickzwift.app.ui.common.CorosStatusText
 import dev.kickzwift.app.ui.common.Format
 import dev.kickzwift.app.ui.common.HelpText
 import dev.kickzwift.app.ui.common.StatLine
@@ -69,6 +71,13 @@ fun SummaryScreen(
             HelpText(stringResource(R.string.summary_saved))
         }
         ui.fitFile?.let { file ->
+            val coros by viewModel.coros.collectAsStateWithLifecycle()
+            Button(
+                onClick = { viewModel.sendToCoros(file) },
+                enabled = coros !is CorosStatus.Sending,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
+            ) { Text(stringResource(R.string.summary_coros)) }
+            if (coros.file == file.name) CorosStatusText(coros)
             OutlinedButton(
                 onClick = { context.shareFile(file, "application/vnd.ant.fit") },
             ) { Text(stringResource(R.string.summary_share_fit)) }

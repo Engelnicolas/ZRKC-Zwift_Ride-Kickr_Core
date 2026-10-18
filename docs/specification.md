@@ -14,7 +14,8 @@ historique des activités. Ce document décrit le code tel qu'il est ; l'usage e
 | Capteur cardiaque (COROS HRM) | profil standard 0x180D | Fréquence cardiaque, facultatif ; non essayé sur le matériel |
 | Téléphone Android | Android 12 (API 31) minimum | Hôte de l'app ; testé sur Pixel 10 Pro, Android 17 (API 37) |
 
-Hors périmètre : iOS, Play Store, apps tierces, tout accès réseau, mise à jour des firmwares.
+Hors périmètre : iOS, Play Store, apps tierces, tout accès réseau autre que l'envoi d'une
+activité à COROS à la demande, mise à jour des firmwares.
 
 ## Architecture
 
@@ -167,8 +168,8 @@ Aucun écran ne parle au Bluetooth : tout passe par le service, qui garde la sor
 | Activité | Bilan enregistré ; commentaire modifiable ; suppression confirmée |
 | Choix du mode | Pente libre, parcours GPX (import, aperçu, cinq derniers), ERG |
 | Sortie | Notifications des autres apps en haut, poussant l'écran vers le bas (8 s, trois au plus) ; encart des capteurs ; vitesse engagée et barre des rapports, puissance, cadence, vitesse, pente ou cible, temps (h:mm:ss), distance, fréquence cardiaque, vitesse brute du volant, profil GPX ; lecteur, Spotify d'abord (titre, lecture ou pause, volume, relu toutes les 500 ms ; boutons précédent, lecture/pause, suivant, volume − et +) ; boutons ± de la cible en ERG seulement, la pente libre se règle aux manettes ; Pause, Terminer (appui de 2 s, décompte 2, 1 sur le bouton) |
-| Bilan | Durée, distance, puissances, cadence, dénivelé, changements ; commentaire ; export FIT |
-| Réglages (onglet) | Correspondance boutons → actions avec « Tester », vitesses par la puissance ou par le KICKR (« Gears by »), rapports (60 au plus), masses, affichage, options avancées (repli FTMS, export FIT, journaux, essai des vitesses « Gear test » : Debug start, Debug stop) |
+| Bilan | Durée, distance, puissances, cadence, dénivelé, changements ; commentaire ; « Export for COROS » ; partage du FIT, toujours écrit (complété à 21 000 octets au moins par des messages 0xFF00 que les lecteurs ignorent : COROS Training Hub refuserait les fichiers de moins de 20 Ko) |
+| Réglages (onglet) | Correspondance boutons → actions avec « Tester », vitesses par la puissance ou par le KICKR (« Gears by »), rapports (60 au plus), masses, affichage, options avancées (repli FTMS, journaux) ; compte COROS (région, e-mail, mot de passe ; vérifier, oublier) |
 
 Règles : écran allumé pendant la sortie, portrait ou paysage ; thème sombre par défaut ;
 cibles de 48 dp, 64 dp pour Pause et Terminer ; état des appareils signalé par la forme et le
@@ -187,17 +188,27 @@ en haut à droite de chaque écran. Durées en heures, minutes et secondes.
 | Activités (date, mode, durée, distance, puissances, cadence, dénivelé, changements, commentaire) | SQLite `activities.db` |
 | Fichiers GPX importés | Copie dans le stockage interne |
 | Journaux | 5 fichiers de 1 Mo, partagés depuis les réglages |
+| Compte COROS (région, e-mail, MD5 du mot de passe) | `coros_account.bin`, AES-GCM, clé du Keystore Android |
 
 Un fichier DataStore illisible repart des valeurs par défaut. Aucune donnée n'est sauvegardée
-dans le cloud ni transférée (`allowBackup=false`, règles d'extraction vides).
+dans le cloud (`allowBackup=false`, règles d'extraction vides) ; seul « Export for COROS »
+transfère quelque chose, à la demande : le FIT de la sortie.
 
 ## Sécurité
 
-L'app n'a aucun accès réseau : sa surface d'attaque se limite au Bluetooth et aux GPX importés.
+Le réseau ne sert qu'à « Export for COROS », à la demande : surface d'attaque limitée au
+Bluetooth, aux GPX importés et aux réponses de COROS, toutes vérifiées.
+
+- **Envoi à COROS** (`CorosClient`, protocole dans `CorosUpload`, d'après Pinta365/coros, MIT) :
+  connexion à Training Hub (e-mail, MD5 du mot de passe), identifiants S3 temporaires du STS de
+  COROS, dépôt du FIT zippé sur le seau S3 de la région (SigV4), déclaration de l'import. HTTPS
+  seulement (`usesCleartextTraffic=false`) ; hôtes : API de la région, faq.coros.com, seau S3
+  désigné par COROS. API privée, non documentée : elle peut cesser sans prévenir. Mot de passe
+  jamais gardé en clair ni journalisé ; connexion neuve à chaque envoi.
 
 - **Permissions** : `BLUETOOTH_SCAN` (neverForLocation), `BLUETOOTH_CONNECT`,
   `FOREGROUND_SERVICE` et `FOREGROUND_SERVICE_CONNECTED_DEVICE`, `POST_NOTIFICATIONS`,
-  `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`, `VIBRATE`, `ACCESS_NOTIFICATION_POLICY`. Absentes volontairement : `INTERNET`,
+  `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`, `VIBRATE`, `ACCESS_NOTIFICATION_POLICY`, `INTERNET` (envoi à COROS). Absentes volontairement :
   localisation, stockage, accessibilité.
 - **Accès aux notifications** (facultatif, accordé dans les réglages d'Android) : ouvre la
   liste des lecteurs actifs pour le titre et l'état du lecteur ; sans accès, le lecteur montre
@@ -225,13 +236,13 @@ L'app n'a aucun accès réseau : sa surface d'attaque se limite au Bluetooth et 
 
 - **Vecteurs de référence** : trames réelles du Ride et du KICKR, captées sur le matériel par
   le prototype Python (hors dépôt), rejouées par les tests JVM.
-- **Tests JVM** : 292 (242 dans `:protocol`, 26 dans `:ble`, 24 dans `:app`) ; couverture
+- **Tests JVM** : 291 (244 dans `:protocol`, 26 dans `:ble`, 21 dans `:app`) ; couverture
   de `:protocol` ≥ 90 % des lignes, bloquante (JaCoCo). Faux appareils derrière `Controller`
   et `Trainer` pour les liaisons, `TrainerWriter` et `SessionController`.
 - **Qualité** : Android Lint (avertissements bloquants), ktlint, detekt.
 - **CI** (`.github/workflows/ci.yml`, à chaque push et pull request) : `./gradlew build`,
-  puis contrôle de l'APK release : ni `INTERNET` ni localisation, deux composants exportés
-  dont `MediaAccessService` protégé par sa permission.
+  puis contrôle de l'APK release : pas de localisation, pas de trafic en clair, deux composants
+  exportés dont `MediaAccessService` protégé par sa permission.
 - **Fuzzing nocturne** (`fuzz.yml`) : Jazzer, 4 cibles, 150 s chacune.
 
 ## État et points ouverts
@@ -253,11 +264,11 @@ Questions ouvertes :
 - **Vitesses peu ressenties** (sortie du 18 oct., 15:49) : le KICKR relit bien chaque rapport,
   mais la vitesse simulée suit la puissance et non le rapport ; un changement ne donne qu'un
   pic de quelques secondes (vitesse 24 à 67 rpm : 44 W, au lieu d'environ 400 W pour un vrai
-  vélo). L'essai des vitesses des réglages (`GearTestPlan`, comme `kickr_sequence.py vitesses`)
-  compare quatre façons d'envoyer le rapport : seul, seul après une pente, avec les masses
-  (l'app), pente, rapport et masses en une trame. Résultat : aucune ne tient (50 à 56 W partout),
-  KICKR redémarré ou non ; seul le premier rapport après un redémarrage donne un pic. D'où les
-  vitesses par la puissance, par défaut ; ressenti à confirmer sur le vélo.
+  vélo). L'essai des vitesses (version 1.0 de l'app, retiré depuis ; même séquence dans
+  `prototype/kickr_sequence.py vitesses`) a comparé quatre façons d'envoyer le rapport : seul,
+  seul après une pente, avec les masses, pente, rapport et masses en une trame. Aucune ne tient
+  (50 à 56 W partout), KICKR redémarré ou non ; seul le premier rapport après un redémarrage
+  donne un pic. D'où les vitesses par la puissance, par défaut ; ressenti à confirmer sur le vélo.
 - Unité de la vitesse virtuelle du 0x03 (centième de km/h ou de m/s) : à reporter dans
   `TrainerCodec.SPEED_RAW_TO_KMH` ; sens du champ 6.
 - Mode ERG du KICKR (champ PowerTarget) et bornes de pente réelles du CORE.

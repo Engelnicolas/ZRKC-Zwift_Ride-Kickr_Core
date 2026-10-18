@@ -9,6 +9,7 @@ import dev.kickzwift.app.AppContainer
 import dev.kickzwift.protocol.Action
 import dev.kickzwift.protocol.Button
 import dev.kickzwift.protocol.Gesture
+import dev.kickzwift.protocol.coros.CorosUpload
 import dev.kickzwift.protocol.device.DeviceKind
 import dev.kickzwift.protocol.gear.GearTable
 import dev.kickzwift.protocol.mapping.ButtonMapping
@@ -129,16 +130,25 @@ class SettingsViewModel(
 
     fun setFtms(on: Boolean) = update { it.copy(ftmsFallback = on) }
 
+    /** Compte COROS enregistré, ou null. */
+    val corosAccount = c.corosAccounts.account
+    val coros = c.coros.status
+
+    fun saveCoros(
+        email: String,
+        password: String,
+        region: CorosUpload.Region,
+    ) {
+        viewModelScope.launch { c.corosAccounts.save(email, password, region) }
+    }
+
+    fun forgetCoros() {
+        viewModelScope.launch { c.corosAccounts.forget() }
+    }
+
+    fun checkCoros() = c.coros.check()
+
     fun setGearMode(mode: GearMode) = update { it.copy(gearMode = mode) }
-
-    /** Essai des vitesses (Advanced › Gear test). */
-    val gearTest = c.session.gearTest
-
-    fun startGearTest() = c.session.startGearTest()
-
-    fun stopGearTest() = c.session.stopGearTest()
-
-    fun setFit(on: Boolean) = update { it.copy(fitExport = on) }
 
     /** Journal complet, prêt à partager. */
     suspend fun exportLog(): File = withContext(Dispatchers.IO) { c.log.exportTo(File(c.exportsDir, "journal.txt")) }

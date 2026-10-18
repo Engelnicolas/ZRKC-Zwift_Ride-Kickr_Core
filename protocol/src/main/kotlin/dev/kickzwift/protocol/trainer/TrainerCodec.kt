@@ -107,18 +107,6 @@ object TrainerCodec {
         riderKg: Double,
     ): ByteArray = HubEncoder.command(physical = HubEncoder.physical(ratio, bikeKg, riderKg))
 
-    /** 0x04 unique avec la pente, le rapport et les masses. Non vérifié sur le matériel. */
-    fun combined(
-        gradePct: Double,
-        ratio: Double,
-        bikeKg: Double,
-        riderKg: Double,
-    ): ByteArray =
-        HubEncoder.command(
-            simulation = HubEncoder.simulation(gradePct),
-            physical = HubEncoder.physical(ratio, bikeKg, riderKg),
-        )
-
     /** 0x04 en mode ERG, champ PowerTarget de virtual-cog. Non vérifié sur le matériel. */
     fun powerTarget(watts: Int): ByteArray {
         require(watts >= 0) { "puissance cible négative" }
