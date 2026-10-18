@@ -72,11 +72,14 @@ fun SummaryScreen(
         }
         ui.fitFile?.let { file ->
             val coros by viewModel.coros.collectAsStateWithLifecycle()
+            // Une fois reçue par COROS, l'activité ne peut plus être renvoyée : le bouton reste grisé.
+            val sent by viewModel.corosSent.collectAsStateWithLifecycle()
+            val done = file.name in sent
             Button(
                 onClick = { viewModel.sendToCoros(file) },
-                enabled = coros !is CorosStatus.Sending,
+                enabled = coros !is CorosStatus.Sending && !done,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp),
-            ) { Text(stringResource(R.string.summary_coros)) }
+            ) { Text(stringResource(if (done) R.string.summary_coros_done else R.string.summary_coros)) }
             if (coros.file == file.name) CorosStatusText(coros)
             OutlinedButton(
                 onClick = { context.shareFile(file, "application/vnd.ant.fit") },

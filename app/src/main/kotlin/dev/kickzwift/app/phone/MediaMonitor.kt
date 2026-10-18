@@ -33,11 +33,18 @@ data class MediaState(
     val maxVolume: Int = 0,
     /** Accès aux notifications accordé : sans lui, ni titre ni état précis du lecteur. */
     val access: Boolean = false,
+    /** Durée du morceau ; nulle si le lecteur ne la donne pas. */
+    val durationMs: Long? = null,
+    /** Position dans le morceau, estimée à la lecture de l'état. */
+    val positionMs: Long = 0,
+    /** Le lecteur accepte qu'on déplace la lecture. */
+    val canSeek: Boolean = false,
 )
 
 /**
  * Lecture en cours sur le téléphone, relue toutes les [POLL_MS] tant que quelqu'un l'observe :
- * un changement fait aux manettes (lecture, piste, volume) apparaît donc dans le lecteur.
+ * un changement fait aux manettes (lecture, piste, volume) apparaît donc dans le lecteur, et
+ * l'avancement du morceau suit la lecture.
  *
  * Le volume et « de la musique joue » viennent du flux musique, sans permission. Le titre et
  * l'état du lecteur exigent l'accès aux notifications, que la personne accorde dans les
@@ -82,6 +89,11 @@ class MediaMonitor(
         }
     }
 
+    /** Déplace la lecture du lecteur affiché ; sans effet sans accès aux notifications. */
+    fun seekTo(positionMs: Long) {
+        pick(sessions(access()))?.transportControls?.seekTo(positionMs.coerceAtLeast(0))
+    }
+
     /** Page des réglages d'Android où accorder l'accès aux notifications à l'app. */
     fun accessSettings(): Intent =
         Intent(Settings.ACTION_NOTIFICATION_LISTENER_DETAIL_SETTINGS)
@@ -98,15 +110,28 @@ class MediaMonitor(
         val access = access()
         val controller = pick(sessions(access))
         val metadata = controller?.metadata
+        val playback = controller?.playbackState
         return MediaState(
             title = metadata?.getString(MediaMetadata.METADATA_KEY_TITLE),
             artist = metadata?.getString(MediaMetadata.METADATA_KEY_ARTIST),
-            playing = controller?.playbackState?.state?.let { it == PlaybackState.STATE_PLAYING } ?: audio.isMusicActive,
+            playing = playback?.state?.let { it == PlaybackState.STATE_PLAYING } ?: audio.isMusicActive,
             volume = audio.getStreamVolume(AudioManager.STREAM_MUSIC),
             maxVolume = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC),
             access = access,
+            durationMs = metadata?.getLong(MediaMetadata.METADATA_KEY_DURATION)?.takeIf { it > 0 },
+            positionMs = playback?.let(::position) ?: 0,
+            canSeek = playback != null && playback.actions and PlaybackState.ACTION_SEEK_TO != 0L,
         )
     }
+
+    // Le lecteur publie sa position à l'instant de sa dernière mise à jour ; pendant la lecture,
+    // elle avance depuis au rythme de la vitesse de lecture.
+    private fun position(p: PlaybackState): Long =
+        when {
+            p.position == PlaybackState.PLAYBACK_POSITION_UNKNOWN -> 0
+            p.state != PlaybackState.STATE_PLAYING -> p.position
+            else -> p.position + ((SystemClock.elapsedRealtime() - p.lastPositionUpdateTime) * p.playbackSpeed).toLong()
+        }
 
     // Spotify d'abord, puis le lecteur qui joue, sinon le plus récent : Android les rend du plus
     // récent au plus ancien.

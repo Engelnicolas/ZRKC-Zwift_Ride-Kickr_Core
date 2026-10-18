@@ -122,7 +122,7 @@
     <string name="player_music">Music</string>
     <string name="player_playing">Playing</string>
     <string name="player_paused">Paused</string>
-    <string name="player_volume">Volume %1$d/%2$d</string>
+    <string name="player_progress_description">Track position</string>
     <string name="player_unknown_title">Unknown track</string>
     <string name="player_grant">Show the track title</string>
     <string name="player_grant_hint">Android asks for notification access: the app only uses it to see which track is playing.</string>
@@ -150,6 +150,7 @@
     <string name="summary_shifts">Gear changes</string>
     <string name="summary_share_fit">Share the FIT file</string>
     <string name="summary_coros">Export for COROS</string>
+    <string name="summary_coros_done">Activity already sent to COROS</string>
     <string name="coros_sending">Sending to COROS…</string>
     <string name="coros_sent">Sent to COROS. It shows up in your COROS history after processing, usually within 30 minutes.</string>
     <string name="coros_no_account">Set up your COROS account in Settings first.</string>

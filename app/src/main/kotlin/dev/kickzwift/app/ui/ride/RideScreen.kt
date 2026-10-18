@@ -26,8 +26,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -106,7 +106,7 @@ fun RideScreen(viewModel: RideViewModel) {
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             Metrics(s, ui)
-                            Player(ui.media, grantMedia, viewModel::act)
+                            Player(ui.media, grantMedia, viewModel::seek, viewModel::act)
                             ModeZone(s, ui, viewModel::act)
                         }
                     }
@@ -114,7 +114,7 @@ fun RideScreen(viewModel: RideViewModel) {
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         GearBlock(s, Modifier.fillMaxWidth())
                         Metrics(s, ui)
-                        Player(ui.media, grantMedia, viewModel::act)
+                        Player(ui.media, grantMedia, viewModel::seek, viewModel::act)
                         ModeZone(s, ui, viewModel::act)
                     }
                 }
@@ -254,14 +254,17 @@ private fun GearBlock(
         pulse.animateTo(1f)
     }
     val description = stringResource(R.string.ride_gear_description, s.gear, s.gearCount)
+    // Vitesse et nombre de vitesses sur une ligne, à la même taille : la hauteur va aux mesures.
     Column(modifier.semantics { contentDescription = description }, horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            if (s.mode is RideMode.Erg) "—" else s.gear.toString(),
-            fontSize = GEAR_SIZE,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.scale(pulse.value),
-        )
-        Text(stringResource(R.string.ride_gear_of, s.gearCount), style = MaterialTheme.typography.titleLarge)
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text(
+                if (s.mode is RideMode.Erg) "—" else s.gear.toString(),
+                fontSize = GEAR_SIZE,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.alignByBaseline().scale(pulse.value),
+            )
+            Text(stringResource(R.string.ride_gear_of, s.gearCount), fontSize = GEAR_SIZE, modifier = Modifier.alignByBaseline())
+        }
         GearBar(s.gear, s.gearCount, Modifier.fillMaxWidth().height(28.dp).padding(top = 8.dp))
     }
 }
@@ -338,8 +341,9 @@ private fun Metrics(
 }
 
 /**
- * Lecteur, Spotify d'abord : titre, lecture ou pause, volume, et les commandes précédent,
- * lecture/pause, suivant, volume − et +, qui passent par les mêmes actions que les manettes.
+ * Lecteur, Spotify d'abord : titre, lecture ou pause, avancement du morceau, et les commandes
+ * précédent, lecture/pause, suivant, volume − et +, qui passent par les mêmes actions que les
+ * manettes. Toucher ou glisser sur la barre d'avancement déplace la lecture.
  * Relu deux fois par seconde : ce que font les manettes s'y voit aussitôt. Sans l'accès aux
  * notifications, ni titre ni état précis.
  */
@@ -347,6 +351,7 @@ private fun Metrics(
 private fun Player(
     media: MediaState,
     onGrant: () -> Unit,
+    onSeek: (Long) -> Unit,
     act: (Action) -> Unit,
 ) {
     Column(
@@ -375,18 +380,41 @@ private fun Player(
             MediaButton(stringResource(R.string.action_volume_down), { act(Action.VolumeDown) }) { Text("−") }
             MediaButton(stringResource(R.string.action_volume_up), { act(Action.VolumeUp) }) { Text("+") }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(stringResource(R.string.player_volume, media.volume, media.maxVolume), style = MaterialTheme.typography.labelLarge)
-            LinearProgressIndicator(
-                progress = { if (media.maxVolume > 0) media.volume.toFloat() / media.maxVolume else 0f },
-                modifier = Modifier.weight(1f),
-                drawStopIndicator = {},
-            )
-        }
+        TrackProgress(media, onSeek)
         if (!media.access) {
             TextButton(onClick = onGrant) { Text(stringResource(R.string.player_grant)) }
             Text(stringResource(R.string.player_grant_hint), style = MaterialTheme.typography.bodySmall)
         }
+    }
+}
+
+/**
+ * Avancement du morceau : temps écoulé, barre, durée. Pendant le glissement, la barre suit le
+ * doigt et non la lecture ; la position n'est envoyée au lecteur qu'au lâcher. Absente si le
+ * lecteur ne donne pas de durée (sans accès aux notifications, ou flux en direct).
+ */
+@Composable
+private fun TrackProgress(
+    media: MediaState,
+    onSeek: (Long) -> Unit,
+) {
+    val duration = media.durationMs ?: return
+    var dragging by remember { mutableStateOf<Float?>(null) }
+    val fraction = dragging ?: (media.positionMs.toFloat() / duration).coerceIn(0f, 1f)
+    val description = stringResource(R.string.player_progress_description)
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(Format.trackTime((fraction * duration).toLong()), style = MaterialTheme.typography.labelLarge)
+        Slider(
+            value = fraction,
+            onValueChange = { dragging = it },
+            onValueChangeFinished = {
+                dragging?.let { onSeek((it * duration).toLong()) }
+                dragging = null
+            },
+            enabled = media.canSeek,
+            modifier = Modifier.weight(1f).semantics { contentDescription = description },
+        )
+        Text(Format.trackTime(duration), style = MaterialTheme.typography.labelLarge)
     }
 }
 
@@ -569,7 +597,7 @@ private fun Controls(
 }
 
 private const val PULSE_SCALE = 1.25f
-private val GEAR_SIZE = 88.sp
+private val GEAR_SIZE = 56.sp
 private const val BLINK_ALPHA = 0.2f
 private const val FINISH_COUNTDOWN = 2
 private const val FINISH_STEP_MS = 1_000L

@@ -91,13 +91,18 @@ cadence   = volant / k          // k ≈ 305 par rpm, calé en continu sur la ca
 v_pédales = cadence / 60 × rapport × 2,105 m
 F(v)      = CWa/2 × v² + Crr × m × g + m × g × pente              // CWa 0,51, Crr 0,004
 v_libre   = v − F(v) / m × dt                                     // vélo virtuel (VirtualBike)
-v         = v_pédales > v_libre ? max(v_libre, v + (v_pédales − v) × dt / 4 s) : v_libre
-consigne  = roue libre (v_pédales < v) ? 0 W : (F(v_pédales) + m × (v_pédales − v) / 4 s) × v_pédales
+chaîne    = v_pédales > v_libre, ou pédales qui tournent hors descente (pente ≥ 0)
+v         = chaîne ? v + (v_pédales − v) × dt / 4 s (au moins v_libre si v_pédales > v_libre) : v_libre
+consigne  = roue libre ? 0 W : (F(v_pédales) + m × max(0, v_pédales − v) / 4 s) × v_pédales
 ```
 
 La consigne ERG est bornée à [0, plafond ERG]. La vitesse affichée et la distance sont celles du
-vélo virtuel : roue libre quand les pédales tournent moins vite que la roue (la vitesse décroît
-à plat, croît en descente jusqu'à sa vitesse limite, environ 44 km/h à −5 %) ; une relance coûte
+vélo virtuel : roue libre pédales arrêtées, ou plus lentes que la roue en descente (la vitesse
+décroît à plat, croît en descente jusqu'à sa vitesse limite, environ 44 km/h à −5 %) ; pédales
+qui tournent hors descente, la chaîne reste tenue : après avoir rétrogradé, la consigne est
+aussitôt celle du nouveau rapport et la vitesse rejoint celle des pédales en quelques secondes ; pédales arrêtées
+hors descente, elle ralentit aussi vite que le volant du KICKR (arrêté en 25 s environ), en
+proportion de sa vitesse à l'arrêt des pédales ; une relance coûte
 la puissance qui accélère la masse. Le vélo repart arrêté au départ et à chaque reprise ; en
 pause et à la fin, consigne de 0 W. Le mode ERG des sorties n'est pas concerné.
 
@@ -167,8 +172,8 @@ Aucun écran ne parle au Bluetooth : tout passe par le service, qui garde la sor
 | Activités (onglet) | « Démarrer une activité » ; distance et temps du mois et de l'année en cours ; historique, la plus récente en tête (liseré rouge, date et mode, temps, distance, puissance moyenne, commentaire) |
 | Activité | Bilan enregistré ; commentaire modifiable ; suppression confirmée |
 | Choix du mode | Pente libre, parcours GPX (import, aperçu, cinq derniers), ERG |
-| Sortie | Notifications des autres apps en haut, poussant l'écran vers le bas (8 s, trois au plus) ; encart des capteurs ; vitesse engagée et barre des rapports, puissance, cadence, vitesse, pente ou cible, temps (h:mm:ss), distance, fréquence cardiaque, vitesse brute du volant, profil GPX ; lecteur, Spotify d'abord (titre, lecture ou pause, volume, relu toutes les 500 ms ; boutons précédent, lecture/pause, suivant, volume − et +) ; boutons ± de la cible en ERG seulement, la pente libre se règle aux manettes ; Pause, Terminer (appui de 2 s, décompte 2, 1 sur le bouton) |
-| Bilan | Durée, distance, puissances, cadence, dénivelé, changements ; commentaire ; « Export for COROS » ; partage du FIT, toujours écrit (complété à 21 000 octets au moins par des messages 0xFF00 que les lecteurs ignorent : COROS Training Hub refuserait les fichiers de moins de 20 Ko) |
+| Sortie | Notifications des autres apps en haut, poussant l'écran vers le bas (8 s, trois au plus) ; encart des capteurs ; vitesse engagée et nombre de vitesses sur une ligne (« 13 of 24 »), barre des rapports, puissance, cadence, vitesse, pente ou cible, temps (h:mm:ss), distance, fréquence cardiaque, vitesse brute du volant, profil GPX ; lecteur, Spotify d'abord (titre, lecture ou pause, avancement du morceau relu toutes les 500 ms, barre touchée ou glissée pour avancer ou reculer ; boutons précédent, lecture/pause, suivant, volume − et +) ; boutons ± de la cible en ERG seulement, la pente libre se règle aux manettes ; Pause, Terminer (appui de 2 s, décompte 2, 1 sur le bouton) |
+| Bilan | Durée, distance, puissances, cadence, dénivelé, changements ; commentaire ; « Export for COROS », une fois par activité (bouton grisé ensuite, « Activity already sent to COROS ») ; partage du FIT, toujours écrit (complété à 21 000 octets au moins par des messages 0xFF00 que les lecteurs ignorent : COROS Training Hub refuserait les fichiers de moins de 20 Ko) |
 | Réglages (onglet) | Correspondance boutons → actions avec « Tester », vitesses par la puissance ou par le KICKR (« Gears by »), rapports (60 au plus), masses, affichage, options avancées (repli FTMS, journaux) ; compte COROS (région, e-mail, mot de passe ; vérifier, oublier) |
 
 Règles : écran allumé pendant la sortie, portrait ou paysage ; thème sombre par défaut ;
@@ -201,8 +206,9 @@ Bluetooth, aux GPX importés et aux réponses de COROS, toutes vérifiées.
 
 - **Envoi à COROS** (`CorosClient`, protocole dans `CorosUpload`, d'après Pinta365/coros, MIT) :
   connexion à Training Hub (e-mail, MD5 du mot de passe), identifiants S3 temporaires du STS de
-  COROS, dépôt du FIT zippé sur le seau S3 de la région (SigV4), déclaration de l'import. HTTPS
-  seulement (`usesCleartextTraffic=false`) ; hôtes : API de la région, faq.coros.com, seau S3
+  COROS (`t.coros.com/api/proxy/oss/sts`, jeton en cookie ; l'ancien `faq.coros.com` répond 404
+  depuis octobre 2026), dépôt du FIT zippé sur le seau S3 de la région (SigV4), déclaration de l'import. HTTPS
+  seulement (`usesCleartextTraffic=false`) ; hôtes : API de la région, t.coros.com, seau S3
   désigné par COROS. API privée, non documentée : elle peut cesser sans prévenir. Mot de passe
   jamais gardé en clair ni journalisé ; connexion neuve à chaque envoi.
 
@@ -211,8 +217,8 @@ Bluetooth, aux GPX importés et aux réponses de COROS, toutes vérifiées.
   `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`, `VIBRATE`, `ACCESS_NOTIFICATION_POLICY`, `INTERNET` (envoi à COROS). Absentes volontairement :
   localisation, stockage, accessibilité.
 - **Accès aux notifications** (facultatif, accordé dans les réglages d'Android) : ouvre la
-  liste des lecteurs actifs pour le titre et l'état du lecteur ; sans accès, le lecteur montre
-  le volume et « de la musique joue ». Hors sortie, les notifications reçues sont ignorées ;
+  liste des lecteurs actifs pour le titre, l'état et l'avancement du lecteur ; sans accès, le
+  lecteur montre seulement « de la musique joue ». Hors sortie, les notifications reçues sont ignorées ;
   pendant la sortie, celles qui auraient surgi en bandeau (importance haute, hors appels) sont
   recopiées dans l'écran Sortie, en mémoire seulement, jamais journalisées.
 - **Mode « ZRKC ride »** (`ACCESS_NOTIFICATION_POLICY`, accordé avec l'accès aux notifications) :

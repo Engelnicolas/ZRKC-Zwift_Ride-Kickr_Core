@@ -112,6 +112,9 @@ class RideViewModel(
 
     fun act(action: Action) = c.session.act(action)
 
+    /** Déplace la lecture du morceau en cours, depuis la barre d'avancement du lecteur. */
+    fun seek(positionMs: Long) = c.media.seekTo(positionMs)
+
     companion object {
         private const val STOP_TIMEOUT_MS = 5_000L
         private const val NOTICE_MS = 2_000L

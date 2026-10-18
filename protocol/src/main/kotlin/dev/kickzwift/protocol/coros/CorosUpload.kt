@@ -9,28 +9,30 @@ import java.util.zip.CRC32
 
 /**
  * Envoi d'une activité à COROS Training Hub par son API privée, non documentée, telle que la
- * décrit Pinta365/coros (MIT, vérifiée de bout en bout sur la région Europe) :
+ * décrit Pinta365/coros (MIT, vérifiée de bout en bout sur la région Europe), STS mis à jour
+ * d'après le site de Training Hub en octobre 2026 :
  *
  * 1. `account/login` : e-mail et MD5 du mot de passe → jeton ; `account/query` → identifiant ;
- * 2. `faq.coros.com/openapi/oss/sts` : identifiants S3 temporaires du seau de la région ;
+ * 2. `t.coros.com/api/proxy/oss/sts`, avec le jeton en cookie : identifiants S3 temporaires du
+ *    seau de la région (l'ancien `faq.coros.com/openapi/oss/sts` répond 404 depuis octobre 2026) ;
  * 3. PUT S3 (SigV4) du FIT emballé dans `{md5}.zip`, entrée `{md5}/{fichier}`, sans compression ;
  * 4. `activity/fit/import` : déclaration du fichier déposé.
  *
- * Ici, seules les parties sans réseau ; les appels sont dans l'app. Les signatures STS sont des
- * valeurs propres à COROS, relevées dans son site : si COROS les change, l'envoi cesse.
+ * Ici, seules les parties sans réseau ; les appels sont dans l'app. Le sel du STS est une valeur
+ * propre à COROS, relevée dans son site : si COROS le change, l'envoi cesse.
  */
 object CorosUpload {
+    /** [id] : numéro de région du site de Training Hub (cookie `CPL-coros-region`). */
     enum class Region(
         val apiBase: String,
         val bucket: String,
-        val stsSign: String,
+        val id: Int,
     ) {
-        EUROPE("https://teameuapi.coros.com", "eu-coros", "877571111A1EE5316E4B590103D4B5B3"),
-        AMERICAS("https://teamapi.coros.com", "coros-s3", "E34EF0E34A498A54A9C3EAEFC12B7CAF"),
+        EUROPE("https://teameuapi.coros.com", "eu-coros", 3),
+        AMERICAS("https://teamapi.coros.com", "coros-s3", 1),
     }
 
-    const val STS_URL = "https://faq.coros.com/openapi/oss/sts"
-    private const val STS_APP_ID = "1660188068672619112"
+    const val STS_URL = "https://t.coros.com/api/proxy/oss/sts"
     private const val STS_SALT = "9y78gpoERW4lBNYL"
 
     /** Réponse réussie de l'API de Training Hub (champ `result`). */
@@ -48,7 +50,13 @@ object CorosUpload {
 
     fun importUrl(region: Region) = "${region.apiBase}/activity/fit/import"
 
-    fun stsUrl(region: Region) = "$STS_URL?bucket=${region.bucket}&service=aws&v=2&app_id=$STS_APP_ID&sign=${region.stsSign}"
+    fun stsUrl(region: Region) = "$STS_URL?bucket=${region.bucket}&service=aws&v=2"
+
+    /** Cookies du STS, comme les pose le site après la connexion : le jeton et la région. */
+    fun stsCookie(
+        region: Region,
+        token: String,
+    ) = "CPL-coros-token=$token; CPL-coros-region=${region.id}"
 
     /** Corps de `account/login` ; le mot de passe n'y figure que par son MD5. */
     fun loginJson(

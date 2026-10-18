@@ -105,7 +105,8 @@ data class SessionSnapshot(
  * - Distance = intégrale de la vitesse reçue, en RIDING seulement ; un trou de plus de 3 s
  *   entre deux mesures n'est pas intégré.
  * - Vitesses par la puissance ([SessionConfig.powerGears], hors ERG) : un [VirtualBike] suit la
- *   cadence (estimée par le volant), le rapport et la pente, avec roue libre et inertie ; sa
+ *   cadence (estimée par le volant), le rapport et la pente, avec roue libre et inertie (pédales
+ *   arrêtées hors descente, la vitesse ralentit comme le volant du KICKR) ; sa
  *   puissance est la consigne, sa vitesse celle qui s'affiche et s'intègre. Il repart arrêté au
  *   départ et à chaque reprise ; en pause et à la fin, la consigne est une puissance nulle.
  */
@@ -221,7 +222,7 @@ class RideSession(
         val data =
             if (usesPowerGears()) {
                 cadenceRpm = flywheelCadence.update(received)
-                if (phase == RidePhase.RIDING) bike.advance(received.atMs, cadenceRpm, engine.ratio, currentGrade())
+                if (phase == RidePhase.RIDING) bike.advance(received.atMs, cadenceRpm, engine.ratio, currentGrade(), received.flywheelRaw)
                 received.copy(speedKmh = bike.speedKmh)
             } else {
                 received

@@ -93,6 +93,37 @@ class PowerGearsTest {
     }
 
     @Test
+    fun `velo virtuel - pedales arretees, la vitesse ralentit comme le volant`() {
+        val bike = VirtualBike(mass)
+        bike.ride(0, 31, 60.0, 2.40)
+        val riding = bike.speedKmh
+        // Volant relevé le 18 octobre après l'arrêt des pédales : 17 019 puis environ −8 % par seconde.
+        val flywheel = listOf(17_019, 15_245, 13_170, 10_874, 9_102, 6_285, 4_746, 2_413, 0)
+        flywheel.forEachIndexed { i, f -> bike.advance((31 + i) * 1_000L, 0.0, 2.40, 0.0, f) }
+        assertEquals(0.0, bike.speedKmh, 0.0, "volant arrêté : vélo arrêté")
+        val half = VirtualBike(mass)
+        half.ride(0, 31, 60.0, 2.40)
+        half.advance(31_000, 0.0, 2.40, 0.0, 20_000)
+        half.advance(32_000, 0.0, 2.40, 0.0, 10_000)
+        assertEquals(riding / 2, half.speedKmh, 0.2, "volant à moitié : moitié de la vitesse à l'arrêt des pédales")
+    }
+
+    @Test
+    fun `velo virtuel - le volant ne joue ni en descente ni en pedalant`() {
+        val descent = VirtualBike(mass)
+        descent.ride(0, 31, 60.0, 2.40, grade = -5.0)
+        val before = descent.speedKmh
+        descent.advance(31_000, 0.0, 2.40, -5.0, 20_000)
+        descent.advance(32_000, 0.0, 2.40, -5.0, 5_000)
+        assertTrue(descent.speedKmh >= before, "descente : le vélo roule, le volant peut s'arrêter")
+        val pedaling = VirtualBike(mass)
+        pedaling.ride(0, 31, 60.0, 2.40)
+        pedaling.advance(31_000, 60.0, 2.40, 0.0, 20_000)
+        pedaling.advance(32_000, 60.0, 2.40, 0.0, 5_000)
+        assertEquals(18.2, pedaling.speedKmh, 0.1, "pédales qui tournent : le rapport et la cadence décident")
+    }
+
+    @Test
     fun `velo virtuel - en descente, roue libre jusqu'a la vitesse limite`() {
         val bike = VirtualBike(mass)
         bike.ride(0, 600, 0.0, 2.40, grade = -5.0)
@@ -102,13 +133,27 @@ class PowerGearsTest {
     }
 
     @Test
-    fun `velo virtuel - retrograder sans pedaler plus vite, roue libre puis la chaine reprend`() {
+    fun `velo virtuel - retrograder sans pedaler plus vite, pas de pedalage dans le vide`() {
         val bike = VirtualBike(mass)
         bike.ride(0, 41, 60.0, 3.49)
-        assertEquals(0, bike.targetWatts(60.0, 2.40, 0.0, 600), "pédales plus lentes que la roue")
-        bike.ride(41, 120, 60.0, 2.40)
-        assertEquals(PowerGears.speedKmh(60.0, 2.40), bike.speedKmh, 0.1, "la roue redescend à la vitesse des pédales")
-        assertTrue(bike.targetWatts(60.0, 2.40, 0.0, 600) > 0, "la chaîne reprend")
+        assertEquals(
+            PowerGears.targetWatts(60.0, 2.40, 0.0, mass, 600),
+            bike.targetWatts(60.0, 2.40, 0.0, 600),
+            "aussitôt la puissance du nouveau rapport, pas 0 W",
+        )
+        bike.ride(41, 12, 60.0, 2.40)
+        assertEquals(PowerGears.speedKmh(60.0, 2.40), bike.speedKmh, 0.5, "la roue rejoint les pédales en quelques secondes")
+        bike.ride(53, 30, 60.0, 2.40)
+        assertEquals(PowerGears.speedKmh(60.0, 2.40), bike.speedKmh, 0.1)
+    }
+
+    @Test
+    fun `velo virtuel - creux de cadence a allure stable, la consigne ne tombe pas a zero`() {
+        val bike = VirtualBike(mass)
+        bike.ride(0, 31, 70.0, 2.82)
+        assertTrue(bike.targetWatts(66.0, 2.82, 0.0, 600) > 0, "cadence estimée un peu basse : chaîne tenue")
+        assertTrue(bike.targetWatts(66.0, 2.82, 2.0, 600) > 0, "de même en côte")
+        assertEquals(0, bike.targetWatts(0.0, 2.82, 0.0, 600), "pédales arrêtées : roue libre")
     }
 
     @Test

@@ -242,6 +242,12 @@ object Format {
         return "%d:%02d:%02d".format(Locale.ROOT, s / S_PER_H, s % S_PER_H / S_PER_MIN, s % S_PER_MIN)
     }
 
+    /** Position dans un morceau : minutes et secondes, les heures seulement s'il en faut. */
+    fun trackTime(ms: Long): String {
+        val s = ms.coerceAtLeast(0) / MS_PER_S
+        return if (s >= S_PER_H) duration(ms) else "%d:%02d".format(Locale.ROOT, s / S_PER_MIN, s % S_PER_MIN)
+    }
+
     fun distance(
         m: Double,
         imperial: Boolean,

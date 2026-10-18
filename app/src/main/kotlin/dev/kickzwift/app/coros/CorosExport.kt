@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -31,7 +32,8 @@ sealed interface CorosStatus {
 
 /**
  * Envois à COROS, dans la portée de l'app : ils aboutissent même si l'écran se ferme. Sans
- * compte enregistré, [CorosStatus.Failed] avec un motif nul.
+ * compte enregistré, [CorosStatus.Failed] avec un motif nul. Une activité n'est envoyée qu'une
+ * fois : COROS en ferait un doublon.
  */
 class CorosExport(
     private val accounts: CorosAccountStore,
@@ -41,7 +43,18 @@ class CorosExport(
     private val mutableStatus = MutableStateFlow<CorosStatus>(CorosStatus.Idle)
     val status: StateFlow<CorosStatus> = mutableStatus.asStateFlow()
 
-    fun send(fit: File) = run(fit.name) { a -> client.upload(a, fit.readBytes(), fit.name) }
+    private val mutableSent = MutableStateFlow<Set<String>>(emptySet())
+
+    /** Fichiers FIT déjà reçus par COROS depuis le lancement de l'app. */
+    val sent: StateFlow<Set<String>> = mutableSent.asStateFlow()
+
+    fun send(fit: File) {
+        if (fit.name in mutableSent.value) return
+        run(fit.name) { a ->
+            client.upload(a, fit.readBytes(), fit.name)
+            mutableSent.update { it + fit.name }
+        }
+    }
 
     /** Connexion seule, depuis les réglages. */
     fun check() = run(null) { a -> client.check(a) }

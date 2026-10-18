@@ -35,7 +35,7 @@ class CorosException(
 /**
  * Envoi d'un FIT à COROS Training Hub ([CorosUpload] pour le protocole). Une connexion neuve à
  * chaque envoi : le jeton de COROS est invalidé dès que la personne se connecte ailleurs. Seuls
- * hôtes joints : l'API de la région, faq.coros.com et le seau S3 que désigne COROS.
+ * hôtes joints : l'API de la région, t.coros.com (STS) et le seau S3 que désigne COROS.
  */
 class CorosClient(
     private val log: (String) -> Unit,
@@ -49,7 +49,7 @@ class CorosClient(
         withContext(Dispatchers.IO) {
             try {
                 val (token, userId) = login(account)
-                val s3 = sts(account.region)
+                val s3 = sts(account.region, token)
                 val md5 = CorosUpload.md5Hex(fit)
                 val zip = CorosUpload.zip(fit, md5, fileName, Instant.now())
                 val key = CorosUpload.objectKey(userId, md5)
@@ -97,9 +97,23 @@ class CorosClient(
         return token to user.getString("userId")
     }
 
-    private fun sts(region: CorosUpload.Region): S3Credentials {
-        val reply = JSONObject(request("GET", CorosUpload.stsUrl(region), null, emptyMap()).second)
-        if (reply.optInt("code") != STS_OK) throw CorosException(CorosFailure.SERVICE, "STS : ${reply.optString("msg")}")
+    // Une réponse qui n'est pas du JSON (page 404, connexion refusée) est signalée avec son
+    // statut : le journal dit alors quelle étape a cassé. Jamais le corps d'une réponse réussie,
+    // qui porte les identifiants S3.
+    private fun sts(
+        region: CorosUpload.Region,
+        token: String,
+    ): S3Credentials {
+        val (status, text) = request("GET", CorosUpload.stsUrl(region), null, mapOf("Cookie" to CorosUpload.stsCookie(region, token)))
+        val reply =
+            try {
+                JSONObject(text)
+            } catch (e: JSONException) {
+                throw CorosException(CorosFailure.SERVICE, "STS : HTTP $status, réponse non JSON", e)
+            }
+        if (reply.optInt("code") != STS_OK) {
+            throw CorosException(CorosFailure.SERVICE, "STS : HTTP $status, code ${reply.opt("code")}, ${reply.optString("msg")}")
+        }
         val c = JSONObject(CorosUpload.decodeStsCredentials(reply.getJSONObject("data").getString("credentials")))
         return S3Credentials(
             accessKeyId = c.getString("AccessKeyId"),
@@ -149,7 +163,12 @@ class CorosClient(
         reply: Pair<Int, String>,
         onRefusal: CorosFailure,
     ): JSONObject {
-        val json = JSONObject(reply.second)
+        val json =
+            try {
+                JSONObject(reply.second)
+            } catch (e: JSONException) {
+                throw CorosException(CorosFailure.SERVICE, "HTTP ${reply.first}, réponse non JSON", e)
+            }
         if (json.optString("result") !=
             CorosUpload.SUCCESS
         ) {

@@ -31,10 +31,13 @@ class CorosUploadTest {
     }
 
     @Test
-    fun `STS - URL de la region, sel retire avant le base64`() {
-        val url = CorosUpload.stsUrl(CorosUpload.Region.EUROPE)
-        assertTrue(url.startsWith("https://faq.coros.com/openapi/oss/sts?bucket=eu-coros&service=aws&v=2&app_id="))
-        assertTrue(url.endsWith("&sign=877571111A1EE5316E4B590103D4B5B3"))
+    fun `STS - URL et cookies de la region, sel retire avant le base64`() {
+        assertEquals(
+            "https://t.coros.com/api/proxy/oss/sts?bucket=eu-coros&service=aws&v=2",
+            CorosUpload.stsUrl(CorosUpload.Region.EUROPE),
+        )
+        assertEquals("CPL-coros-token=abc; CPL-coros-region=3", CorosUpload.stsCookie(CorosUpload.Region.EUROPE, "abc"))
+        assertEquals("CPL-coros-token=abc; CPL-coros-region=1", CorosUpload.stsCookie(CorosUpload.Region.AMERICAS, "abc"))
         val json = """{"AccessKeyId":"ASIAEXAMPLE","Region":"eu-central-1"}"""
         val b64 = Base64.getEncoder().encodeToString(json.encodeToByteArray())
         val salted = b64.substring(0, 10) + "9y78gpoERW4lBNYL" + b64.substring(10)

@@ -14,6 +14,7 @@ class SummaryViewModel(
     val session = c.session.state
     val settings = c.settings
     val coros = c.coros.status
+    val corosSent = c.coros.sent
 
     fun sendToCoros(fit: File) = c.coros.send(fit)
 
