@@ -35,7 +35,8 @@ class CorosException(
 /**
  * Envoi d'un FIT à COROS Training Hub ([CorosUpload] pour le protocole). Une connexion neuve à
  * chaque envoi : le jeton de COROS est invalidé dès que la personne se connecte ailleurs. Seuls
- * hôtes joints : l'API de la région, t.coros.com (STS) et le seau S3 que désigne COROS.
+ * hôtes joints : l'API et le site de Training Hub de la région (STS), et le seau S3 que désigne
+ * COROS.
  */
 class CorosClient(
     private val log: (String) -> Unit,

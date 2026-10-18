@@ -33,8 +33,12 @@ class CorosUploadTest {
     @Test
     fun `STS - URL et cookies de la region, sel retire avant le base64`() {
         assertEquals(
-            "https://t.coros.com/api/proxy/oss/sts?bucket=eu-coros&service=aws&v=2",
+            "https://trainingeu.coros.com/api/proxy/oss/sts?bucket=eu-coros&service=aws&v=2",
             CorosUpload.stsUrl(CorosUpload.Region.EUROPE),
+        )
+        assertEquals(
+            "https://training.coros.com/api/proxy/oss/sts?bucket=coros-s3&service=aws&v=2",
+            CorosUpload.stsUrl(CorosUpload.Region.AMERICAS),
         )
         assertEquals("CPL-coros-token=abc; CPL-coros-region=3", CorosUpload.stsCookie(CorosUpload.Region.EUROPE, "abc"))
         assertEquals("CPL-coros-token=abc; CPL-coros-region=1", CorosUpload.stsCookie(CorosUpload.Region.AMERICAS, "abc"))

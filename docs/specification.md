@@ -89,6 +89,8 @@ défaut, ou KICKR. En Power, chaque seconde (`PowerGears`, `FlywheelCadence`) :
 ```
 cadence   = médiane des 3 dernières (volant / k)   // k ≈ 305 par rpm, calé en continu sur la cadence publiée ;
                                                // la médiane coupe l'oscillation de la consigne ERG
+                                               // calage : mesure à plus de 25 % de k ignorée (cadence publiée
+                                               // qui double, volant inchangé), sauf après 20 rejets de suite
 v_pédales = cadence / 60 × rapport × 2,105 m
 F(v)      = CWa/2 × v² + Crr × m × g + m × g × pente              // CWa 0,51, Crr 0,004
 v_libre   = v − F(v) / m × dt                                     // vélo virtuel (VirtualBike)
@@ -207,9 +209,10 @@ Bluetooth, aux GPX importés et aux réponses de COROS, toutes vérifiées.
 
 - **Envoi à COROS** (`CorosClient`, protocole dans `CorosUpload`, d'après Pinta365/coros, MIT) :
   connexion à Training Hub (e-mail, MD5 du mot de passe), identifiants S3 temporaires du STS de
-  COROS (`t.coros.com/api/proxy/oss/sts`, jeton en cookie ; l'ancien `faq.coros.com` répond 404
-  depuis octobre 2026), dépôt du FIT zippé sur le seau S3 de la région (SigV4), déclaration de l'import. HTTPS
-  seulement (`usesCleartextTraffic=false`) ; hôtes : API de la région, t.coros.com, seau S3
+  COROS (`/api/proxy/oss/sts` du site de la région, `trainingeu.coros.com` ou
+  `training.coros.com`, jeton en cookie ; l'ancien `faq.coros.com` répond 404 et le relais de
+  `t.coros.com` refuse un jeton européen, 401, depuis octobre 2026), dépôt du FIT zippé sur le seau S3 de la région (SigV4), déclaration de l'import. HTTPS
+  seulement (`usesCleartextTraffic=false`) ; hôtes : API et site de Training Hub de la région, seau S3
   désigné par COROS. API privée, non documentée : elle peut cesser sans prévenir. Mot de passe
   jamais gardé en clair ni journalisé ; connexion neuve à chaque envoi.
 

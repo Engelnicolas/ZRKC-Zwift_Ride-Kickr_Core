@@ -13,8 +13,10 @@ import java.util.zip.CRC32
  * d'après le site de Training Hub en octobre 2026 :
  *
  * 1. `account/login` : e-mail et MD5 du mot de passe → jeton ; `account/query` → identifiant ;
- * 2. `t.coros.com/api/proxy/oss/sts`, avec le jeton en cookie : identifiants S3 temporaires du
- *    seau de la région (l'ancien `faq.coros.com/openapi/oss/sts` répond 404 depuis octobre 2026) ;
+ * 2. `/api/proxy/oss/sts` du site de Training Hub de la région ([Region.webBase]), avec le jeton
+ *    en cookie : identifiants S3 temporaires du seau de la région. L'ancien
+ *    `faq.coros.com/openapi/oss/sts` répond 404 depuis octobre 2026 ; le relais de `t.coros.com`
+ *    refuse un jeton européen (401) : le site renvoie chaque compte vers le domaine de sa région ;
  * 3. PUT S3 (SigV4) du FIT emballé dans `{md5}.zip`, entrée `{md5}/{fichier}`, sans compression ;
  * 4. `activity/fit/import` : déclaration du fichier déposé.
  *
@@ -22,17 +24,21 @@ import java.util.zip.CRC32
  * propre à COROS, relevée dans son site : si COROS le change, l'envoi cesse.
  */
 object CorosUpload {
-    /** [id] : numéro de région du site de Training Hub (cookie `CPL-coros-region`). */
+    /**
+     * [webBase] : site de Training Hub de la région, où le site renvoie le compte après la
+     * connexion ; [id] : son numéro de région (cookie `CPL-coros-region`).
+     */
     enum class Region(
         val apiBase: String,
+        val webBase: String,
         val bucket: String,
         val id: Int,
     ) {
-        EUROPE("https://teameuapi.coros.com", "eu-coros", 3),
-        AMERICAS("https://teamapi.coros.com", "coros-s3", 1),
+        EUROPE("https://teameuapi.coros.com", "https://trainingeu.coros.com", "eu-coros", 3),
+        AMERICAS("https://teamapi.coros.com", "https://training.coros.com", "coros-s3", 1),
     }
 
-    const val STS_URL = "https://t.coros.com/api/proxy/oss/sts"
+    private const val STS_PATH = "/api/proxy/oss/sts"
     private const val STS_SALT = "9y78gpoERW4lBNYL"
 
     /** Réponse réussie de l'API de Training Hub (champ `result`). */
@@ -50,7 +56,7 @@ object CorosUpload {
 
     fun importUrl(region: Region) = "${region.apiBase}/activity/fit/import"
 
-    fun stsUrl(region: Region) = "$STS_URL?bucket=${region.bucket}&service=aws&v=2"
+    fun stsUrl(region: Region) = "${region.webBase}$STS_PATH?bucket=${region.bucket}&service=aws&v=2"
 
     /** Cookies du STS, comme les pose le site après la connexion : le jeton et la région. */
     fun stsCookie(
