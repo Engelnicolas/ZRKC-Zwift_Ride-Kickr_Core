@@ -18,6 +18,7 @@ import dev.kickzwift.protocol.session.RideMode
 import dev.kickzwift.protocol.session.RidePhase
 import dev.kickzwift.protocol.settings.AppSettings
 import dev.kickzwift.protocol.settings.GearMode
+import dev.kickzwift.protocol.trainer.ResendTestPlan
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -61,6 +62,12 @@ class SessionControllerTest {
         override val link = MutableStateFlow(LinkState.READY)
         override val data = MutableStateFlow<RidingData?>(null)
         val writes = mutableListOf<TrainerTarget>()
+        val frames = mutableListOf<ByteArray>()
+
+        override suspend fun writeFrame(frame: ByteArray): Result<Unit> {
+            frames += frame
+            return Result.success(Unit)
+        }
 
         override suspend fun apply(target: TrainerTarget): Result<Unit> {
             writes += target
@@ -406,5 +413,71 @@ class SessionControllerTest {
             advanceTimeBy(200)
             assertTrue(r.controller.emergencyNeutral())
             assertEquals(TrainerTarget.Neutral, r.trainer.writes.last())
+        }
+
+    private val testMs = ResendTestPlan.steps(9.5, 75.0).sumOf { it.durationMs }
+
+    @Test
+    fun `essai du renvoi - six resultats, trames et renvois du plan, puis remise a plat`() =
+        runTest {
+            val r = rig()
+            pedal(r)
+            r.controller.startResendTest()
+            advanceTimeBy(1_000)
+            assertTrue(r.controller.resendTest.value is ResendTestState.Running)
+            advanceTimeBy(testMs + 1_000)
+            val done = r.controller.resendTest.value as ResendTestState.Done
+            assertEquals(listOf("E", "E", "F", "F", "G", "G"), done.results.map { it.step.code })
+            assertEquals(100, done.results.first().powerW)
+            assertEquals(100, done.results.first().earlyW)
+            // Début de chaque étape, puis un renvoi par seconde écoulée, sauf à l'instant final.
+            val plan =
+                ResendTestPlan.steps(9.5, 75.0).flatMap { step ->
+                    val resends = (1 until step.durationMs / ResendTestPlan.KEEPALIVE_MS).flatMap { step.keepalive }
+                    step.frames + resends
+                } + ResendTestPlan.RESTORE
+            assertEquals(plan.map { it.toList() }, r.trainer.frames.map { it.toList() })
+            assertTrue(r.trainer.writes.isEmpty(), "rien par TrainerWriter hors sortie")
+            assertTrue(r.env.logs.any { it.startsWith("essai du renvoi : E 2.4 (sans renvoi) : début 100 W, fin 100 W à 60 rpm") })
+        }
+
+    @Test
+    fun `essai du renvoi - Debug stop remet a plat`() =
+        runTest {
+            val r = rig()
+            pedal(r)
+            r.controller.startResendTest()
+            advanceTimeBy(ResendTestPlan.WARMUP_MS + ResendTestPlan.STEP_MS + 1_000)
+            r.controller.stopResendTest()
+            advanceTimeBy(200)
+            val stopped = r.controller.resendTest.value as ResendTestState.Stopped
+            assertEquals(1, stopped.results.size)
+            assertEquals(
+                ResendTestPlan.RESTORE.map { it.toList() },
+                r.trainer.frames
+                    .takeLast(2)
+                    .map { it.toList() },
+            )
+        }
+
+    @Test
+    fun `essai du renvoi - refuse pendant une sortie, arrete par une sortie qui commence`() =
+        runTest {
+            val r = rig()
+            r.ride()
+            advanceTimeBy(200)
+            r.controller.startResendTest()
+            advanceTimeBy(200)
+            assertEquals(ResendTestState.Failed(ResendTestFailure.RIDING), r.controller.resendTest.value)
+            r.controller.finish()
+            r.controller.close()
+            advanceTimeBy(200)
+
+            r.controller.startResendTest()
+            advanceTimeBy(2_000)
+            r.controller.prepare()
+            advanceTimeBy(200)
+            assertTrue(r.controller.resendTest.value is ResendTestState.Stopped)
+            assertEquals(RidePhase.PREPARING, r.controller.state.value.snapshot.phase)
         }
 }

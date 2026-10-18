@@ -26,6 +26,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -126,6 +127,8 @@ class SessionController(
     private var startedWallMs = 0L
     private var gearSave: Job? = null
     private val ridingLog = RidingLog(env)
+    private var trainer: Trainer? = null
+    private var resendTestJob: Job? = null
     private var sensorHeartRate: Int? = null
 
     private val mutableState = MutableStateFlow(SessionUi(session.snapshot(env.now())))
@@ -142,8 +145,37 @@ class SessionController(
     /** Mode « Tester » des réglages : les gestes sont montrés, pas appliqués. */
     val testing = MutableStateFlow(false)
 
+    private val mutableResendTest = MutableStateFlow<ResendTestState>(ResendTestState.Idle)
+
+    /** Essai du renvoi des réglages ([ResendTest]). */
+    val resendTest: StateFlow<ResendTestState> = mutableResendTest.asStateFlow()
+
+    /** Lance l'essai du renvoi, hors sortie seulement, KICKR prêt en protocole Zwift. */
+    fun startResendTest() =
+        command {
+            if (resendTestJob?.isActive == true) return@command
+            val t = trainer
+            val failure =
+                when {
+                    session.phase != RidePhase.IDLE -> ResendTestFailure.RIDING
+                    env.settings.value.ftmsFallback -> ResendTestFailure.FTMS
+                    t == null || !trainerReady -> ResendTestFailure.NO_TRAINER
+                    else -> null
+                }
+            if (failure != null || t == null) {
+                mutableResendTest.value = ResendTestState.Failed(failure ?: ResendTestFailure.NO_TRAINER)
+            } else {
+                resendTestJob = scope.launch(dispatcher) { ResendTest(env, t) { mutableResendTest.value = it }.run() }
+            }
+        }
+
+    /** Arrête l'essai ; le trainer est remis à plat en vitesse 12. */
+    fun stopResendTest() = command { resendTestJob?.cancelAndJoin() }
+
     fun prepare() =
         command {
+            // Un essai du renvoi en cours s'arrête, remise à plat comprise, avant la sortie.
+            resendTestJob?.cancelAndJoin()
             if (session.phase == RidePhase.IDLE) {
                 val s = env.settings.value
                 val start = env.lastGear()?.takeIf { it in 1..s.gears.size } ?: s.startGear
@@ -217,6 +249,7 @@ class SessionController(
                     )
                 }
             writer = w
+            this@SessionController.trainer = trainer
             trainerReady = false
             try {
                 if (trainer != null && w != null) {
@@ -237,6 +270,7 @@ class SessionController(
                 awaitCancellation()
             } finally {
                 writer = null
+                this@SessionController.trainer = null
                 sensorHeartRate = null
             }
         }

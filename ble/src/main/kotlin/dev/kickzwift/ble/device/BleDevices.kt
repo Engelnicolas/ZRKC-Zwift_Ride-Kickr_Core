@@ -69,6 +69,11 @@ class BleTrainer(
 
     override suspend fun readGearRatio(): Double? = endpoint.connection?.let { c -> attempt { c.readGearRatio() }.getOrNull() }
 
+    override suspend fun writeFrame(frame: ByteArray): Result<Unit> {
+        val c = endpoint.connection ?: return Result.failure(IllegalStateException("trainer non prêt"))
+        return attempt { c.writeRaw(frame) }
+    }
+
     // Toute erreur de la pile BLE devient un échec, sauf l'annulation qui doit remonter.
     @Suppress("TooGenericExceptionCaught")
     private suspend fun <T> attempt(block: suspend () -> T): Result<T> =

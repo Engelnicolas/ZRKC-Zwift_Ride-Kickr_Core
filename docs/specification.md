@@ -175,7 +175,7 @@ Aucun écran ne parle au Bluetooth : tout passe par le service, qui garde la sor
 | Choix du mode | Pente libre, parcours GPX (import, aperçu, cinq derniers), ERG |
 | Sortie | Notifications des autres apps en haut, poussant l'écran vers le bas (8 s, trois au plus) ; encart des capteurs ; vitesse engagée et nombre de vitesses sur une ligne (« 13 of 24 »), barre des rapports, puissance, cadence, vitesse, pente ou cible, temps (h:mm:ss), distance, fréquence cardiaque, vitesse brute du volant, profil GPX ; lecteur, Spotify d'abord (titre, lecture ou pause, avancement du morceau relu toutes les 500 ms, barre touchée ou glissée pour avancer ou reculer ; boutons précédent, lecture/pause, suivant, volume − et +) ; boutons ± de la cible en ERG seulement, la pente libre se règle aux manettes ; Pause, Terminer (appui de 2 s, décompte 2, 1 sur le bouton) |
 | Bilan | Durée, distance, puissances, cadence, dénivelé, changements ; commentaire ; « Export for COROS », une fois par activité (bouton grisé ensuite, « Activity already sent to COROS ») ; partage du FIT, toujours écrit (complété à 21 000 octets au moins par des messages 0xFF00 que les lecteurs ignorent : COROS Training Hub refuserait les fichiers de moins de 20 Ko) |
-| Réglages (onglet) | Correspondance boutons → actions avec « Tester », vitesses par la puissance ou par le KICKR (« Gears by »), rapports (60 au plus), masses, affichage, options avancées (repli FTMS, journaux) ; compte COROS (région, e-mail, mot de passe ; vérifier, oublier) |
+| Réglages (onglet) | Correspondance boutons → actions avec « Tester », vitesses par la puissance ou par le KICKR (« Gears by »), rapports (60 au plus), masses, affichage, options avancées (repli FTMS, journaux, essai du renvoi « Resend test » : Debug start, Debug stop) ; compte COROS (région, e-mail, mot de passe ; vérifier, oublier) |
 
 Règles : écran allumé pendant la sortie, portrait ou paysage ; thème sombre par défaut ;
 cibles de 48 dp, 64 dp pour Pause et Terminer ; état des appareils signalé par la forme et le
@@ -277,8 +277,10 @@ Questions ouvertes :
   (50 à 56 W partout), KICKR redémarré ou non ; seul le premier rapport après un redémarrage
   donne un pic. D'où les vitesses par la puissance, par défaut ; ressenti à confirmer sur le vélo.
   Piste à essayer : Zwift renvoie la pente environ une fois par seconde, open-cog toutes les
-  2 s, l'app jamais une consigne identique (`TrainerWriter`). `prototype/kickr_sequence.py
-  renvoi` compare sans renvoi, pente renvoyée chaque seconde, pente et rapport renvoyés.
+  2 s, l'app jamais une consigne identique (`TrainerWriter`). Réglages › Advanced › Resend
+  test (`ResendTestPlan`, même séquence que `prototype/kickr_sequence.py renvoi`) compare sans
+  renvoi, pente renvoyée chaque seconde, pente et rapport renvoyés ; résultats à l'écran et
+  dans le journal (lignes « essai du renvoi »).
 - Unité de la vitesse virtuelle du 0x03 (centième de km/h ou de m/s) : à reporter dans
   `TrainerCodec.SPEED_RAW_TO_KMH` ; sens du champ 6.
 - Mode ERG du KICKR (champ PowerTarget) et bornes de pente réelles du CORE.

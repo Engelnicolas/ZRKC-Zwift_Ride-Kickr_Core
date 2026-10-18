@@ -130,6 +130,13 @@ class SettingsViewModel(
 
     fun setFtms(on: Boolean) = update { it.copy(ftmsFallback = on) }
 
+    /** Essai du renvoi (Advanced › Resend test). */
+    val resendTest = c.session.resendTest
+
+    fun startResendTest() = c.session.startResendTest()
+
+    fun stopResendTest() = c.session.stopResendTest()
+
     /** Compte COROS enregistré, ou null. */
     val corosAccount = c.corosAccounts.account
     val coros = c.coros.status
