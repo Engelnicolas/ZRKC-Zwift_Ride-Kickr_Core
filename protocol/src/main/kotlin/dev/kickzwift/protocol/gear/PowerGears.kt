@@ -185,6 +185,12 @@ class VirtualBike(
  * publiée par le KICKR en est déduite avec quelques secondes de retard. Le rapport volant / rpm
  * (environ 305 sur le Ride et le Zwift Cog relevés) se cale en continu sur la cadence publiée.
  * Sans volant (FTMS), la cadence publiée telle quelle ; pédales arrêtées, zéro.
+ *
+ * Filtre : médiane des [FILTER_SIZE] dernières estimations. En ERG, la consigne tirée de la
+ * cadence freine le volant, qui fait baisser la cadence estimée, donc la consigne : la boucle
+ * oscillait (sortie du 18 octobre, sauts de consigne de plus de 40 W). La médiane écarte la
+ * mesure isolée qui lance l'oscillation, pour une seconde de retard environ ; elle repart de
+ * zéro à l'arrêt des pédales.
  */
 class FlywheelCadence(
     initialPerRpm: Double = DEFAULT_PER_RPM,
@@ -192,16 +198,28 @@ class FlywheelCadence(
     var perRpm: Double = initialPerRpm
         private set
 
+    private val recent = ArrayDeque<Double>()
+
     fun update(data: RidingData): Double {
         val flywheel = data.flywheelRaw
-        return when {
-            data.cadenceRpm <= 0 -> 0.0
-            flywheel == null || flywheel <= 0 -> data.cadenceRpm.toDouble()
-            else -> {
-                if (data.cadenceRpm >= CALIBRATE_MIN_RPM) perRpm += (flywheel.toDouble() / data.cadenceRpm - perRpm) * GAIN
-                flywheel / perRpm
+        val raw =
+            when {
+                data.cadenceRpm <= 0 -> 0.0
+                flywheel == null || flywheel <= 0 -> data.cadenceRpm.toDouble()
+                else -> {
+                    if (data.cadenceRpm >= CALIBRATE_MIN_RPM) perRpm += (flywheel.toDouble() / data.cadenceRpm - perRpm) * GAIN
+                    flywheel / perRpm
+                }
             }
+        if (raw <= 0) {
+            recent.clear()
+            return 0.0
         }
+        recent.addLast(raw)
+        if (recent.size > FILTER_SIZE) recent.removeFirst()
+        val sorted = recent.sorted()
+        val mid = sorted.size / 2
+        return if (sorted.size % 2 == 1) sorted[mid] else (sorted[mid - 1] + sorted[mid]) / 2
     }
 
     companion object {
@@ -212,5 +230,8 @@ class FlywheelCadence(
 
         /** Calage lent (une vingtaine de mesures) : le retard de la cadence publiée s'y moyenne. */
         const val GAIN = 0.05
+
+        /** Mesures dans la médiane : environ 3 s au rythme des trames du KICKR. */
+        const val FILTER_SIZE = 3
     }
 }

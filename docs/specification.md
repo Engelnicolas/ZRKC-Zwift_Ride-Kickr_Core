@@ -87,7 +87,8 @@ test du 18 oct. : 50 à 56 W quel que soit le rapport). Réglage « Gears by » 
 défaut, ou KICKR. En Power, chaque seconde (`PowerGears`, `FlywheelCadence`) :
 
 ```
-cadence   = volant / k          // k ≈ 305 par rpm, calé en continu sur la cadence publiée
+cadence   = médiane des 3 dernières (volant / k)   // k ≈ 305 par rpm, calé en continu sur la cadence publiée ;
+                                               // la médiane coupe l'oscillation de la consigne ERG
 v_pédales = cadence / 60 × rapport × 2,105 m
 F(v)      = CWa/2 × v² + Crr × m × g + m × g × pente              // CWa 0,51, Crr 0,004
 v_libre   = v − F(v) / m × dt                                     // vélo virtuel (VirtualBike)
@@ -275,6 +276,9 @@ Questions ouvertes :
   seul après une pente, avec les masses, pente, rapport et masses en une trame. Aucune ne tient
   (50 à 56 W partout), KICKR redémarré ou non ; seul le premier rapport après un redémarrage
   donne un pic. D'où les vitesses par la puissance, par défaut ; ressenti à confirmer sur le vélo.
+  Piste à essayer : Zwift renvoie la pente environ une fois par seconde, open-cog toutes les
+  2 s, l'app jamais une consigne identique (`TrainerWriter`). `prototype/kickr_sequence.py
+  renvoi` compare sans renvoi, pente renvoyée chaque seconde, pente et rapport renvoyés.
 - Unité de la vitesse virtuelle du 0x03 (centième de km/h ou de m/s) : à reporter dans
   `TrainerCodec.SPEED_RAW_TO_KMH` ; sens du champ 6.
 - Mode ERG du KICKR (champ PowerTarget) et bornes de pente réelles du CORE.

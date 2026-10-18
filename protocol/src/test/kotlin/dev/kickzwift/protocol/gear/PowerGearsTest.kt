@@ -42,6 +42,18 @@ class PowerGearsTest {
     }
 
     @Test
+    fun `cadence - mediane des trois dernieres, la mesure isolee ecartee`() {
+        val c = FlywheelCadence()
+        val per = c.perRpm
+        repeat(3) { c.update(data(30, (70 * per).toInt())) }
+        assertEquals(70.0, c.update(data(30, (64 * per).toInt())), 0.1, "creux isolé du volant : ignoré")
+        assertEquals(70.0, c.update(data(30, (71 * per).toInt())), 0.1)
+        assertEquals(71.0, c.update(data(30, (72 * per).toInt())), 0.1, "vraie hausse : suivie après une mesure")
+        assertEquals(0.0, c.update(data(0, (72 * per).toInt())), 0.0, "pédales arrêtées : aussitôt zéro")
+        assertEquals(50.0, c.update(data(30, (50 * per).toInt())), 0.1, "reprise : la médiane repart de zéro")
+    }
+
+    @Test
     fun `cadence - pedales arretees, ou sans volant en FTMS`() {
         val c = FlywheelCadence()
         assertEquals(0.0, c.update(data(0, 20_000)), 0.0)
