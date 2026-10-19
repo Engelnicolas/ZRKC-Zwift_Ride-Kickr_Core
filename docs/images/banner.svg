@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="420" viewBox="0 0 1280 420" role="img" aria-labelledby="t d">
+  <title id="t">ZRKC — Zwift Ride and KICKR CORE</title>
+  <desc id="d">Standalone Android app that links the Zwift Ride controllers to the KICKR CORE.</desc>
+  <defs>
+    <radialGradient id="glow" cx="0.18" cy="0.5" r="0.55">
+      <stop offset="0" stop-color="#E4002B" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#E4002B" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#14181F"/>
+      <stop offset="1" stop-color="#07080A"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#FFFFFF" stroke-opacity="0.035"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="420" rx="28" fill="url(#bg)"/>
+  <rect width="1280" height="420" rx="28" fill="url(#grid)"/>
+  <rect width="1280" height="420" rx="28" fill="url(#glow)"/>
+
+  <!-- Pignon de l'app (ic_logo), agrandi -->
+  <g transform="translate(230 210) scale(4.2) translate(-54 -54)" fill="#E4002B">
+    <path d="M54,30a24,24 0,1 1,0 48a24,24 0,1 1,0 -48zM54,42a12,12 0,1 0,0 24a12,12 0,1 0,0 -24z"/>
+    <g transform="rotate(22 54 54)">
+      <path d="M51,24h6v8h-6zM51,76h6v8h-6zM24,51h8v6h-8zM76,51h8v6h-8z"/>
+    </g>
+  </g>
+
+  <g font-family="-apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" fill="#FFFFFF">
+    <text x="440" y="150" font-size="96" font-weight="800" letter-spacing="6">ZRKC</text>
+    <text x="444" y="200" font-size="30" font-weight="600" fill="#E6E6E6">Zwift Ride <tspan fill="#E4002B">×</tspan> KICKR CORE</text>
+    <text x="444" y="248" font-size="22" fill="#BDBDBD">Shift, steer the grade and drive your music from the handlebars.</text>
+    <text x="444" y="278" font-size="22" fill="#BDBDBD">Just your phone and your trainer.</text>
+
+    <g font-size="18" font-weight="600">
+      <rect x="444" y="314" width="176" height="40" rx="20" fill="#E4002B"/>
+      <text x="532" y="340" text-anchor="middle">24 virtual gears</text>
+      <rect x="634" y="314" width="222" height="40" rx="20" fill="none" stroke="#5A5A5A"/>
+      <text x="745" y="340" text-anchor="middle" fill="#E6E6E6">Free grade · GPX · ERG</text>
+      <rect x="870" y="314" width="176" height="40" rx="20" fill="none" stroke="#5A5A5A"/>
+      <text x="958" y="340" text-anchor="middle" fill="#E6E6E6">Music at your bars</text>
+      <rect x="1060" y="314" width="164" height="40" rx="20" fill="none" stroke="#5A5A5A"/>
+      <text x="1142" y="340" text-anchor="middle" fill="#E6E6E6">Export to COROS</text>
+    </g>
+  </g>
+</svg>

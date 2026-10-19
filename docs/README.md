@@ -5,6 +5,8 @@
     ride.md             protocole des manettes du Ride (service 0xFC82), en texte
     protocole_fc82.html fiche protocole illustrée, publiée sur
                         https://claude.ai/code/artifact/7428625e-320a-4337-b1d2-ae035639e581
+    images/             bannière, schéma de fonctionnement (SVG) et captures d'écran
+                        du README (Pixel 10 Pro, barre d'état en mode démo)
     captures/           sessions de capture guidée du Ride (17 octobre 2026) : trames
                         brutes et noms donnés par la personne qui tenait les manettes ;
                         source des vecteurs protocol/src/test/resources/vectors/ride_commands.json
