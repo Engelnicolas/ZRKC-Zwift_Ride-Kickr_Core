@@ -211,7 +211,11 @@ Bluetooth, aux GPX importés et aux réponses de COROS, toutes vérifiées.
   connexion à Training Hub (e-mail, MD5 du mot de passe), identifiants S3 temporaires du STS de
   COROS (`/api/proxy/oss/sts` du site de la région, `trainingeu.coros.com` ou
   `training.coros.com`, jeton en cookie ; l'ancien `faq.coros.com` répond 404 et le relais de
-  `t.coros.com` refuse un jeton européen, 401, depuis octobre 2026), dépôt du FIT zippé sur le seau S3 de la région (SigV4), déclaration de l'import. HTTPS
+  `t.coros.com` refuse un jeton européen, 401, depuis octobre 2026), dépôt du FIT zippé sur le seau S3 de la région (SigV4), déclaration de l'import, puis suivi
+  de la tâche d'import (`activity/fit/getImportSportList`, par MD5 du fichier : statut 2 sans
+  erreur = importé, statut négatif = refusé ; 30 s au plus, au-delà « envoyé » sans
+  confirmation). COROS ne dédoublonne pas : un fichier déjà importé n'est pas renvoyé. HTTP 429
+  signalé à part (COROS limite les requêtes). HTTPS
   seulement (`usesCleartextTraffic=false`) ; hôtes : API et site de Training Hub de la région, seau S3
   désigné par COROS. API privée, non documentée : elle peut cesser sans prévenir. Mot de passe
   jamais gardé en clair ni journalisé ; connexion neuve à chaque envoi.

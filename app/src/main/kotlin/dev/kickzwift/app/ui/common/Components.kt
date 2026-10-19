@@ -145,12 +145,14 @@ fun CorosStatusText(
         when (status) {
             CorosStatus.Idle -> return
             is CorosStatus.Sending -> R.string.coros_sending to false
-            is CorosStatus.Done -> doneText to false
+            is CorosStatus.Done -> (if (status.imported) R.string.coros_imported else doneText) to false
             is CorosStatus.Failed ->
                 when (status.failure) {
                     null -> R.string.coros_no_account
                     CorosFailure.LOGIN -> R.string.coros_failed_login
                     CorosFailure.NETWORK -> R.string.coros_failed_network
+                    CorosFailure.BUSY -> R.string.coros_failed_busy
+                    CorosFailure.REJECTED -> R.string.coros_failed_rejected
                     CorosFailure.SERVICE -> R.string.coros_failed_service
                 } to true
         }

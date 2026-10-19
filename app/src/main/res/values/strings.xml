@@ -152,10 +152,13 @@
     <string name="summary_coros">Export for COROS</string>
     <string name="summary_coros_done">Activity already sent to COROS</string>
     <string name="coros_sending">Sending to COROS…</string>
+    <string name="coros_imported">COROS imported the activity: it is in your COROS history.</string>
     <string name="coros_sent">Sent to COROS. It shows up in your COROS history after processing, usually within 30 minutes.</string>
     <string name="coros_no_account">Set up your COROS account in Settings first.</string>
     <string name="coros_failed_login">COROS refused the sign-in: check the e-mail, the password and the region.</string>
     <string name="coros_failed_network">No connection to COROS. Try again later.</string>
+    <string name="coros_failed_busy">COROS is receiving too many requests. Try again in a few minutes.</string>
+    <string name="coros_failed_rejected">COROS received the file but could not import it.</string>
     <string name="coros_failed_service">COROS answered unexpectedly: its private upload API may have changed.</string>
     <string name="summary_close">Close</string>
     <string name="summary_saved">The ride is saved in Activities; the comment is added when you close.</string>

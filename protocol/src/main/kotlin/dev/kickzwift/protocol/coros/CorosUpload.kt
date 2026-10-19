@@ -18,7 +18,11 @@ import java.util.zip.CRC32
  *    `faq.coros.com/openapi/oss/sts` répond 404 depuis octobre 2026 ; le relais de `t.coros.com`
  *    refuse un jeton européen (401) : le site renvoie chaque compte vers le domaine de sa région ;
  * 3. PUT S3 (SigV4) du FIT emballé dans `{md5}.zip`, entrée `{md5}/{fichier}`, sans compression ;
- * 4. `activity/fit/import` : déclaration du fichier déposé.
+ * 4. `activity/fit/import` : déclaration du fichier déposé ;
+ * 5. `activity/fit/getImportSportList` : tâches d'import, une par MD5 de fichier ; celle de l'envoi
+ *    se termine au statut 2 sans erreur, ou en échec (statut négatif). COROS ne dédoublonne pas :
+ *    un fichier renvoyé fait une deuxième activité, d'où la consultation de cette liste avant
+ *    l'envoi.
  *
  * Ici, seules les parties sans réseau ; les appels sont dans l'app. Le sel du STS est une valeur
  * propre à COROS, relevée dans son site : si COROS le change, l'envoi cesse.
@@ -47,6 +51,10 @@ object CorosUpload {
     private const val ACCOUNT_TYPE_EMAIL = 2
     private const val SOURCE_UPLOAD = 1
     private const val SECONDS_PER_QUARTER_HOUR = 900
+    private const val IMPORT_STATUS_DONE = 2
+
+    /** Où en est une tâche d'import de COROS. */
+    enum class ImportState { PENDING, DONE, FAILED }
 
     fun md5Hex(bytes: ByteArray): String = MessageDigest.getInstance("MD5").digest(bytes).joinToString("") { "%02x".format(it) }
 
@@ -55,6 +63,25 @@ object CorosUpload {
     fun accountUrl(region: Region) = "${region.apiBase}/account/query"
 
     fun importUrl(region: Region) = "${region.apiBase}/activity/fit/import"
+
+    fun importListUrl(region: Region) = "${region.apiBase}/activity/fit/getImportSportList"
+
+    /** Corps de `getImportSportList` : les [size] dernières tâches d'import. */
+    fun importListJson(size: Int) = """{"size":$size}"""
+
+    /**
+     * État d'une tâche d'import : terminée au statut 2 sans fichier en erreur ; en échec au statut
+     * négatif (−2 pour un fichier déposé dans le seau d'une autre région) ou avec des erreurs.
+     */
+    fun importState(
+        status: Int,
+        errorSize: Int,
+    ): ImportState =
+        when {
+            status < 0 || errorSize > 0 -> ImportState.FAILED
+            status == IMPORT_STATUS_DONE -> ImportState.DONE
+            else -> ImportState.PENDING
+        }
 
     fun stsUrl(region: Region) = "${region.webBase}$STS_PATH?bucket=${region.bucket}&service=aws&v=2"
 

@@ -20,8 +20,10 @@ sealed interface CorosStatus {
         override val file: String?,
     ) : CorosStatus
 
+    /** [imported] : COROS a confirmé l'import, l'activité est dans son historique. */
     data class Done(
         override val file: String?,
+        val imported: Boolean = false,
     ) : CorosStatus
 
     data class Failed(
@@ -51,17 +53,22 @@ class CorosExport(
     fun send(fit: File) {
         if (fit.name in mutableSent.value) return
         run(fit.name) { a ->
-            client.upload(a, fit.readBytes(), fit.name)
+            val imported = client.upload(a, fit.readBytes(), fit.name)
             mutableSent.update { it + fit.name }
+            CorosStatus.Done(fit.name, imported)
         }
     }
 
     /** Connexion seule, depuis les réglages. */
-    fun check() = run(null) { a -> client.check(a) }
+    fun check() =
+        run(null) { a ->
+            client.check(a)
+            CorosStatus.Done(null)
+        }
 
     private fun run(
         file: String?,
-        block: suspend (CorosAccount) -> Unit,
+        block: suspend (CorosAccount) -> CorosStatus.Done,
     ) {
         if (mutableStatus.value is CorosStatus.Sending) return
         val account = accounts.account.value
@@ -74,7 +81,6 @@ class CorosExport(
             mutableStatus.value =
                 try {
                     block(account)
-                    CorosStatus.Done(file)
                 } catch (e: CorosException) {
                     CorosStatus.Failed(file, e.failure)
                 }

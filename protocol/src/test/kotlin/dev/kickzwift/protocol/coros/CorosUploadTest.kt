@@ -61,6 +61,17 @@ class CorosUploadTest {
     }
 
     @Test
+    fun `taches d'import - URL, corps, terminee au statut 2 sans erreur`() {
+        assertEquals("https://teameuapi.coros.com/activity/fit/getImportSportList", CorosUpload.importListUrl(CorosUpload.Region.EUROPE))
+        assertEquals("""{"size":10}""", CorosUpload.importListJson(10))
+        assertEquals(CorosUpload.ImportState.DONE, CorosUpload.importState(status = 2, errorSize = 0))
+        assertEquals(CorosUpload.ImportState.PENDING, CorosUpload.importState(status = 0, errorSize = 0))
+        assertEquals(CorosUpload.ImportState.PENDING, CorosUpload.importState(status = 1, errorSize = 0))
+        assertEquals(CorosUpload.ImportState.FAILED, CorosUpload.importState(status = -2, errorSize = 0))
+        assertEquals(CorosUpload.ImportState.FAILED, CorosUpload.importState(status = 2, errorSize = 1))
+    }
+
+    @Test
     fun `archive - dossier md5 puis le fichier, sans compression, lisible par java util zip`() {
         val fit = ByteArray(3_000) { (it % 251).toByte() }
         val md5 = CorosUpload.md5Hex(fit)
