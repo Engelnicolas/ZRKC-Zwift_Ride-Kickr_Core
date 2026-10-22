@@ -103,14 +103,45 @@ class PowerGearsTest {
     }
 
     @Test
-    fun `velo virtuel - depart arrete et changement de vitesse, l'acceleration se paie`() {
+    fun `velo virtuel - depart arrete, la consigne monte avec la vitesse du velo`() {
         val bike = VirtualBike(mass)
-        assertTrue(bike.targetWatts(60.0, 2.40, 0.0, 600) > 2 * PowerGears.targetWatts(60.0, 2.40, 0.0, mass, 600))
-        bike.ride(0, 31, 60.0, 2.40)
-        val shifted = bike.targetWatts(60.0, 3.49, 0.0, 600)
-        assertTrue(shifted > PowerGears.targetWatts(60.0, 3.49, 0.0, mass, 600), "relance : plus que la puissance du plat")
-        bike.ride(31, 40, 60.0, 3.49)
-        assertEquals(PowerGears.targetWatts(60.0, 3.49, 0.0, mass, 600).toDouble(), bike.targetWatts(60.0, 3.49, 0.0, 600).toDouble(), 2.0)
+        val flat = PowerGears.targetWatts(60.0, 2.40, 0.0, mass, 600)
+        val start = bike.targetWatts(60.0, 2.40, 0.0, 600)
+        assertTrue(start in 1 until flat / 2, "vélo arrêté : le roulement seul, $start W")
+        val watts =
+            (0 until 31).map {
+                bike.advance(it * 1_000L, 60.0, 2.40, 0.0)
+                bike.targetWatts(60.0, 2.40, 0.0, 600)
+            }
+        assertEquals(watts.sorted(), watts, "jamais de pic : la consigne monte avec la vitesse")
+        assertEquals(flat, watts.last())
+    }
+
+    @Test
+    fun `velo virtuel - monter une vitesse, la consigne suit le braquet puis la vitesse du velo`() {
+        val bike = VirtualBike(mass)
+        bike.ride(0, 41, 70.0, 2.61)
+        val before = bike.targetWatts(70.0, 2.61, 0.0, 600)
+        // Sortie du 22 octobre, 13 → 14 : 93 W puis 225 W ; ici, le rapport des braquets seulement.
+        val shifted = bike.targetWatts(70.0, 2.82, 0.0, 600)
+        assertEquals(before * 2.82 / 2.61, shifted.toDouble(), 1.0)
+        val watts =
+            (41 until 81).map {
+                bike.advance(it * 1_000L, 70.0, 2.82, 0.0)
+                bike.targetWatts(70.0, 2.82, 0.0, 600)
+            }
+        assertEquals(watts.sorted(), watts, "pas de dépassement : la consigne rejoint le plat par en dessous")
+        assertEquals(PowerGears.targetWatts(70.0, 2.82, 0.0, mass, 600).toDouble(), watts.last().toDouble(), 1.0)
+    }
+
+    @Test
+    fun `velo virtuel - la consigne peu sensible au bruit de la cadence`() {
+        val bike = VirtualBike(mass)
+        bike.ride(0, 41, 74.0, 2.61)
+        val steady = bike.targetWatts(74.0, 2.61, 0.0, 600)
+        // 1 rpm de moins, estimé un instant : 1,4 % de moins, pas les 13 W du terme d'accélération.
+        assertTrue(steady - bike.targetWatts(73.0, 2.61, 0.0, 600) <= 2)
+        assertTrue(bike.targetWatts(75.0, 2.61, 0.0, 600) - steady <= 2)
     }
 
     @Test
@@ -170,15 +201,15 @@ class PowerGearsTest {
     fun `velo virtuel - retrograder sans pedaler plus vite, pas de pedalage dans le vide`() {
         val bike = VirtualBike(mass)
         bike.ride(0, 41, 60.0, 3.49)
-        assertEquals(
-            PowerGears.targetWatts(60.0, 2.40, 0.0, mass, 600),
-            bike.targetWatts(60.0, 2.40, 0.0, 600),
-            "aussitôt la puissance du nouveau rapport, pas 0 W",
-        )
+        val before = bike.targetWatts(60.0, 3.49, 0.0, 600)
+        val shifted = bike.targetWatts(60.0, 2.40, 0.0, 600)
+        assertEquals(before * 2.40 / 3.49, shifted.toDouble(), 1.0, "aussitôt le rapport des braquets, pas 0 W")
+        assertTrue(shifted > PowerGears.targetWatts(60.0, 2.40, 0.0, mass, 600), "le vélo roule encore plus vite que les pédales")
         bike.ride(41, 12, 60.0, 2.40)
         assertEquals(PowerGears.speedKmh(60.0, 2.40), bike.speedKmh, 0.5, "la roue rejoint les pédales en quelques secondes")
         bike.ride(53, 30, 60.0, 2.40)
         assertEquals(PowerGears.speedKmh(60.0, 2.40), bike.speedKmh, 0.1)
+        assertEquals(PowerGears.targetWatts(60.0, 2.40, 0.0, mass, 600), bike.targetWatts(60.0, 2.40, 0.0, 600))
     }
 
     @Test

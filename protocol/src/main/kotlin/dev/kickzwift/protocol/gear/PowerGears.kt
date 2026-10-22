@@ -61,12 +61,11 @@ object PowerGears {
  * est comparée chaque seconde à celle des pédales (cadence × rapport × roue) :
  *
  * - pédales au moins aussi rapides : la chaîne entraîne, la vitesse rejoint celle des pédales en
- *   [TAU_S] environ, et la consigne est la puissance pour tenir la vitesse des pédales, plus celle
- *   qui accélère la masse ;
+ *   [TAU_S] environ ;
  * - pédales qui tournent, plus lentes, hors descente (après avoir rétrogradé, ou un creux de la
  *   cadence estimée) : la chaîne reste tenue, la vitesse redescend vers celle des pédales en
- *   [TAU_S] environ et la consigne est aussitôt la puissance du nouveau rapport ; pas de
- *   pédalage dans le vide (sortie du 18 octobre : 0 W une dizaine de secondes après 14 → 6) ;
+ *   [TAU_S] environ ; pas de pédalage dans le vide (sortie du 18 octobre : 0 W une dizaine de
+ *   secondes après 14 → 6) ;
  * - pédales arrêtées, ou plus lentes en descente : roue libre, consigne nulle ; la vitesse
  *   décroît selon la résistance (air, roulement, pente), ou croît en descente jusqu'à sa vitesse
  *   limite ; dès que les pédales la rattrapent, la chaîne réengage ;
@@ -74,6 +73,17 @@ object PowerGears {
  *   le volant, proportionnellement à sa vitesse au moment où les pédales se sont arrêtées. Le
  *   volant s'arrête en 25 s environ, un vrai vélo sur le plat en plus d'une minute : l'écran suit
  *   ce que la personne voit et sent sur le trainer (sortie du 18 octobre).
+ *
+ * Consigne, chaîne engagée : la résistance de la route à la vitesse du vélo, multipliée par la
+ * vitesse des pédales, comme sur un vrai vélo où l'effort à la roue dépend de l'allure. Un
+ * changement de vitesse change aussitôt la consigne dans le rapport des braquets (+8 % de 13 à
+ * 14), puis la vitesse du vélo la mène en quelques secondes à la puissance du plat du nouveau
+ * rapport. La consigne calculée sur la vitesse des pédales, avec un terme d'accélération,
+ * doublait d'un coup après chaque montée de vitesse (93 → 225 W) et rendait la consigne quatre
+ * fois plus sensible au bruit de la cadence : la boucle consigne ↔ volant oscillait (sortie du
+ * 22 octobre, 93, 225, 152, 98, 203, 117 W après 13 → 14). Sans ce terme, l'accélération ne se
+ * paie qu'à travers la résistance, qui croît avec la vitesse du vélo : un départ arrêté est plus
+ * léger que sur la route.
  */
 class VirtualBike(
     private val massKg: Double,
@@ -148,8 +158,8 @@ class VirtualBike(
     }
 
     /**
-     * Consigne ERG à cet instant, bornée à [0, [maxW]] ; nulle en roue libre. Chaîne tenue avec
-     * des pédales plus lentes : la puissance qui tient leur vitesse, sans terme de freinage.
+     * Consigne ERG à cet instant, bornée à [0, [maxW]] ; nulle en roue libre. Sinon la résistance
+     * de la route à la vitesse du vélo, multipliée par la vitesse des pédales.
      */
     fun targetWatts(
         cadenceRpm: Double,
@@ -159,8 +169,7 @@ class VirtualBike(
     ): Int {
         val pedals = pedalMps(cadenceRpm, ratio)
         if (pedals + FREEWHEEL_MARGIN_MPS < speedMps && !chainHeld(cadenceRpm, gradePct)) return 0
-        val accelerating = massKg * (pedals - speedMps).coerceAtLeast(0.0) / TAU_S
-        val watts = (PowerGears.resistanceN(pedals, gradePct, massKg) + accelerating) * pedals
+        val watts = PowerGears.resistanceN(speedMps, gradePct, massKg) * pedals
         return watts.roundToInt().coerceIn(0, maxW)
     }
 

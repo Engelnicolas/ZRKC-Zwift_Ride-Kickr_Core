@@ -263,10 +263,13 @@ class RideSessionTest {
         // Vitesse 12 (2,40) à 60 rpm, allure stable : 18,2 km/h, environ 50 W à plat.
         assertEquals(TrainerTarget.Erg(PowerGears.targetWatts(60.0, 2.40, 0.0, mass, config.ergMaxW)), s.target())
         assertEquals(PowerGears.speedKmh(60.0, 2.40), s.snapshot(30_000).last!!.speedKmh, 0.05, "vitesse du vélo virtuel")
-        // Cinq vitesses de plus à cadence égale : relance, plus dur que le plat en vitesse 17.
+        // Cinq vitesses de plus à cadence égale : aussitôt plus dur, dans le rapport des braquets,
+        // puis le plat de la vitesse 17 une fois le vélo lancé.
+        val flat = (s.target() as TrainerTarget.Erg).watts
         repeat(5) { s.onAction(Action.Shift(+1), 31_000L + it * 200) }
         val high = (s.target() as TrainerTarget.Erg).watts
-        assertTrue(high > PowerGears.targetWatts(60.0, 3.49, 0.0, mass, config.ergMaxW))
+        assertEquals(flat * 3.49 / 2.40, high.toDouble(), 1.0)
+        assertTrue(high < PowerGears.targetWatts(60.0, 3.49, 0.0, mass, config.ergMaxW))
         // La pente s'ajoute.
         s.onAction(Action.Grade(+0.5), 32_000)
         assertTrue((s.target() as TrainerTarget.Erg).watts > high)

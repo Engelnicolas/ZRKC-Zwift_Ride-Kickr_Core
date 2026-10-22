@@ -96,17 +96,23 @@ F(v)      = CWa/2 × v² + Crr × m × g + m × g × pente              // CWa 0
 v_libre   = v − F(v) / m × dt                                     // vélo virtuel (VirtualBike)
 chaîne    = v_pédales > v_libre, ou pédales qui tournent hors descente (pente ≥ 0)
 v         = chaîne ? v + (v_pédales − v) × dt / 4 s (au moins v_libre si v_pédales > v_libre) : v_libre
-consigne  = roue libre ? 0 W : (F(v_pédales) + m × max(0, v_pédales − v) / 4 s) × v_pédales
+consigne  = roue libre ? 0 W : F(v) × v_pédales                    // résistance à la vitesse du vélo
 ```
 
 La consigne ERG est bornée à [0, plafond ERG]. La vitesse affichée et la distance sont celles du
-vélo virtuel : roue libre pédales arrêtées, ou plus lentes que la roue en descente (la vitesse
+vélo virtuel, y compris dans le FIT : roue libre pédales arrêtées, ou plus lentes que la roue en descente (la vitesse
 décroît à plat, croît en descente jusqu'à sa vitesse limite, environ 44 km/h à −5 %) ; pédales
-qui tournent hors descente, la chaîne reste tenue : après avoir rétrogradé, la consigne est
-aussitôt celle du nouveau rapport et la vitesse rejoint celle des pédales en quelques secondes ; pédales arrêtées
+qui tournent hors descente, la chaîne reste tenue et la vitesse rejoint celle des pédales en
+quelques secondes ; pédales arrêtées
 hors descente, elle ralentit aussi vite que le volant du KICKR (arrêté en 25 s environ), en
-proportion de sa vitesse à l'arrêt des pédales ; une relance coûte
-la puissance qui accélère la masse. Le vélo repart arrêté au départ et à chaque reprise ; en
+proportion de sa vitesse à l'arrêt des pédales. La consigne est la résistance de la route à la
+vitesse du vélo, multipliée par la vitesse des pédales : un changement de vitesse la change
+aussitôt dans le rapport des braquets (+8 % de 13 à 14, −31 % de 17 à 12), puis la vitesse du
+vélo la mène au plat du nouveau rapport, sans dépassement. L'ancien terme d'accélération
+(m × (v_pédales − v) / 4 s) doublait la consigne après chaque montée de vitesse et quadruplait
+sa sensibilité au bruit de la cadence : la boucle consigne ↔ volant oscillait (sortie du 22 oct. :
+93, 225, 152, 98, 203, 117 W après 13 → 14). Revers : un départ arrêté est plus léger que sur
+la route. Le vélo repart arrêté au départ et à chaque reprise ; en
 pause et à la fin, consigne de 0 W. Le mode ERG des sorties n'est pas concerné.
 
 ### FTMS, repli
