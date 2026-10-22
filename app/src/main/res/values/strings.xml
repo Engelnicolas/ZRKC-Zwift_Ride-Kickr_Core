@@ -190,7 +190,6 @@
     <string name="settings_display_summary">Theme, orientation, vibration, units</string>
     <string name="settings_coros_summary">Account for Export for COROS</string>
     <string name="settings_advanced_summary">Firmware, FTMS fallback, log, resend test</string>
-    <string name="settings_about_summary">Version, support</string>
     <string name="settings_test">Test</string>
     <string name="settings_test_hint">Press a button on the controllers: its row lights up, without triggering anything.</string>
     <string name="settings_reset_mapping">Default mapping</string>
@@ -255,8 +254,7 @@
     <string name="settings_coros_check">Check the account</string>
     <string name="settings_coros_checked">The account works.</string>
     <string name="settings_coros_forget">Forget</string>
-    <string name="settings_about">About</string>
-    <string name="settings_version">Version %1$s · built %2$s</string>
+    <string name="settings_version">Version %1$s · build %2$d · %3$s</string>
     <string name="settings_email_support">Email support</string>
     <string name="support_email" translatable="false">contact@nicolasengel.fr</string>
     <string name="gesture_press">Press</string>

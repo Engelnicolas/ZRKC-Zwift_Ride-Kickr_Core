@@ -67,7 +67,10 @@ import dev.kickzwift.protocol.trainer.ResendTestPlan
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-/** Écran Réglages : le menu des pages, chacune ouverte par [onOpen] dans [SettingsPageScreen]. */
+/**
+ * Écran Réglages : le menu des pages, chacune ouverte par [onOpen] dans [SettingsPageScreen],
+ * puis le bouton du support et le numéro du build.
+ */
 @Composable
 fun SettingsScreen(onOpen: (SettingsPage) -> Unit) {
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -80,6 +83,32 @@ fun SettingsScreen(onOpen: (SettingsPage) -> Unit) {
                 modifier = Modifier.clip(MaterialTheme.shapes.small).clickable { onOpen(page) },
             )
         }
+        item { SupportFooter() }
+    }
+}
+
+/** Bouton du support (e-mail, version en objet), puis version, numéro et date du build en petit. */
+@Composable
+private fun SupportFooter() {
+    val context = LocalContext.current
+    val email = stringResource(R.string.support_email)
+    val subject = stringResource(R.string.app_name) + " " + BuildConfig.VERSION_NAME
+    Column(Modifier.fillMaxWidth().padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedButton(onClick = {
+            val intent = Intent(Intent.ACTION_SENDTO, "mailto:$email".toUri()).putExtra(Intent.EXTRA_SUBJECT, subject)
+            // Aucune app de messagerie : rien à ouvrir.
+            try {
+                context.startActivity(intent)
+            } catch (_: ActivityNotFoundException) {
+            }
+        }) {
+            Text(stringResource(R.string.settings_email_support))
+        }
+        Text(
+            stringResource(R.string.settings_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE, BuildConfig.BUILD_DATE),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -109,7 +138,6 @@ fun SettingsPageScreen(
             SettingsPage.DISPLAY -> displaySection(ui, viewModel)
             SettingsPage.COROS -> corosSection(viewModel)
             SettingsPage.ADVANCED -> advancedSection(ui, viewModel)
-            SettingsPage.ABOUT -> aboutSection()
         }
     }
 }
@@ -412,26 +440,6 @@ private fun regionLabel(region: CorosUpload.Region) =
         CorosUpload.Region.EUROPE -> R.string.settings_coros_europe
         CorosUpload.Region.AMERICAS -> R.string.settings_coros_americas
     }
-
-/** Version et date du build, adresse de contact. */
-private fun LazyListScope.aboutSection() {
-    item {
-        val context = LocalContext.current
-        val email = stringResource(R.string.support_email)
-        val subject = stringResource(R.string.app_name) + " " + BuildConfig.VERSION_NAME
-        Text(stringResource(R.string.settings_version, BuildConfig.VERSION_NAME, BuildConfig.BUILD_DATE))
-        OutlinedButton(onClick = {
-            val intent = Intent(Intent.ACTION_SENDTO, "mailto:$email".toUri()).putExtra(Intent.EXTRA_SUBJECT, subject)
-            // Aucune app de messagerie : rien à ouvrir.
-            try {
-                context.startActivity(intent)
-            } catch (_: ActivityNotFoundException) {
-            }
-        }) {
-            Text(stringResource(R.string.settings_email_support))
-        }
-    }
-}
 
 @Composable
 private fun Labeled(

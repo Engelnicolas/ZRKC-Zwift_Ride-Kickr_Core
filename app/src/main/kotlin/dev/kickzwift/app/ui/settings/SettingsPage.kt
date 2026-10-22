@@ -14,7 +14,6 @@ enum class SettingsPage(
     DISPLAY("display", R.string.settings_display, R.string.settings_display_summary),
     COROS("coros", R.string.settings_coros, R.string.settings_coros_summary),
     ADVANCED("advanced", R.string.settings_advanced, R.string.settings_advanced_summary),
-    ABOUT("about", R.string.settings_about, R.string.settings_about_summary),
     ;
 
     companion object {
