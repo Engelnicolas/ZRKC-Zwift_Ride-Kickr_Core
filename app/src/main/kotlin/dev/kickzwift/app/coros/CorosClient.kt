@@ -41,10 +41,10 @@ class CorosException(
 ) : Exception(message, cause)
 
 /**
- * Envoi d'un FIT à COROS Training Hub ([CorosUpload] pour le protocole). Une connexion neuve à
- * chaque envoi : le jeton de COROS est invalidé dès que la personne se connecte ailleurs. Seuls
- * hôtes joints : l'API et le site de Training Hub de la région (STS), et le seau S3 que désigne
- * COROS.
+ * Envoi d'un FIT à COROS Training Hub et commentaire de l'activité ([CorosUpload] pour le
+ * protocole). Une connexion neuve à chaque appel : le jeton de COROS est invalidé dès que la
+ * personne se connecte ailleurs. Seuls hôtes joints : l'API et le site de Training Hub de la
+ * région (STS), et le seau S3 que désigne COROS.
  */
 class CorosClient(
     private val log: (String) -> Unit,
@@ -87,6 +87,65 @@ class CorosClient(
                 throw e
             }
         }
+
+    /**
+     * Publie [text] en commentaire de l'activité COROS partie à [startEpochMs] ; rend faux si
+     * COROS ne la liste pas (jamais envoyée, ou import pas encore visible après quelques essais).
+     * Lève [CorosException].
+     */
+    suspend fun comment(
+        account: CorosAccount,
+        startEpochMs: Long,
+        text: String,
+    ): Boolean =
+        withContext(Dispatchers.IO) {
+            try {
+                val (token, _) = login(account)
+                val labelId = awaitActivity(account.region, token, startEpochMs)
+                if (labelId == null) {
+                    log("COROS : activité absente de la liste, commentaire non publié")
+                    return@withContext false
+                }
+                val body = CorosUpload.commentJson(labelId, text).encodeToByteArray()
+                envelopeRoot(
+                    post(CorosUpload.commentUrl(account.region), body, "application/json", mapOf("accessToken" to token)),
+                    CorosFailure.SERVICE,
+                )
+                log("COROS : commentaire publié")
+                true
+            } catch (e: IOException) {
+                log("COROS : commentaire non publié, ${e.javaClass.simpleName}")
+                throw CorosException(CorosFailure.NETWORK, e.message ?: "réseau", e)
+            } catch (e: JSONException) {
+                log("COROS : réponse illisible")
+                throw CorosException(CorosFailure.SERVICE, e.message ?: "JSON", e)
+            } catch (e: CorosException) {
+                log("COROS : commentaire refusé (${e.failure}), ${e.message}")
+                throw e
+            }
+        }
+
+    // Juste après l'import, l'activité peut tarder à paraître dans la liste : quelques essais.
+    private suspend fun awaitActivity(
+        region: CorosUpload.Region,
+        token: String,
+        startEpochMs: Long,
+    ): String? {
+        val day = Instant.ofEpochMilli(startEpochMs).atZone(ZoneId.systemDefault()).toLocalDate()
+        val url = CorosUpload.activityListUrl(region, day.minusDays(1), day.plusDays(1))
+        repeat(ACTIVITY_POLLS) { attempt ->
+            if (attempt > 0) delay(IMPORT_POLL_MS)
+            val list = envelope(request("GET", url, null, mapOf("accessToken" to token)), CorosFailure.SERVICE).optJSONArray("dataList")
+            val listed =
+                (0 until (list?.length() ?: 0)).mapNotNull { i ->
+                    val a = list?.optJSONObject(i) ?: return@mapNotNull null
+                    val id = a.optString("labelId").takeIf { it.isNotEmpty() } ?: return@mapNotNull null
+                    CorosUpload.ListedActivity(id, a.optLong("startTime"))
+                }
+            CorosUpload.findActivity(listed, startEpochMs)?.let { return it }
+        }
+        return null
+    }
 
     /** Connexion seule, pour vérifier le compte ; lève [CorosException]. */
     suspend fun check(account: CorosAccount) {
@@ -303,6 +362,9 @@ class CorosClient(
         const val IMPORT_POLLS = 10
         const val IMPORT_POLL_MS = 3_000L
         const val IMPORT_LIST_SIZE = 10
+
+        // Activité cherchée dans la liste jusqu'à 5 fois, au rythme du suivi de l'import.
+        const val ACTIVITY_POLLS = 5
         const val ERROR_EXCERPT = 200
     }
 }

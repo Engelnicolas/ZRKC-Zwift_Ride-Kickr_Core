@@ -85,11 +85,18 @@ class AppContainer(
     /** Historique des sorties terminées. */
     val activities = ActivityStore(this.context)
 
-    /** Commentaire d'une activité, écrit dans la portée de l'app : il aboutit même si l'écran se ferme. */
+    /**
+     * Commentaire d'une activité, écrit dans la portée de l'app : il aboutit même si l'écran se
+     * ferme. [toCoros] : publié aussi sous l'activité COROS de même départ, s'il y en a une.
+     */
     fun saveComment(
         id: Long,
         text: String,
-    ) = writeActivity("commentaire non enregistré") { activities.comment(id, text) }
+        toCoros: Boolean,
+    ) = writeActivity("commentaire non enregistré") {
+        activities.comment(id, text)
+        if (toCoros) activities.activity(id).first()?.let { coros.comment(it.startedAtMs, text) }
+    }
 
     fun deleteActivity(id: Long) = writeActivity("activité non supprimée") { activities.delete(id) }
 

@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.io.File
@@ -56,6 +57,27 @@ class CorosExport(
             val imported = client.upload(a, fit.readBytes(), fit.name)
             mutableSent.update { it + fit.name }
             CorosStatus.Done(fit.name, imported)
+        }
+    }
+
+    /**
+     * Publie [text] en commentaire de l'activité COROS partie à [startEpochMs], une fois fini
+     * l'envoi en cours : le bilan peut se fermer avant la fin de l'import. Sans compte, ou texte
+     * vide, rien ; un échec ne va qu'au journal, le commentaire reste dans l'historique de l'app.
+     */
+    fun comment(
+        startEpochMs: Long,
+        text: String,
+    ) {
+        val account = accounts.account.value ?: return
+        val content = text.trim().takeIf { it.isNotEmpty() } ?: return
+        scope.launch {
+            mutableStatus.first { it !is CorosStatus.Sending }
+            try {
+                client.comment(account, startEpochMs, content)
+            } catch (_: CorosException) {
+                // Déjà au journal ; rien à montrer.
+            }
         }
     }
 

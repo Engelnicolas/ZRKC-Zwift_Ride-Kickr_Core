@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayInputStream
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneOffset
 import java.util.Base64
 import java.util.zip.ZipEntry
@@ -69,6 +70,33 @@ class CorosUploadTest {
         assertEquals(CorosUpload.ImportState.PENDING, CorosUpload.importState(status = 1, errorSize = 0))
         assertEquals(CorosUpload.ImportState.FAILED, CorosUpload.importState(status = -2, errorSize = 0))
         assertEquals(CorosUpload.ImportState.FAILED, CorosUpload.importState(status = 2, errorSize = 1))
+    }
+
+    @Test
+    fun `commentaire - liste des jours voisins, JSON du site`() {
+        assertEquals(
+            "https://teameuapi.coros.com/activity/query?size=50&pageNumber=1&startDay=20261021&endDay=20261023",
+            CorosUpload.activityListUrl(CorosUpload.Region.EUROPE, LocalDate.of(2026, 10, 21), LocalDate.of(2026, 10, 23)),
+        )
+        assertEquals("https://teameuapi.coros.com/leavingmessage/add", CorosUpload.commentUrl(CorosUpload.Region.EUROPE))
+        // Relevé dans Training Hub le 22 octobre 2026 ; le retour à la ligne, \n chez le site, est
+        // ici \u000a, son équivalent JSON.
+        assertEquals(
+            """{"dataId":"481222855579697854","type":1,"content":"test sur l'activité du 22\u000a","messageType":1}""",
+            CorosUpload.commentJson("481222855579697854", "test sur l'activité du 22\n"),
+        )
+    }
+
+    @Test
+    fun `commentaire - activite retrouvee par son depart, a une minute pres, et seule`() {
+        val start = 1_792_692_195_391L // sortie du 22 octobre 2026, 20:03:15
+        val a = CorosUpload.ListedActivity("481222855579697854", 1_792_692_195L)
+        val other = CorosUpload.ListedActivity("481015083852398692", 1_792_600_000L)
+        assertEquals("481222855579697854", CorosUpload.findActivity(listOf(other, a), start))
+        assertEquals("481222855579697854", CorosUpload.findActivity(listOf(a.copy(startEpochS = 1_792_692_255L)), start))
+        assertEquals(null, CorosUpload.findActivity(listOf(a.copy(startEpochS = 1_792_692_256L)), start), "au-delà d'une minute")
+        assertEquals(null, CorosUpload.findActivity(listOf(other), start), "pas encore listée")
+        assertEquals(null, CorosUpload.findActivity(listOf(a, a.copy(labelId = "x")), start), "deux candidates : aucune")
     }
 
     @Test

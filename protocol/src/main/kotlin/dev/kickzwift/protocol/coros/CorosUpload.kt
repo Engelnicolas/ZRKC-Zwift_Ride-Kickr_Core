@@ -3,9 +3,11 @@ package dev.kickzwift.protocol.coros
 import java.io.ByteArrayOutputStream
 import java.security.MessageDigest
 import java.time.Instant
+import java.time.LocalDate
 import java.time.ZoneOffset
 import java.util.Base64
 import java.util.zip.CRC32
+import kotlin.math.abs
 
 /**
  * Envoi d'une activité à COROS Training Hub par son API privée, non documentée, telle que la
@@ -23,6 +25,15 @@ import java.util.zip.CRC32
  *    se termine au statut 2 sans erreur, ou en échec (statut négatif). COROS ne dédoublonne pas :
  *    un fichier renvoyé fait une deuxième activité, d'où la consultation de cette liste avant
  *    l'envoi.
+ *
+ * Commentaire d'une activité importée, comme le site le publie (relevé du 22 octobre 2026) :
+ *
+ * 6. `activity/query` : les activités des jours voisins du départ, chacune avec son `labelId` et
+ *    son heure de départ `startTime` en secondes Unix (champs relevés par Pinta365/coros) ; celle
+ *    du FIT est celle qui part à la même heure ;
+ * 7. `leavingmessage/add` : `{"dataId": labelId, "type": 1, "content": texte, "messageType": 1}`,
+ *    le commentaire tel qu'il apparaît sous l'activité dans Training Hub. Pas de modification :
+ *    un commentaire changé s'ajoute au précédent.
  *
  * Ici, seules les parties sans réseau ; les appels sont dans l'app. Le sel du STS est une valeur
  * propre à COROS, relevée dans son site : si COROS le change, l'envoi cesse.
@@ -52,6 +63,13 @@ object CorosUpload {
     private const val SOURCE_UPLOAD = 1
     private const val SECONDS_PER_QUARTER_HOUR = 900
     private const val IMPORT_STATUS_DONE = 2
+    private const val ACTIVITY_LIST_SIZE = 50
+    private const val COMMENT_TYPE_ACTIVITY = 1
+    private const val MESSAGE_NEW = 1
+    private const val MS_PER_S = 1_000L
+
+    /** Écart toléré entre le départ du FIT et celui que liste COROS. */
+    const val START_TOLERANCE_S = 60L
 
     /** Où en est une tâche d'import de COROS. */
     enum class ImportState { PENDING, DONE, FAILED }
@@ -65,6 +83,41 @@ object CorosUpload {
     fun importUrl(region: Region) = "${region.apiBase}/activity/fit/import"
 
     fun importListUrl(region: Region) = "${region.apiBase}/activity/fit/getImportSportList"
+
+    fun activityListUrl(
+        region: Region,
+        from: LocalDate,
+        to: LocalDate,
+    ) = "${region.apiBase}/activity/query?size=$ACTIVITY_LIST_SIZE&pageNumber=1&startDay=${day(from)}&endDay=${day(to)}"
+
+    fun commentUrl(region: Region) = "${region.apiBase}/leavingmessage/add"
+
+    /** Corps de `leavingmessage/add` : commentaire de l'activité [labelId]. */
+    fun commentJson(
+        labelId: String,
+        text: String,
+    ) = """{"dataId":${Json.string(labelId)},"type":$COMMENT_TYPE_ACTIVITY,"content":${Json.string(text)},"messageType":$MESSAGE_NEW}"""
+
+    /** Une activité de la liste de Training Hub : son identifiant et son heure de départ. */
+    data class ListedActivity(
+        val labelId: String,
+        val startEpochS: Long,
+    )
+
+    /**
+     * L'activité qui part à [startEpochMs], à [START_TOLERANCE_S] près ; nulle si aucune, ou si
+     * plusieurs s'en approchent : mieux vaut ne rien commenter que commenter la mauvaise.
+     */
+    fun findActivity(
+        listed: List<ListedActivity>,
+        startEpochMs: Long,
+    ): String? =
+        listed
+            .filter { abs(it.startEpochS - startEpochMs / MS_PER_S) <= START_TOLERANCE_S }
+            .singleOrNull()
+            ?.labelId
+
+    private fun day(d: LocalDate) = "%04d%02d%02d".format(d.year, d.monthValue, d.dayOfMonth)
 
     /** Corps de `getImportSportList` : les [size] dernières tâches d'import. */
     fun importListJson(size: Int) = """{"size":$size}"""

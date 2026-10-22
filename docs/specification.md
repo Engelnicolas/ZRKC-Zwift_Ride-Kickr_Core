@@ -206,11 +206,11 @@ en haut à droite de chaque écran. Durées en heures, minutes et secondes.
 
 Un fichier DataStore illisible repart des valeurs par défaut. Aucune donnée n'est sauvegardée
 dans le cloud (`allowBackup=false`, règles d'extraction vides) ; seul « Export for COROS »
-transfère quelque chose, à la demande : le FIT de la sortie.
+transfère quelque chose, à la demande : le FIT de la sortie, puis son commentaire.
 
 ## Sécurité
 
-Le réseau ne sert qu'à « Export for COROS », à la demande : surface d'attaque limitée au
+Le réseau ne sert qu'à « Export for COROS » et au commentaire de l'activité envoyée : surface d'attaque limitée au
 Bluetooth, aux GPX importés et aux réponses de COROS, toutes vérifiées.
 
 - **Envoi à COROS** (`CorosClient`, protocole dans `CorosUpload`, d'après Pinta365/coros, MIT) :
@@ -225,6 +225,14 @@ Bluetooth, aux GPX importés et aux réponses de COROS, toutes vérifiées.
   seulement (`usesCleartextTraffic=false`) ; hôtes : API et site de Training Hub de la région, seau S3
   désigné par COROS. API privée, non documentée : elle peut cesser sans prévenir. Mot de passe
   jamais gardé en clair ni journalisé ; connexion neuve à chaque envoi.
+- **Commentaire sur COROS** (relevé dans Training Hub le 22 oct. 2026) : l'activité est retrouvée
+  dans `activity/query` (jours voisins du départ) par son heure de départ `startTime`, à une
+  minute près et seule dans cet intervalle, sinon rien n'est publié ; 5 essais à 3 s, l'import
+  pouvant tarder à paraître. Puis `leavingmessage/add` :
+  `{"dataId": labelId, "type": 1, "content": texte, "messageType": 1}`, commentaire visible sous
+  l'activité. Publié à la fermeture du bilan si l'activité a été envoyée (après la fin de
+  l'import), et à chaque commentaire enregistré dans Activités si un compte COROS existe. Pas de
+  modification connue : un commentaire changé s'ajoute au précédent. Échecs au journal seulement.
 
 - **Permissions** : `BLUETOOTH_SCAN` (neverForLocation), `BLUETOOTH_CONNECT`,
   `FOREGROUND_SERVICE` et `FOREGROUND_SERVICE_CONNECTED_DEVICE`, `POST_NOTIFICATIONS`,

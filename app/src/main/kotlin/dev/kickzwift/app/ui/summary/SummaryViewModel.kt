@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import dev.kickzwift.app.AppContainer
+import dev.kickzwift.app.coros.CorosStatus
 import java.io.File
 
 /** Écran Bilan (lot 9) : l'état vient tout droit de la session terminée. */
@@ -18,10 +19,15 @@ class SummaryViewModel(
 
     fun sendToCoros(fit: File) = c.coros.send(fit)
 
-    /** Joint le commentaire à l'activité enregistrée, puis referme la sortie. */
+    /**
+     * Joint le commentaire à l'activité enregistrée, puis referme la sortie. Activité envoyée à
+     * COROS, ou en cours d'envoi : le commentaire y est publié aussi, une fois l'import fini.
+     */
     fun close(comment: String) {
         val id = session.value.activityId
-        if (id != null && comment.isNotBlank()) c.saveComment(id, comment)
+        val fit = session.value.fitFile?.name
+        val exported = fit != null && (fit in corosSent.value || (coros.value as? CorosStatus.Sending)?.file == fit)
+        if (id != null && comment.isNotBlank()) c.saveComment(id, comment, toCoros = exported)
         c.session.close()
     }
 

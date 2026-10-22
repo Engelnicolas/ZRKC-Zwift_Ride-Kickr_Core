@@ -68,7 +68,8 @@ class ActivityViewModel(
 
     val settings = c.settings
 
-    fun saveComment(text: String) = c.saveComment(id, text)
+    /** Enregistré, et publié sur COROS si l'activité y est (un compte COROS enregistré). */
+    fun saveComment(text: String) = c.saveComment(id, text, toCoros = true)
 
     fun delete() = c.deleteActivity(id)
 
