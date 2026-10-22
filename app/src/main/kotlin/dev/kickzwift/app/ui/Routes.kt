@@ -13,4 +13,9 @@ object Routes {
     const val ACTIVITY = "activity/{id}"
 
     fun activity(id: Long) = "activity/$id"
+
+    /** Une page des réglages, par le segment de [dev.kickzwift.app.ui.settings.SettingsPage]. */
+    const val SETTINGS_PAGE = "settings/{page}"
+
+    fun settingsPage(page: String) = "settings/$page"
 }

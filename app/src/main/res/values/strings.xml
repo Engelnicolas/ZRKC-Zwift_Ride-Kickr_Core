@@ -184,6 +184,13 @@
     <!-- Écran Réglages -->
     <string name="settings_title">Settings</string>
     <string name="settings_buttons">Buttons</string>
+    <string name="settings_buttons_summary">Actions of the 14 buttons and 2 paddles, test mode</string>
+    <string name="settings_gears_summary">Gears by power or KICKR, ratio table, starting gear</string>
+    <string name="settings_rider_summary">Rider and bike weights</string>
+    <string name="settings_display_summary">Theme, orientation, vibration, units</string>
+    <string name="settings_coros_summary">Account for Export for COROS</string>
+    <string name="settings_advanced_summary">Firmware, FTMS fallback, log, resend test</string>
+    <string name="settings_about_summary">Version, support</string>
     <string name="settings_test">Test</string>
     <string name="settings_test_hint">Press a button on the controllers: its row lights up, without triggering anything.</string>
     <string name="settings_reset_mapping">Default mapping</string>

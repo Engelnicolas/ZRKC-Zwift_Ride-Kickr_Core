@@ -31,6 +31,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -50,6 +51,8 @@ import dev.kickzwift.app.ui.mode.ModeScreen
 import dev.kickzwift.app.ui.mode.ModeViewModel
 import dev.kickzwift.app.ui.ride.RideScreen
 import dev.kickzwift.app.ui.ride.RideViewModel
+import dev.kickzwift.app.ui.settings.SettingsPage
+import dev.kickzwift.app.ui.settings.SettingsPageScreen
 import dev.kickzwift.app.ui.settings.SettingsScreen
 import dev.kickzwift.app.ui.settings.SettingsViewModel
 import dev.kickzwift.app.ui.summary.SummaryScreen
@@ -60,8 +63,8 @@ import dev.kickzwift.protocol.session.RidePhase
  * Une seule activité, Navigation Compose. L'app s'ouvre sur Connexions ; la phase de la sortie
  * impose l'écran : une sortie en cours rouvre l'écran Sortie, une sortie finie le Bilan, dont la
  * fermeture mène à l'historique des activités. La barre de navigation et le logo, qui mène aux
- * réglages, n'existent que sur Connexions, Activités et Réglages : l'écran Sortie garde toute
- * sa hauteur.
+ * réglages, n'existent que sur Connexions, Activités et le menu des Réglages : l'écran Sortie
+ * garde toute sa hauteur ; une page des réglages, comme une activité, a son bouton Retour.
  */
 @Composable
 fun AppNav(c: AppContainer) {
@@ -119,9 +122,21 @@ fun AppNav(c: AppContainer) {
                     val id = entry.arguments?.getLong("id") ?: 0L
                     ActivityScreen(viewModel(factory = ActivityViewModel.factory(c, id)), onBack = { nav.popBackStack() })
                 }
-                composable(Routes.SETTINGS) { SettingsScreen(viewModel(factory = SettingsViewModel.factory(c))) }
+                settings(nav, c)
             }
         }
+    }
+}
+
+/** Menu des réglages et ses pages. */
+private fun NavGraphBuilder.settings(
+    nav: NavHostController,
+    c: AppContainer,
+) {
+    composable(Routes.SETTINGS) { SettingsScreen(onOpen = { nav.navigate(Routes.settingsPage(it.route)) }) }
+    composable(Routes.SETTINGS_PAGE) { entry ->
+        val page = SettingsPage.of(entry.arguments?.getString("page")) ?: SettingsPage.BUTTONS
+        SettingsPageScreen(viewModel(factory = SettingsViewModel.factory(c)), page, onBack = { nav.popBackStack() })
     }
 }
 

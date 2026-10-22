@@ -3,6 +3,7 @@ package dev.kickzwift.app.ui.settings
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,7 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -26,6 +27,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,6 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -64,26 +67,51 @@ import dev.kickzwift.protocol.trainer.ResendTestPlan
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-/** Écran Réglages : boutons, vitesses, cycliste, affichage, options avancées, à propos. */
+/** Écran Réglages : le menu des pages, chacune ouverte par [onOpen] dans [SettingsPageScreen]. */
 @Composable
-fun SettingsScreen(viewModel: SettingsViewModel) {
-    val ui by viewModel.state.collectAsStateWithLifecycle()
-    LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+fun SettingsScreen(onOpen: (SettingsPage) -> Unit) {
+    LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
         item { Text(stringResource(R.string.settings_title), style = MaterialTheme.typography.headlineSmall) }
-        buttonsSection(ui, viewModel)
-        gearsSection(ui, viewModel)
-        riderSection(ui, viewModel)
-        displaySection(ui, viewModel)
-        advancedSection(ui, viewModel)
-        corosSection(viewModel)
-        aboutSection()
+        items(SettingsPage.entries, key = { it.route }) { page ->
+            ListItem(
+                headlineContent = { Text(stringResource(page.title)) },
+                supportingContent = { Text(stringResource(page.summary)) },
+                trailingContent = { Text("›", style = MaterialTheme.typography.titleLarge) },
+                modifier = Modifier.clip(MaterialTheme.shapes.small).clickable { onOpen(page) },
+            )
+        }
     }
 }
 
+/**
+ * Une page des réglages, avec Retour. Quitter la page des boutons arrête le mode « Tester » :
+ * sinon les manettes resteraient sans effet jusque dans la sortie suivante.
+ */
 @Composable
-private fun Section(title: String) {
-    HorizontalDivider(Modifier.padding(vertical = 8.dp))
-    Text(title, style = MaterialTheme.typography.titleLarge)
+fun SettingsPageScreen(
+    viewModel: SettingsViewModel,
+    page: SettingsPage,
+    onBack: () -> Unit,
+) {
+    val ui by viewModel.state.collectAsStateWithLifecycle()
+    if (page == SettingsPage.BUTTONS) DisposableEffect(viewModel) { onDispose { viewModel.setTesting(false) } }
+    LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TextButton(onClick = onBack) { Text(stringResource(R.string.back)) }
+                Text(stringResource(page.title), style = MaterialTheme.typography.headlineSmall)
+            }
+        }
+        when (page) {
+            SettingsPage.BUTTONS -> buttonsSection(ui, viewModel)
+            SettingsPage.GEARS -> gearsSection(ui, viewModel)
+            SettingsPage.RIDER -> riderSection(ui, viewModel)
+            SettingsPage.DISPLAY -> displaySection(ui, viewModel)
+            SettingsPage.COROS -> corosSection(viewModel)
+            SettingsPage.ADVANCED -> advancedSection(ui, viewModel)
+            SettingsPage.ABOUT -> aboutSection()
+        }
+    }
 }
 
 private fun LazyListScope.buttonsSection(
@@ -91,7 +119,6 @@ private fun LazyListScope.buttonsSection(
     vm: SettingsViewModel,
 ) {
     item {
-        Section(stringResource(R.string.settings_buttons))
         SwitchRow(stringResource(R.string.settings_test), ui.testing, vm::setTesting)
         if (ui.testing) HelpText(stringResource(R.string.settings_test_hint))
     }
@@ -135,7 +162,6 @@ private fun LazyListScope.gearsSection(
     vm: SettingsViewModel,
 ) {
     item {
-        Section(stringResource(R.string.settings_gears))
         Text(stringResource(R.string.settings_gear_mode))
         Chips(
             GearMode.entries,
@@ -190,7 +216,6 @@ private fun LazyListScope.riderSection(
     vm: SettingsViewModel,
 ) {
     item {
-        Section(stringResource(R.string.settings_rider))
         Labeled(stringResource(R.string.settings_rider_kg)) {
             Stepper(Format.kg(ui.settings.riderKg), onMinus = { vm.stepRider(false) }, onPlus = { vm.stepRider(true) })
         }
@@ -205,7 +230,6 @@ private fun LazyListScope.displaySection(
     vm: SettingsViewModel,
 ) {
     item {
-        Section(stringResource(R.string.settings_display))
         Text(stringResource(R.string.settings_theme))
         Chips(
             ThemeChoice.entries,
@@ -248,7 +272,6 @@ private fun LazyListScope.advancedSection(
     item {
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
-        Section(stringResource(R.string.settings_advanced))
         ui.firmware.forEach {
             Text(stringResource(R.string.settings_firmware, it.name, it.version ?: stringResource(R.string.settings_firmware_unknown)))
         }
@@ -339,7 +362,6 @@ private fun LazyListScope.corosSection(vm: SettingsViewModel) {
     item {
         val account by vm.corosAccount.collectAsStateWithLifecycle()
         val status by vm.coros.collectAsStateWithLifecycle()
-        Section(stringResource(R.string.settings_coros))
         Text(stringResource(R.string.settings_coros_hint), style = MaterialTheme.typography.bodySmall)
         val saved = account
         if (saved == null) {
@@ -397,7 +419,6 @@ private fun LazyListScope.aboutSection() {
         val context = LocalContext.current
         val email = stringResource(R.string.support_email)
         val subject = stringResource(R.string.app_name) + " " + BuildConfig.VERSION_NAME
-        Section(stringResource(R.string.settings_about))
         Text(stringResource(R.string.settings_version, BuildConfig.VERSION_NAME, BuildConfig.BUILD_DATE))
         OutlinedButton(onClick = {
             val intent = Intent(Intent.ACTION_SENDTO, "mailto:$email".toUri()).putExtra(Intent.EXTRA_SUBJECT, subject)
