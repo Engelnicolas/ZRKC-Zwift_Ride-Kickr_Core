@@ -38,6 +38,8 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.io.File
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SessionControllerTest {
@@ -403,6 +405,31 @@ class SessionControllerTest {
             r.controller.pause()
             advanceTimeBy(500)
             assertEquals(TrainerTarget.Erg(0), r.trainer.writes.last())
+        }
+
+    /** Vitesses des mesures du FIT, en km/h : file_id (18 + 10 octets), définition des mesures (24), puis 15 octets par mesure. */
+    private fun fitSpeedsKmh(
+        fit: ByteArray,
+        count: Int,
+    ): List<Double> {
+        val b = ByteBuffer.wrap(fit).order(ByteOrder.LITTLE_ENDIAN)
+        return (0 until count).map { i -> (b.getShort(14 + 18 + 10 + 24 + 15 * i + 9).toInt() and 0xFFFF) * 3.6 / 1_000 }
+    }
+
+    @Test
+    fun `vitesses par la puissance - le FIT garde la vitesse du velo virtuel, pas celle du KICKR`() =
+        runTest {
+            val r = rig(power = true)
+            r.ride()
+            pedal(r)
+            advanceTimeBy(10_500)
+            r.controller.finish()
+            advanceTimeBy(200)
+            // 60 rpm en vitesse 12 (2,40) : 18,2 km/h au plus, rejoints en 4 s environ ; le KICKR publie 20 km/h.
+            val speeds = fitSpeedsKmh(checkNotNull(r.env.fit), 10)
+            assertTrue(speeds.all { it < 18.2 }, "$speeds")
+            assertTrue(speeds.last() > 15.0, "$speeds")
+            assertEquals(speeds.sorted(), speeds, "le vélo virtuel accélère")
         }
 
     @Test

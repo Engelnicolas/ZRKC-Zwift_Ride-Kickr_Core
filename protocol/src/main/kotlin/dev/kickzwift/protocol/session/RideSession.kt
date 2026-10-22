@@ -218,7 +218,11 @@ class RideSession(
             else -> false
         }
 
-    fun onRidingData(received: RidingData) {
+    /**
+     * Prend une mesure du trainer ; rend celle que retient la sortie : avec les vitesses par la
+     * puissance, la vitesse y est celle du vélo virtuel, pas celle que publie le KICKR.
+     */
+    fun onRidingData(received: RidingData): RidingData {
         val data =
             if (usesPowerGears()) {
                 cadenceRpm = flywheelCadence.update(received)
@@ -231,7 +235,7 @@ class RideSession(
         while (window.isNotEmpty() && data.atMs - window.first().atMs > config.powerWindowMs) window.removeFirst()
         if (phase != RidePhase.RIDING) {
             lastSample = data
-            return
+            return data
         }
         lastSample?.let { previous -> integrate(previous, data) }
         lastSample = data
@@ -242,6 +246,7 @@ class RideSession(
             cadenceSum += data.cadenceRpm
             cadenceCount++
         }
+        return data
     }
 
     /** État de la liaison au trainer ; sa perte prolongée met la sortie en pause dans [tick]. */
