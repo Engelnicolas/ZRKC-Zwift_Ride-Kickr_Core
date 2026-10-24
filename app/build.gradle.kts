@@ -11,8 +11,8 @@ android {
         applicationId = "dev.kickzwift.app"
         minSdk = 31
         targetSdk = 37
-        versionCode = 4
-        versionName = "1.3"
+        versionCode = 5
+        versionName = "1.4"
         // Date du build, affichée dans les réglages. Lue par une commande externe : le cache de
         // configuration la revérifie à chaque build, au lieu de figer la date du premier.
         val buildDate =
