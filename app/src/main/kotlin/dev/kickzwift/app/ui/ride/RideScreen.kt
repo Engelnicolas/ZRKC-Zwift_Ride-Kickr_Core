@@ -4,16 +4,18 @@ import android.content.pm.ActivityInfo
 import android.view.WindowManager
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,6 +40,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -49,6 +52,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -57,6 +61,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -71,6 +76,7 @@ import dev.kickzwift.app.ui.common.StatusDot
 import dev.kickzwift.app.ui.common.Stepper
 import dev.kickzwift.app.ui.common.actionText
 import dev.kickzwift.protocol.Action
+import dev.kickzwift.protocol.LinkState
 import dev.kickzwift.protocol.session.PauseReason
 import dev.kickzwift.protocol.session.RideMode
 import dev.kickzwift.protocol.session.RidePhase
@@ -78,6 +84,7 @@ import dev.kickzwift.protocol.session.SessionSnapshot
 import dev.kickzwift.protocol.settings.OrientationChoice
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
@@ -96,7 +103,7 @@ fun RideScreen(viewModel: RideViewModel) {
             val landscape = maxWidth > maxHeight
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 PhoneNotices(ui.phoneNotices)
-                SensorsCard(ui)
+                SensorsLine(ui)
                 Banners(ui, s)
                 if (landscape) {
                     Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -176,37 +183,27 @@ private fun PhoneNotices(notices: List<PhoneNotice>) {
     }
 }
 
-/** Les appareils de confiance, regroupés dans un encart, deux par ligne. */
+/**
+ * Les appareils de confiance en une ligne : combien sont prêts sur combien, sans leurs noms.
+ * La pastille prend l'état du premier appareil perdu, que le bandeau en dessous nomme.
+ */
 @Composable
-private fun SensorsCard(ui: RideUi) {
+private fun SensorsLine(ui: RideUi) {
     if (ui.devices.isEmpty()) return
-    Column(
+    val lost = ui.lost.firstOrNull()
+    Row(
         Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium)
             .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
+        StatusDot(if (lost == null) LinkState.READY else lost.state)
         Text(
-            stringResource(R.string.ride_sensors),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            stringResource(R.string.ride_sensors_ready, ui.devices.size - ui.lost.size, ui.devices.size),
+            style = MaterialTheme.typography.labelLarge,
         )
-        ui.devices.chunked(SENSORS_PER_ROW).forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                row.forEach { d ->
-                    Row(
-                        Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        StatusDot(d.state)
-                        Text(d.device.name, style = MaterialTheme.typography.labelLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                }
-                repeat(SENSORS_PER_ROW - row.size) { Spacer(Modifier.weight(1f)) }
-            }
-        }
     }
 }
 
@@ -341,7 +338,7 @@ private fun Metrics(
 }
 
 /**
- * Lecteur, Spotify d'abord : titre, lecture ou pause, avancement du morceau, et les commandes
+ * Lecteur, Spotify d'abord : « artiste - titre » sur une ligne, avancement du morceau, et les commandes
  * précédent, lecture/pause, suivant, volume − et +, qui passent par les mêmes actions que les
  * manettes. Toucher ou glisser sur la barre d'avancement déplace la lecture.
  * Relu deux fois par seconde : ce que font les manettes s'y voit aussitôt. Sans l'accès aux
@@ -358,20 +355,14 @@ private fun Player(
         Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.shapes.medium).padding(12.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        // Lecture ou pause se lit sur l'icône du bouton central : plus de ligne d'état.
         val title =
             when {
-                media.title != null -> media.title
+                media.title != null -> listOfNotNull(media.artist?.takeIf { it.isNotBlank() }, media.title).joinToString(" - ")
                 media.access -> stringResource(R.string.player_unknown_title)
                 else -> stringResource(R.string.player_music)
             }
-        Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-        val state = stringResource(if (media.playing) R.string.player_playing else R.string.player_paused)
-        Text(
-            listOfNotNull(media.artist, state).joinToString(" · "),
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+        ScrollingLine(title, MaterialTheme.typography.titleMedium)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
             MediaButton(stringResource(R.string.action_previous), { act(Action.PreviousTrack) }) { TrackIcon(next = false) }
             // L'icône montre ce que fait l'appui : pause pendant la lecture, lecture sinon.
@@ -386,6 +377,41 @@ private fun Player(
             Text(stringResource(R.string.player_grant_hint), style = MaterialTheme.typography.bodySmall)
         }
     }
+}
+
+/**
+ * Une ligne de texte ; trop longue pour la largeur, elle défile jusqu'à sa fin, s'y arrête 2 s,
+ * revient d'un coup au début, s'y arrête 2 s pour qu'on le lise, et recommence.
+ */
+@Composable
+private fun ScrollingLine(
+    text: String,
+    style: TextStyle,
+) {
+    val scroll = rememberScrollState()
+    val pxPerSecond = with(LocalDensity.current) { SCROLL_SPEED.toPx() }
+    LaunchedEffect(text) {
+        // maxValue vaut Int.MAX_VALUE tant que la ligne n'est pas mesurée ; il change aussi avec
+        // la largeur (rotation) : on repart alors du début.
+        snapshotFlow { scroll.maxValue }.collectLatest { distance ->
+            scroll.scrollTo(0)
+            if (distance == 0 || distance == Int.MAX_VALUE) return@collectLatest
+            while (true) {
+                delay(SCROLL_PAUSE_MS)
+                val durationMs = (distance / pxPerSecond * MS_PER_SECOND).toInt()
+                scroll.animateScrollTo(distance, tween(durationMs, easing = LinearEasing))
+                delay(SCROLL_PAUSE_MS)
+                scroll.scrollTo(0)
+            }
+        }
+    }
+    Text(
+        text,
+        modifier = Modifier.fillMaxWidth().horizontalScroll(scroll, enabled = false),
+        style = style,
+        maxLines = 1,
+        softWrap = false,
+    )
 }
 
 /**
@@ -536,7 +562,7 @@ private fun Controls(
     onFinish: () -> Unit,
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        Button(onClick = onPause, modifier = Modifier.weight(1f).heightIn(min = 64.dp)) {
+        Button(onClick = onPause, modifier = Modifier.weight(1f).heightIn(min = CONTROL_HEIGHT)) {
             Text(
                 stringResource(
                     if (phase ==
@@ -547,7 +573,7 @@ private fun Controls(
                         R.string.ride_pause
                     },
                 ),
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
             )
         }
         // Terminer demande d'appuyer 2 s, décompte 2, 1 sur le bouton : pas de fin de sortie
@@ -557,7 +583,7 @@ private fun Controls(
         Box(
             Modifier
                 .weight(1f)
-                .heightIn(min = 64.dp)
+                .heightIn(min = CONTROL_HEIGHT)
                 .background(MaterialTheme.colorScheme.errorContainer, MaterialTheme.shapes.extraLarge)
                 .pointerInput(Unit) {
                     detectTapGestures(onPress = {
@@ -589,7 +615,7 @@ private fun Controls(
             Text(
                 countdown?.toString() ?: stringResource(R.string.ride_finish),
                 color = MaterialTheme.colorScheme.onErrorContainer,
-                style = if (countdown != null) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.titleMedium,
+                style = if (countdown != null) MaterialTheme.typography.titleLarge else MaterialTheme.typography.titleMedium,
                 fontWeight = if (countdown != null) FontWeight.Bold else null,
             )
         }
@@ -601,7 +627,14 @@ private val GEAR_SIZE = 56.sp
 private const val BLINK_ALPHA = 0.2f
 private const val FINISH_COUNTDOWN = 2
 private const val FINISH_STEP_MS = 1_000L
-private const val SENSORS_PER_ROW = 2
+
+// Pause et Terminer : la cible tactile minimale d'Android, pour laisser la hauteur aux mesures.
+private val CONTROL_HEIGHT = 48.dp
+
+// Défilement d'une ligne trop longue du lecteur.
+private val SCROLL_SPEED = 30.dp
+private const val SCROLL_PAUSE_MS = 2_000L
+private const val MS_PER_SECOND = 1_000
 
 // Icônes du lecteur, en fractions de leur largeur.
 private val MEDIA_ICON = 22.dp

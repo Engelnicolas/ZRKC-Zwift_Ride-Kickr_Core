@@ -100,7 +100,7 @@
     <string name="ride_distance">Distance</string>
     <string name="ride_heart_rate">Heart rate</string>
     <string name="ride_flywheel">Flywheel (raw)</string>
-    <string name="ride_sensors">Sensors</string>
+    <string name="ride_sensors_ready">Sensors %1$d/%2$d</string>
     <string name="ride_remaining">%1$s left</string>
     <string name="ride_pause">Pause</string>
     <string name="ride_resume">Resume</string>
@@ -120,8 +120,6 @@
 
     <!-- Lecteur de l'écran Sortie -->
     <string name="player_music">Music</string>
-    <string name="player_playing">Playing</string>
-    <string name="player_paused">Paused</string>
     <string name="player_progress_description">Track position</string>
     <string name="player_unknown_title">Unknown track</string>
     <string name="player_grant">Show the track title</string>
