@@ -296,11 +296,12 @@ class SessionController(
         }
     }
 
-    // Le journal garde les mesures du trainer ; le FIT, la vitesse retenue par la sortie (celle du
-    // vélo virtuel avec les vitesses par la puissance), celle qui s'affiche et donne la distance.
+    // Le journal garde les mesures du trainer et la vitesse retenue par la sortie ; le FIT, cette
+    // dernière seule (celle du vélo virtuel avec les vitesses par la puissance), celle qui
+    // s'affiche et donne la distance.
     private fun onData(data: RidingData) {
         val kept = session.onRidingData(data)
-        if (session.phase == RidePhase.RIDING) ridingLog.log(data, sensorHeartRate, session.gear, writer?.lastSent)
+        if (session.phase == RidePhase.RIDING) ridingLog.log(data, kept.speedKmh, sensorHeartRate, session.gear, writer?.lastSent)
         if (session.phase == RidePhase.RIDING) {
             samples +=
                 FitSample(

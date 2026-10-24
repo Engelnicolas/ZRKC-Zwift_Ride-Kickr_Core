@@ -359,8 +359,8 @@ class SessionControllerTest {
             val lines = r.env.logs.filter { it.startsWith("pédalage") }
             assertEquals(
                 listOf(
-                    "pédalage : 150 W, 80 rpm, 30.0 km/h, vitesse 12, consigne rapport 2.4, pente 0.0 %",
-                    "pédalage : 152 W, 80 rpm, 30.0 km/h, vitesse 12, consigne rapport 2.4, pente 0.0 %",
+                    "pédalage : 150 W, 80 rpm, 30.0 km/h KICKR, 30.0 km/h affichés, vitesse 12, consigne rapport 2.4, pente 0.0 %",
+                    "pédalage : 152 W, 80 rpm, 30.0 km/h KICKR, 30.0 km/h affichés, vitesse 12, consigne rapport 2.4, pente 0.0 %",
                 ),
                 lines,
             )
@@ -430,6 +430,12 @@ class SessionControllerTest {
             assertTrue(speeds.all { it < 18.2 }, "$speeds")
             assertTrue(speeds.last() > 15.0, "$speeds")
             assertEquals(speeds.sorted(), speeds, "le vélo virtuel accélère")
+            // Le journal garde les deux : celle du KICKR et celle du vélo virtuel, affichée.
+            val shown =
+                r.env.logs
+                    .filter { it.startsWith("pédalage") }
+                    .map { checkNotNull(Regex("""20\.0 km/h KICKR, ([\d.]+) km/h affichés""").find(it), { it }).groupValues[1].toDouble() }
+            assertTrue(shown.last() in 15.0..18.2, "$shown")
         }
 
     @Test

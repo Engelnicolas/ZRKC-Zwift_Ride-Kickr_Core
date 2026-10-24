@@ -41,7 +41,8 @@ Flux de données :
    au plus une fois par intervalle, puis relit le rapport (requête 520).
 4. La télémétrie du KICKR (puissance, cadence, vitesse, volant) alimente la session et
    l'interface, avec la fréquence du capteur cardiaque (sinon celle que relaie le KICKR).
-   Pendant la sortie, le journal en garde une ligne par seconde, avec la consigne écrite.
+   Pendant la sortie, le journal en garde une ligne par seconde, avec la consigne écrite et
+   deux vitesses : celle du KICKR et celle affichée (le vélo virtuel des vitesses par la puissance).
 
 Fils : rappels BLE sur un `HandlerThread` dédié, jamais sur le fil principal ; logique de la
 sortie sur un fil unique (`Dispatchers.Default.limitedParallelism(1)`) où commandes, gestes
