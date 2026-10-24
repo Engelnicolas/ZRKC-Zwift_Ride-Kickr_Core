@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.IBinder
+import android.os.PowerManager
 import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
 import dev.kickzwift.app.AppContainer
@@ -72,6 +73,35 @@ class RideService : Service() {
             }
             launch { c.session.run(c.sessionDevices()) }
             launch { followInNotification(c) }
+            launch { keepScreenOn(c) }
+        }
+    }
+
+    /**
+     * Écran allumé du départ à la fin de la sortie, même quand une autre app (Spotify) passe
+     * devant : le FLAG_KEEP_SCREEN_ON de l'écran Sortie ne vaut que pour notre fenêtre. Le
+     * bouton d'alimentation éteint toujours l'écran. SCREEN_BRIGHT_WAKE_LOCK est déprécié au
+     * profit de ce flag, qui ne couvre justement pas ce cas.
+     */
+    @Suppress("DEPRECATION")
+    private suspend fun keepScreenOn(c: AppContainer) {
+        val lock =
+            getSystemService(PowerManager::class.java)
+                .newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "ZRKC:ride")
+                .apply { setReferenceCounted(false) }
+        try {
+            c.session.state
+                .map { it.snapshot.phase == RidePhase.RIDING || it.snapshot.phase == RidePhase.PAUSED }
+                .distinctUntilChanged()
+                .collect { riding ->
+                    if (riding) {
+                        lock.acquire(MAX_SCREEN_ON_MS)
+                    } else if (lock.isHeld) {
+                        lock.release()
+                    }
+                }
+        } finally {
+            if (lock.isHeld) lock.release()
         }
     }
 
@@ -124,6 +154,9 @@ class RideService : Service() {
     companion object {
         const val ACTION_PAUSE = "dev.kickzwift.app.PAUSE"
         const val ACTION_STOP = "dev.kickzwift.app.STOP"
+
+        // Garde-fou si la sortie ne se termine jamais : l'écran retrouve sa veille après 6 h.
+        private const val MAX_SCREEN_ON_MS = 6 * 60 * 60 * 1000L
 
         fun start(context: Context) {
             ContextCompat.startForegroundService(context, Intent(context, RideService::class.java))

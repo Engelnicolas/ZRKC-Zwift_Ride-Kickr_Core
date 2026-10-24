@@ -185,7 +185,8 @@ Aucun écran ne parle au Bluetooth : tout passe par le service, qui garde la sor
 | Bilan | Durée, distance, puissances, cadence, dénivelé, changements ; commentaire ; « Export for COROS », une fois par activité (bouton grisé ensuite, « Activity already sent to COROS ») ; partage du FIT, toujours écrit (complété à 21 000 octets au moins par des messages 0xFF00 que les lecteurs ignorent : COROS Training Hub refuserait les fichiers de moins de 20 Ko) |
 | Réglages (onglet) | Correspondance boutons → actions avec « Tester », vitesses par la puissance ou par le KICKR (« Gears by »), rapports (60 au plus), masses, affichage, options avancées (repli FTMS, journaux, essai du renvoi « Resend test » : Debug start, Debug stop) ; compte COROS (région, e-mail, mot de passe ; vérifier, oublier) |
 
-Règles : écran allumé pendant la sortie, portrait ou paysage ; thème sombre par défaut ;
+Règles : écran allumé pendant la sortie, pause comprise, même avec une autre app au premier
+plan (verrou d'écran du service) ; portrait ou paysage ; thème sombre par défaut ;
 cibles de 48 dp, 64 dp pour Pause et Terminer ; état des appareils signalé par la forme et le
 texte en plus de la couleur ; vibration au changement de vitesse, désactivable ; notification
 permanente avec Pause et Arrêter. Interface en anglais seulement. Boutons et accents en rouge
@@ -236,7 +237,8 @@ Bluetooth, aux GPX importés et aux réponses de COROS, toutes vérifiées.
 
 - **Permissions** : `BLUETOOTH_SCAN` (neverForLocation), `BLUETOOTH_CONNECT`,
   `FOREGROUND_SERVICE` et `FOREGROUND_SERVICE_CONNECTED_DEVICE`, `POST_NOTIFICATIONS`,
-  `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`, `VIBRATE`, `ACCESS_NOTIFICATION_POLICY`, `INTERNET` (envoi à COROS). Absentes volontairement :
+  `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`, `VIBRATE`, `WAKE_LOCK` (écran allumé pendant la
+  sortie), `ACCESS_NOTIFICATION_POLICY`, `INTERNET` (envoi à COROS). Absentes volontairement :
   localisation, stockage, accessibilité.
 - **Accès aux notifications** (facultatif, accordé dans les réglages d'Android) : ouvre la
   liste des lecteurs actifs pour le titre, l'état et l'avancement du lecteur ; sans accès, le

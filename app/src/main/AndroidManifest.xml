@@ -17,6 +17,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Écran allumé pendant la sortie, même avec une autre app devant (RideService). -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!-- « Export for COROS » seulement, à la demande, en HTTPS (CorosClient). -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Mode « ZRKC ride » pendant la sortie (RideQuiet) ; accordé avec l'accès aux notifications. -->
