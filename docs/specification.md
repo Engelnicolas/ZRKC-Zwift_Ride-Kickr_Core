@@ -180,7 +180,7 @@ Aucun écran ne parle au Bluetooth : tout passe par le service, qui garde la sor
 |---|---|
 | Connexions (onglet) | Encart « My devices », une ligne par appareil : état, batterie, firmware, fréquence cardiaque, alerte verrou ; recherche, mémorisation, oubli ; « Préparer la sortie » |
 | Activités (onglet) | « Démarrer une activité » ; distance et temps du mois et de l'année en cours ; historique par mois, le plus récent en tête, avec la distance cumulée du mois : le mois en cours ouvert, les autres refermés ; dans un mois, la sortie la plus récente en tête (liseré à la couleur du mois, date et mode, temps, distance, puissance moyenne, commentaire) |
-| Activité | Bilan enregistré ; commentaire modifiable ; suppression confirmée |
+| Activité | Bilan enregistré ; courbe de la sortie (puissance en ligne à la couleur du mois, fréquence cardiaque en ligne neutre, une seule échelle serrée sur les valeurs, sans partir de zéro, moyennes sur 30 s) ; commentaire modifiable ; suppression confirmée |
 | Choix du mode | Pente libre, parcours GPX (import, aperçu, cinq derniers), ERG |
 | Sortie | Notifications des autres apps en haut, poussant l'écran vers le bas (8 s, trois au plus) ; capteurs prêts sur une ligne, sans leurs noms (« Sensors 4/4 ») ; vitesse engagée et nombre de vitesses sur une ligne (« 13 of 24 »), barre des rapports, puissance, cadence, vitesse, pente ou cible, temps (h:mm:ss), distance, fréquence cardiaque, vitesse brute du volant, profil GPX ; lecteur, Spotify d'abord (« artiste - titre » sur une ligne, qui défile si elle déborde : 2 s d'arrêt au bout, retour au début, 2 s d'arrêt ; lecture ou pause sur l'icône du bouton ; avancement du morceau relu toutes les 500 ms, barre touchée ou glissée pour avancer ou reculer ; boutons précédent, lecture/pause, suivant, volume − et +) ; boutons ± de la cible en ERG seulement, la pente libre se règle aux manettes ; Pause, Terminer (appui de 2 s, décompte 2, 1 sur le bouton) |
 | Bilan | Durée, distance, puissances, cadence, dénivelé, changements ; commentaire ; « Export for COROS », une fois par activité (bouton grisé ensuite, « Activity already sent to COROS ») ; partage du FIT, toujours écrit (complété à 21 000 octets au moins par des messages 0xFF00 que les lecteurs ignorent : COROS Training Hub refuserait les fichiers de moins de 20 Ko) |
@@ -201,7 +201,7 @@ en haut à droite de chaque écran. Durées en heures, minutes et secondes.
 | Réglages, correspondance, table des rapports | DataStore typé `settings.pb` (codec de `:protocol`) |
 | Appareils de confiance | DataStore typé `known_devices.pb` |
 | Dernière vitesse, cinq derniers GPX | DataStore typé `ride_state.pb` |
-| Activités (date, mode, durée, distance, puissances, cadence, dénivelé, changements, commentaire) | SQLite `activities.db` |
+| Activités (date, mode, durée, distance, puissances, cadence, dénivelé, changements, commentaire, courbe : 3 octets par tranche de 30 s, puissance et fréquence cardiaque moyennes) | SQLite `activities.db` ; version 2 du schéma : colonne `curve`, reprise au lancement des FIT encore dans le cache, vide si le FIT a disparu |
 | Fichiers GPX importés | Copie dans le stockage interne |
 | Journaux | 5 fichiers de 1 Mo, partagés depuis les réglages |
 | Compte COROS (région, e-mail, MD5 du mot de passe) | `coros_account.bin`, AES-GCM, clé du Keystore Android |

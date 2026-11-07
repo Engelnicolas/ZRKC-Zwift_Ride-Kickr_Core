@@ -327,6 +327,7 @@ class SessionControllerTest {
             val saved = r.env.activities.single()
             assertEquals(1_792_000_000_000L, saved.startedAtMs)
             assertEquals(ActivityMode.ERG, saved.mode)
+            assertEquals(listOf(210), saved.curve!!.points.map { it.powerW })
             assertEquals(null, saved.routeName)
             assertEquals(4_200L, saved.durationMs)
             assertEquals(210, saved.avgPowerW)

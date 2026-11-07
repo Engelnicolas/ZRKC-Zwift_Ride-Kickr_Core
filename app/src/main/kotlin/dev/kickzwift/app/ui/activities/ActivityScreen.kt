@@ -26,10 +26,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dev.kickzwift.app.R
 import dev.kickzwift.app.data.Activity
 import dev.kickzwift.app.data.ActivityMode
+import dev.kickzwift.app.data.startMonth
 import dev.kickzwift.app.ui.common.Format
 import dev.kickzwift.app.ui.common.StatLine
+import dev.kickzwift.app.ui.monthAccent
+import java.time.ZoneId
 
-/** Une activité de l'historique : son bilan, son commentaire modifiable ; suppression confirmée. */
+/** Une activité de l'historique : son bilan, sa courbe, son commentaire modifiable ; suppression confirmée. */
 @Composable
 fun ActivityScreen(
     viewModel: ActivityViewModel,
@@ -94,6 +97,10 @@ private fun Details(
     StatLine(stringResource(R.string.summary_cadence), stringResource(R.string.unit_rpm, a.avgCadenceRpm))
     if (a.mode != ActivityMode.ERG) StatLine(stringResource(R.string.summary_elevation), Format.elevation(a.elevationGainM, imperial))
     StatLine(stringResource(R.string.summary_shifts), a.shifts.toString())
+    a.curve?.takeIf { it.points.size >= 2 }?.let { curve ->
+        HorizontalDivider()
+        RideCurveChart(curve, a.durationMs, monthAccent(a.startMonth(ZoneId.systemDefault())))
+    }
     HorizontalDivider()
     CommentField(comment, onChange = { comment = it })
     Button(onClick = { onSave(comment) }, enabled = comment.trim() != a.comment) {

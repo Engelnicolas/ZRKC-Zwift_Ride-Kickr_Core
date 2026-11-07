@@ -12,7 +12,7 @@ data class Total(
     operator fun plus(a: Activity) = Total(distanceM + a.distanceM, durationMs + a.durationMs)
 }
 
-private fun Activity.startMonth(zone: ZoneId) = YearMonth.from(Instant.ofEpochMilli(startedAtMs).atZone(zone))
+fun Activity.startMonth(zone: ZoneId): YearMonth = YearMonth.from(Instant.ofEpochMilli(startedAtMs).atZone(zone))
 
 /** Totaux du mois et de l'année en cours, d'après l'heure de départ de chaque sortie. */
 data class ActivityTotals(

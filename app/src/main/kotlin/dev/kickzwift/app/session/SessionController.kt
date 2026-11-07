@@ -15,6 +15,7 @@ import dev.kickzwift.protocol.RidingData
 import dev.kickzwift.protocol.fit.FitEncoder
 import dev.kickzwift.protocol.fit.FitSample
 import dev.kickzwift.protocol.fit.FitSummary
+import dev.kickzwift.protocol.fit.RideCurve
 import dev.kickzwift.protocol.session.RideMode
 import dev.kickzwift.protocol.session.RidePhase
 import dev.kickzwift.protocol.session.RideSession
@@ -398,6 +399,7 @@ class SessionController(
             avgCadenceRpm = stats.avgCadenceRpm,
             elevationGainM = stats.elevationGainM,
             shifts = stats.shifts,
+            curve = RideCurve.of(samples),
         )
     }
 

@@ -12,6 +12,7 @@ import dev.kickzwift.app.data.ActivityStore
 import dev.kickzwift.app.data.MemoryStore
 import dev.kickzwift.app.data.SettingsStore
 import dev.kickzwift.app.data.TrustedDevices
+import dev.kickzwift.app.data.backfillCurves
 import dev.kickzwift.app.log.FileLog
 import dev.kickzwift.app.phone.AndroidPhoneActions
 import dev.kickzwift.app.phone.MediaMonitor
@@ -47,6 +48,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
+import java.io.IOException
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -135,6 +137,15 @@ class AppContainer(
     private val quiet = RideQuiet(this.context, log::log)
 
     init {
+        scope.launch {
+            try {
+                activities.backfillCurves(exportsDir, log::log)
+            } catch (e: SQLiteException) {
+                log.log("courbes non reprises : $e")
+            } catch (e: IOException) {
+                log.log("courbes non reprises : $e")
+            }
+        }
         // Pendant la sortie : mode « ZRKC ride » et notifications recopiées dans l'écran Sortie.
         // La première valeur (pas de sortie) désactive un mode resté actif.
         scope.launch {

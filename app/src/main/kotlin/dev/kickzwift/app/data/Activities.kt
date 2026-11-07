@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import dev.kickzwift.protocol.fit.RideCurve
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,6 +31,8 @@ data class Activity(
     val elevationGainM: Double,
     val shifts: Int,
     val comment: String = "",
+    /** Vide sans mesures ; null tant qu'elle n'a pas été reprise du FIT (sortie plus ancienne). */
+    val curve: RideCurve? = null,
 ) {
     companion object {
         const val MAX_COMMENT = 500
@@ -72,6 +75,18 @@ class ActivityStore(
         write { delete(TABLE, "$ID = ?", arrayOf(id.toString())) }
     }
 
+    suspend fun withoutCurve(): List<Activity> = withContext(Dispatchers.IO) { query(null).filter { it.curve == null } }
+
+    suspend fun setCurve(
+        id: Long,
+        curve: RideCurve,
+    ) {
+        write {
+            val values = ContentValues().apply { put(CURVE, curve.toBytes()) }
+            update(TABLE, values, "$ID = ?", arrayOf(id.toString()))
+        }
+    }
+
     private suspend fun <T> write(block: SQLiteDatabase.() -> T): T =
         withContext(Dispatchers.IO) {
             db.writableDatabase.block().also { changes.update { it + 1 } }
@@ -107,7 +122,8 @@ class ActivityStore(
                     $CADENCE INTEGER NOT NULL,
                     $ELEVATION REAL NOT NULL,
                     $SHIFTS INTEGER NOT NULL,
-                    $COMMENT TEXT NOT NULL DEFAULT ''
+                    $COMMENT TEXT NOT NULL DEFAULT '',
+                    $CURVE BLOB
                 )
                 """.trimIndent(),
             )
@@ -119,12 +135,13 @@ class ActivityStore(
             oldVersion: Int,
             newVersion: Int,
         ) {
-            // Première version du schéma : rien à migrer.
+            if (oldVersion < VERSION_CURVE) db.execSQL("ALTER TABLE $TABLE ADD COLUMN $CURVE BLOB")
         }
     }
 
     private companion object {
-        const val VERSION = 1
+        const val VERSION_CURVE = 2
+        const val VERSION = VERSION_CURVE
         const val TABLE = "activities"
         const val ID = "_id"
         const val STARTED_AT = "started_at"
@@ -138,6 +155,7 @@ class ActivityStore(
         const val ELEVATION = "elevation_gain_m"
         const val SHIFTS = "shifts"
         const val COMMENT = "comment"
+        const val CURVE = "curve"
 
         fun Activity.toValues() =
             ContentValues().apply {
@@ -152,6 +170,7 @@ class ActivityStore(
                 put(ELEVATION, elevationGainM)
                 put(SHIFTS, shifts)
                 put(COMMENT, comment.trim().take(Activity.MAX_COMMENT))
+                put(CURVE, curve?.toBytes())
             }
 
         fun Cursor.toActivity() =
@@ -172,6 +191,7 @@ class ActivityStore(
                 elevationGainM = getDouble(getColumnIndexOrThrow(ELEVATION)),
                 shifts = getInt(getColumnIndexOrThrow(SHIFTS)),
                 comment = getString(getColumnIndexOrThrow(COMMENT)),
+                curve = getColumnIndexOrThrow(CURVE).let { if (isNull(it)) null else RideCurve.fromBytes(getBlob(it)) },
             )
     }
 }

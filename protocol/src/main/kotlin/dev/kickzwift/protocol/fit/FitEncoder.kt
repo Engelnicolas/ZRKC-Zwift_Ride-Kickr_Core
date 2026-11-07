@@ -179,7 +179,7 @@ object FitEncoder {
     }
 
     /** Numéros globaux des messages. */
-    private object Mesg {
+    internal object Mesg {
         const val FILE_ID = 0
         const val SESSION = 18
         const val LAP = 19
@@ -222,11 +222,12 @@ object FitEncoder {
     private const val LOCAL_SESSION = 3
     private const val LOCAL_ACTIVITY = 4
 
-    private const val FIT_EPOCH_S = 631_065_600L
-    private const val MS_PER_S = 1_000
-    private const val CM_PER_M = 100.0
-    private const val MM_PER_S_PER_KMH = 1_000.0 / 3.6
+    internal const val FIT_EPOCH_S = 631_065_600L
+    internal const val MS_PER_S = 1_000
+    internal const val CM_PER_M = 100.0
+    internal const val MM_PER_S_PER_KMH = 1_000.0 / 3.6
     internal const val BYTE = 0xFF
+    internal const val U16 = 0xFFFF
     private const val NIBBLE = 0x0F
     private const val NIBBLE_BITS = 4
     private const val CRC_LOW_12 = 0x0FFF
