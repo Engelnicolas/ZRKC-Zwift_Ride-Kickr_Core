@@ -54,4 +54,27 @@ class ActivityTotalsTest {
         assertEquals(Total(), totals.monthTotal)
         assertEquals(Total(), totals.yearTotal)
     }
+
+    @Test
+    fun `par mois, le plus recent en tete, d'apres l'heure locale du depart`() {
+        val nov = ride("2026-11-02T19:20:00", 19.0, 40)
+        val oct = ride("2026-10-18T15:49:00", 10.0, 30)
+        val oct1 = ride("2026-10-01T00:30:00", 5.0, 15) // 30 septembre 22 h 30 en UTC : octobre à Paris
+        val sep = ride("2026-09-30T23:30:00", 7.0, 20)
+        val dec = ride("2025-12-31T18:00:00", 100.0, 300)
+
+        val months = MonthActivities.of(listOf(nov, oct, oct1, sep, dec), paris)
+
+        assertEquals(
+            listOf(YearMonth.of(2026, 11), YearMonth.of(2026, 10), YearMonth.of(2026, 9), YearMonth.of(2025, 12)),
+            months.map { it.month },
+        )
+        assertEquals(Total(15_000.0, 45 * 60_000), months[1].total)
+        assertEquals(listOf(oct, oct1), months[1].activities)
+    }
+
+    @Test
+    fun `aucune sortie - aucun mois`() {
+        assertEquals(emptyList<MonthActivities>(), MonthActivities.of(emptyList(), paris))
+    }
 }

@@ -5,6 +5,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import java.time.YearMonth
 
 // Rouge dans l'esprit COROS pour les boutons et les accents, gris neutres pour les fonds :
 // aucune teinte violette héritée du thème Material par défaut.
@@ -13,6 +14,27 @@ private val RedDark = Color(0xFFC8102E)
 
 /** Pastille « prêt » : vert, pour ne pas confondre avec le rouge des boutons et des pertes. */
 val ReadyGreen = Color(0xFF43A047)
+
+// Une couleur par mois, de janvier à décembre : visible sur les cartes des deux thèmes, deux mois
+// voisins bien distincts.
+private val MonthAccents =
+    listOf(
+        Color(0xFF2E86DE),
+        Color(0xFFE0457B),
+        Color(0xFF2E9E5B),
+        Color(0xFFE67E22),
+        Color(0xFF0E9FB8),
+        Color(0xFFC4960C),
+        Color(0xFFE4002B),
+        Color(0xFF1BA38F),
+        Color(0xFF5B6EE1),
+        Color(0xFFC2571A),
+        Color(0xFF7AA81E),
+        Color(0xFFC23FB0),
+    )
+
+/** Couleur d'accent d'un mois, la même chaque année. */
+fun monthAccent(month: YearMonth): Color = MonthAccents[month.monthValue - 1]
 
 private val Dark =
     darkColorScheme(

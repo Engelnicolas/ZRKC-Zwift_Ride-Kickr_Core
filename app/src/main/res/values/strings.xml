@@ -167,6 +167,8 @@
     <string name="activities_empty">No activities yet. Finished rides appear here, most recent first.</string>
     <string name="activities_month">This month · %1$s</string>
     <string name="activities_year">This year · %1$d</string>
+    <string name="activities_expanded">Expanded</string>
+    <string name="activities_collapsed">Collapsed</string>
     <string name="activities_distance">Distance</string>
     <string name="activities_time">Time</string>
     <string name="activities_avg_power">Avg power</string>

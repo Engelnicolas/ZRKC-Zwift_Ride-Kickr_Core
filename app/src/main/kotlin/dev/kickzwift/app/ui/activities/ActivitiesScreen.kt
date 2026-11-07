@@ -24,9 +24,17 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -37,13 +45,16 @@ import dev.kickzwift.app.R
 import dev.kickzwift.app.data.Activity
 import dev.kickzwift.app.data.ActivityMode
 import dev.kickzwift.app.data.ActivityTotals
+import dev.kickzwift.app.data.MonthActivities
 import dev.kickzwift.app.data.Total
 import dev.kickzwift.app.ui.common.Format
 import dev.kickzwift.app.ui.common.HelpText
+import dev.kickzwift.app.ui.monthAccent
+import java.time.YearMonth
 
 /**
- * Écran Activités : « Démarrer une activité », totaux du mois et de l'année, puis l'historique,
- * la plus récente en tête.
+ * Écran Activités : « Démarrer une activité », totaux du mois et de l'année, puis l'historique
+ * par mois, le plus récent en tête ; seul le mois en cours est ouvert au départ.
  */
 @Composable
 fun ActivitiesScreen(
@@ -52,6 +63,9 @@ fun ActivitiesScreen(
     onOpen: (Long) -> Unit,
 ) {
     val ui by viewModel.state.collectAsStateWithLifecycle()
+
+    // Mois ouverts ou refermés à la main, à l'inverse de leur état par défaut.
+    var flipped by rememberSaveable { mutableStateOf(emptySet<YearMonth>()) }
 
     LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item { Text(stringResource(R.string.activities_title), style = MaterialTheme.typography.headlineSmall) }
@@ -67,9 +81,19 @@ fun ActivitiesScreen(
             if (!ui.canStart) HelpText(stringResource(R.string.devices_prepare_hint))
         }
         ui.totals?.let { t -> item { TotalsCard(t, ui.imperial) } }
-        val list = ui.activities
-        if (list != null && list.isEmpty()) item { Text(stringResource(R.string.activities_empty)) }
-        items(list.orEmpty(), key = { it.id }) { a -> ActivityRow(a, ui.imperial, onClick = { onOpen(a.id) }) }
+        val months = ui.months
+        if (months != null && months.isEmpty()) item { Text(stringResource(R.string.activities_empty)) }
+        for (m in months.orEmpty()) {
+            val open = (m.month == ui.totals?.month) != (m.month in flipped)
+            item(key = m.month.toString()) {
+                MonthHeader(m, open, ui.imperial, onClick = { flipped = if (m.month in flipped) flipped - m.month else flipped + m.month })
+            }
+            if (open) {
+                items(m.activities, key = { it.id }) { a ->
+                    ActivityRow(a, monthAccent(m.month), ui.imperial, onClick = { onOpen(a.id) })
+                }
+            }
+        }
     }
 }
 
@@ -115,16 +139,54 @@ private fun TotalColumn(
     }
 }
 
-/** Une sortie : liseré rouge, date et mode, trois mesures, commentaire. */
+/** En-tête d'un mois, à ouvrir ou refermer : nom du mois, distance cumulée, chevron. */
+@Composable
+private fun MonthHeader(
+    m: MonthActivities,
+    open: Boolean,
+    imperial: Boolean,
+    onClick: () -> Unit,
+) {
+    val state = stringResource(if (open) R.string.activities_expanded else R.string.activities_collapsed)
+    Card(onClick = onClick, modifier = Modifier.fillMaxWidth().semantics { stateDescription = state }) {
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                Format.month(m.month),
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                Format.distance(m.total.distanceM, imperial),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+            )
+            Text(
+                "›",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.rotate(if (open) OPEN_CHEVRON else 0f).clearAndSetSemantics { },
+            )
+        }
+    }
+}
+
+/** Une sortie : liseré [accent], date et mode, trois mesures, commentaire. */
 @Composable
 private fun ActivityRow(
     a: Activity,
+    accent: Color,
     imperial: Boolean,
     onClick: () -> Unit,
 ) {
     Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.height(IntrinsicSize.Min)) {
-            Box(Modifier.width(ACCENT).fillMaxHeight().background(MaterialTheme.colorScheme.primary))
+            Box(Modifier.width(ACCENT).fillMaxHeight().background(accent))
             Column(Modifier.weight(1f).padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(
                     Modifier.fillMaxWidth(),
@@ -216,4 +278,5 @@ fun CommentField(
 }
 
 private const val COMMENT_LINES = 5
+private const val OPEN_CHEVRON = 90f
 private val ACCENT = 6.dp
