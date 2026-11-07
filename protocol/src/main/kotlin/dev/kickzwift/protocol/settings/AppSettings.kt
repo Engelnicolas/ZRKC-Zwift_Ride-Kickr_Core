@@ -24,7 +24,7 @@ enum class GearMode { POWER, TRAINER }
  */
 data class AppSettings(
     val mapping: ButtonMapping = ButtonMapping.DEFAULT,
-    val gears: List<Double> = GearTable.ZWIFT,
+    val gears: List<Double> = GearTable.DEFAULT,
     val startGear: Int = DEFAULT_START_GEAR,
     val riderKg: Double = DEFAULT_RIDER_KG,
     val bikeKg: Double = DEFAULT_BIKE_KG,
@@ -53,6 +53,9 @@ data class AppSettings(
         require(ergMaxW in 1..ERG_CEILING_W) { "plafond ERG hors bornes" }
     }
 
+    /** Plafond suivant, de [ERG_STEP_W] en [ERG_STEP_W], entre [ERG_MIN_W] et [ERG_CEILING_W]. */
+    fun steppedErgMax(up: Boolean): Int = (ergMaxW + if (up) ERG_STEP_W else -ERG_STEP_W).coerceIn(ERG_MIN_W, ERG_CEILING_W)
+
     fun sessionConfig(): SessionConfig =
         SessionConfig(
             gears = gears,
@@ -73,7 +76,11 @@ data class AppSettings(
         const val DEFAULT_BIKE_KG = 9.5
         const val DEFAULT_WRITE_INTERVAL_MS = 150L
         const val DEFAULT_ERG_MAX_W = 600
-        const val ERG_CEILING_W = 2_000
+        const val ERG_MIN_W = 100
+        const val ERG_STEP_W = 50
+
+        /** Puissance maximale annoncée par Wahoo pour le KICKR CORE. */
+        const val ERG_CEILING_W = 1_800
         const val AXIS_MAX = 100
         val MASS_RANGE = 1.0..300.0
         val WRITE_INTERVAL_RANGE = 50L..1_000L

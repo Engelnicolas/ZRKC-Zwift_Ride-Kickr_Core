@@ -1,6 +1,6 @@
 # ZRKC — spécification technique
 
-App Android autonome qui relie les manettes du Zwift Ride au KICKR CORE : 24 vitesses
+App Android autonome qui relie les manettes du Zwift Ride au KICKR CORE : 32 vitesses
 virtuelles, pente libre, parcours GPX ou ERG, musique et volume depuis les manettes,
 historique des activités. Ce document décrit le code tel qu'il est ; l'usage est dans le
 [README](../README.md), le protocole des manettes dans [ride.md](ride.md).
@@ -76,7 +76,7 @@ keepalive, message 0x23 (bitmap inversé et axes des palettes), table des 16 com
 - **ERG** : champ PowerTarget (3) du 0x04, d'après virtual-cog, non vérifié sur le KICKR.
 
 ```
-GearRatioX10000 = round(rapport × 10000)   // vitesse 12 : 2,40 → 24000
+GearRatioX10000 = round(rapport × 10000)   // rapport 2,40 → 24000
 InclineX100     = round(pente en % × 100)  // +2,5 % → 250
 BikeWeightx100  = round(masse en kg × 100) // 9,5 kg → 950
 ```
@@ -124,9 +124,16 @@ décalage de pente de (rapport / 2,40 − 1) × 5 %. Pas de relecture du rapport
 
 ### Rapports
 
-Préréglage Zwift, modifiable dans les réglages : 0,75 · 0,87 · 0,99 · 1,11 · 1,23 · 1,38 ·
-1,53 · 1,68 · 1,86 · 2,04 · 2,22 · **2,40** (vitesse 12) · 2,61 · 2,82 · 3,03 · 3,24 · 3,49 ·
-3,74 · 3,99 · 4,24 · 4,54 · 4,84 · 5,14 · 5,49.
+Table par défaut, modifiable dans les réglages : 0,99 · 1,38 · 1,68 · 1,86 · 2,04 · 2,10 · 2,16 ·
+2,23 · 2,30 · 2,37 · 2,44 · **2,51** (vitesse 12, celle du départ) · 2,59 · 2,66 · 2,74 · 2,83 ·
+2,91 · 3,00 · 3,09 · 3,18 · 3,28 · 3,38 · 3,48 · 3,58 · 3,69 · 3,80 · 3,91 · 4,03 · 4,15 · 4,28 ·
+4,41 · 4,54. Quatre rapports pour les pentes, puis vingt-huit à pas constant, environ 8 % de
+puissance par vitesse à plat : à 73 rpm, 23 vitesses entre 50 et 300 W.
+
+Préréglage Zwift, à un bouton des réglages : 0,75 · 0,87 · 0,99 · 1,11 · 1,23 · 1,38 · 1,53 · 1,68 ·
+1,86 · 2,04 · 2,22 · 2,40 · 2,61 · 2,82 · 3,03 · 3,24 · 3,49 · 3,74 · 3,99 · 4,24 · 4,54 · 4,84 ·
+5,14 · 5,49. À plat et 73 rpm, ses vitesses 1 à 9 restent sous 50 W, en dessous de ce que donne le
+KICKR : 46 W mesurés pour une consigne de 20 à 29 W, sorties d'octobre 2026.
 
 ## Machines à états
 
@@ -162,7 +169,7 @@ Valeurs par défaut, réglables pour la plupart.
 | Reconnexion | 1, 2, 4, 8, 16 puis 30 s | Sans limite pendant une sortie |
 | KICKR perdu | 30 s | La sortie passe en pause |
 | Pente | −10 % à +16 %, pas de 0,5 % | Toute consigne est bornée |
-| ERG | pas de 10 W, plafond 600 W | Vitesses désactivées |
+| ERG | pas de 10 W, plafond 600 W par défaut, de 100 à 1 800 W dans Advanced (toute consigne, vitesses par la puissance comprises) | Vitesses désactivées |
 | Vitesses | 10 changements / s au plus | — |
 | Interface | 4 Hz | Puissance affichée = moyenne sur 3 s |
 
@@ -182,9 +189,9 @@ Aucun écran ne parle au Bluetooth : tout passe par le service, qui garde la sor
 | Activités (onglet) | « Démarrer une activité » ; distance et temps du mois et de l'année en cours ; historique par mois, le plus récent en tête, avec la distance cumulée du mois : le mois en cours ouvert, les autres refermés ; dans un mois, la sortie la plus récente en tête (liseré à la couleur du mois, date et mode, temps, distance, puissance moyenne, commentaire) |
 | Activité | Bilan enregistré ; courbe de la sortie (puissance en ligne à la couleur du mois, fréquence cardiaque en ligne neutre, une seule échelle serrée sur les valeurs, sans partir de zéro, moyennes sur 30 s) ; commentaire modifiable ; suppression confirmée, qui emporte le FIT du téléphone (retrouvé par sa première mesure), pas les journaux ni une copie déjà envoyée à COROS |
 | Choix du mode | Pente libre, parcours GPX (import, aperçu, cinq derniers), ERG |
-| Sortie | Notifications des autres apps en haut, poussant l'écran vers le bas (8 s, trois au plus) ; capteurs prêts sur une ligne, sans leurs noms (« Sensors 4/4 ») ; vitesse engagée et nombre de vitesses sur une ligne (« 13 of 24 »), barre des rapports, puissance, cadence, vitesse, pente ou cible, temps (h:mm:ss), distance, fréquence cardiaque, vitesse brute du volant, profil GPX ; lecteur, Spotify d'abord (« artiste - titre » sur une ligne, qui défile si elle déborde : 2 s d'arrêt au bout, retour au début, 2 s d'arrêt ; lecture ou pause sur l'icône du bouton ; avancement du morceau relu toutes les 500 ms, barre touchée ou glissée pour avancer ou reculer ; boutons précédent, lecture/pause, suivant, volume − et +) ; boutons ± de la cible en ERG seulement, la pente libre se règle aux manettes ; Pause, Terminer (appui de 2 s, décompte 2, 1 sur le bouton) |
+| Sortie | Notifications des autres apps en haut, poussant l'écran vers le bas (8 s, trois au plus) ; capteurs prêts sur une ligne, sans leurs noms (« Sensors 4/4 ») ; vitesse engagée et nombre de vitesses sur une ligne (« 13 of 32 »), barre des rapports, puissance, cadence, vitesse, pente ou cible, temps (h:mm:ss), distance, fréquence cardiaque, vitesse brute du volant, profil GPX ; lecteur, Spotify d'abord (« artiste - titre » sur une ligne, qui défile si elle déborde : 2 s d'arrêt au bout, retour au début, 2 s d'arrêt ; lecture ou pause sur l'icône du bouton ; avancement du morceau relu toutes les 500 ms, barre touchée ou glissée pour avancer ou reculer ; boutons précédent, lecture/pause, suivant, volume − et +) ; boutons ± de la cible en ERG seulement, la pente libre se règle aux manettes ; Pause, Terminer (appui de 2 s, décompte 2, 1 sur le bouton) |
 | Bilan | Durée, distance, puissances, cadence, dénivelé, changements ; commentaire ; « Export for COROS », une fois par activité (bouton grisé ensuite, « Activity already sent to COROS ») ; partage du FIT, toujours écrit (complété à 21 000 octets au moins par des messages 0xFF00 que les lecteurs ignorent : COROS Training Hub refuserait les fichiers de moins de 20 Ko) |
-| Réglages (onglet) | Correspondance boutons → actions avec « Tester », vitesses par la puissance ou par le KICKR (« Gears by »), rapports (60 au plus), masses, affichage, options avancées (repli FTMS, journaux, essai du renvoi « Resend test » : Debug start, Debug stop) ; compte COROS (région, e-mail, mot de passe ; vérifier, oublier) |
+| Réglages (onglet) | Correspondance boutons → actions avec « Tester », vitesses par la puissance ou par le KICKR (« Gears by »), rapports (60 au plus), masses, affichage, options avancées (repli FTMS, plafond de puissance, journaux, essai du renvoi « Resend test » : Debug start, Debug stop) ; compte COROS (région, e-mail, mot de passe ; vérifier, oublier) |
 
 Règles : écran allumé pendant la sortie, pause comprise, même avec une autre app au premier
 plan (verrou d'écran du service) ; portrait ou paysage ; thème sombre par défaut ;

@@ -12,7 +12,7 @@
 # ZRKC: ride your KICKR CORE from your Zwift Ride
 
 **Your Zwift Ride controllers and your KICKR CORE, linked by your phone. No computer, no
-tablet, no game.** Shift through 24 virtual gears, steer the grade or ride a GPX route,
+tablet, no game.** Shift through 32 virtual gears, steer the grade or ride a GPX route,
 hold an ERG target, skip tracks and turn up the volume without taking your hands off the
 bars. Every ride is saved on the phone and can go to COROS in one tap.
 
@@ -31,7 +31,7 @@ bars. Every ride is saved on the phone and can go to COROS in one tap.
 
 | | |
 |---|---|
-| ⚙️ **Real virtual shifting** | 24 gears out of the box, up to 60 in your own table. The app works out what a real bike would need at your cadence, gear and grade, every second. |
+| ⚙️ **Real virtual shifting** | 32 gears out of the box, up to 60 in your own table. The app works out what a real bike would need at your cadence, gear and grade, every second. |
 | ⛰️ **Three ways to ride** | Free grade, set from the controllers; a GPX route with its elevation profile; or ERG, holding a power target. |
 | 🎵 **Music at your fingertips** | Play, pause, skip, seek and volume from the controllers, Spotify first. |
 | 🎮 **Every button is yours** | 14 buttons and 2 paddles, each with press, long press and double press, with a live Test mode. |

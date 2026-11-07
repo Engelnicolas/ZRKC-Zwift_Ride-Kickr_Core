@@ -1,11 +1,27 @@
 package dev.kickzwift.protocol.gear
 
+import dev.kickzwift.protocol.settings.AppSettings
 import dev.kickzwift.protocol.trainer.TrainerCodec
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class GearEngineTest {
+    @Test
+    fun `table par defaut - 32 rapports de 0,99 a 4,54, strictement croissants`() {
+        assertEquals(32, GearTable.DEFAULT.size)
+        assertEquals(0.99, GearTable.DEFAULT.first())
+        assertEquals(4.54, GearTable.DEFAULT.last())
+        assertEquals(GearTable.DEFAULT, AppSettings().gears)
+        GearEngine(GearTable.DEFAULT, start = 12)
+    }
+
+    @Test
+    fun `table par defaut - quatre vitesses seulement sous 50 W a 73 rpm sur le plat`() {
+        val below = GearTable.DEFAULT.count { PowerGears.targetWatts(73.0, it, 0.0, 84.5, 600) < 50 }
+        assertEquals(4, below)
+    }
+
     @Test
     fun `table Zwift - 24 rapports de 0,75 a 5,49`() {
         assertEquals(24, GearTable.ZWIFT.size)

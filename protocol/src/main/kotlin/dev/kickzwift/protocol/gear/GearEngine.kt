@@ -7,7 +7,48 @@ import kotlinx.coroutines.flow.updateAndGet
 
 /** Tables de rapports virtuels. */
 object GearTable {
-    /** Préréglage par défaut, repris de Zwift (Zwift Insider) : 24 rapports de 0,75 à 5,49. */
+    /**
+     * Table par défaut, 32 rapports de 0,99 à 4,54 : quatre pour les pentes, puis vingt-huit à pas
+     * constant, environ 8 % de puissance par vitesse à plat. À 73 rpm sur le plat, ceux du
+     * préréglage Zwift passent sous le plancher du KICKR (environ 50 W) jusqu'à la vitesse 9.
+     */
+    val DEFAULT: List<Double> =
+        listOf(
+            0.99,
+            1.38,
+            1.68,
+            1.86,
+            2.04,
+            2.10,
+            2.16,
+            2.23,
+            2.30,
+            2.37,
+            2.44,
+            2.51,
+            2.59,
+            2.66,
+            2.74,
+            2.83,
+            2.91,
+            3.00,
+            3.09,
+            3.18,
+            3.28,
+            3.38,
+            3.48,
+            3.58,
+            3.69,
+            3.80,
+            3.91,
+            4.03,
+            4.15,
+            4.28,
+            4.41,
+            4.54,
+        )
+
+    /** Préréglage repris de Zwift (Zwift Insider) : 24 rapports de 0,75 à 5,49. */
     val ZWIFT: List<Double> =
         listOf(
             0.75,

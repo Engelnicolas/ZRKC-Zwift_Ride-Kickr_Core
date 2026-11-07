@@ -169,7 +169,7 @@ class SettingsCodecTest {
     @Test
     fun `reglages invalides refuses a la construction`() {
         assertThrows<IllegalArgumentException> { AppSettings(gears = emptyList()) }
-        assertThrows<IllegalArgumentException> { AppSettings(startGear = 25) }
+        assertThrows<IllegalArgumentException> { AppSettings(startGear = 33) }
         assertThrows<IllegalArgumentException> { AppSettings(riderKg = 0.0) }
         assertThrows<IllegalArgumentException> { AppSettings(writeIntervalMs = 10) }
         assertThrows<IllegalArgumentException> { AppSettings(paddlePress = 10, paddleRelease = 20) }

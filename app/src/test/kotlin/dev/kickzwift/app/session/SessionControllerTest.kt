@@ -13,6 +13,7 @@ import dev.kickzwift.protocol.Gesture
 import dev.kickzwift.protocol.LinkState
 import dev.kickzwift.protocol.RidingData
 import dev.kickzwift.protocol.TrainerTarget
+import dev.kickzwift.protocol.gear.GearTable
 import dev.kickzwift.protocol.session.PauseReason
 import dev.kickzwift.protocol.session.RideMode
 import dev.kickzwift.protocol.session.RidePhase
@@ -140,7 +141,7 @@ class SessionControllerTest {
 
     /** Vitesses par le KICKR sauf [power] : la plupart des tests suivent la consigne de simulation. */
     private fun TestScope.rig(
-        settings: AppSettings = AppSettings(),
+        settings: AppSettings = AppSettings(gears = GearTable.ZWIFT),
         power: Boolean = false,
     ): Rig {
         val env = Env(this, settings.copy(gearMode = if (power) GearMode.POWER else GearMode.TRAINER))

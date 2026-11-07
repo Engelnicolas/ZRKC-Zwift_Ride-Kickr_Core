@@ -130,6 +130,8 @@ class SettingsViewModel(
 
     fun setFtms(on: Boolean) = update { it.copy(ftmsFallback = on) }
 
+    fun stepErgMax(up: Boolean) = update { it.copy(ergMaxW = it.steppedErgMax(up)) }
+
     /** Essai du renvoi (Advanced › Resend test). */
     val resendTest = c.session.resendTest
 

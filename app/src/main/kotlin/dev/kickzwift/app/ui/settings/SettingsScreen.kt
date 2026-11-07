@@ -305,6 +305,10 @@ private fun LazyListScope.advancedSection(
         }
         SwitchRow(stringResource(R.string.settings_ftms), ui.settings.ftmsFallback, vm::setFtms)
         Text(stringResource(R.string.settings_ftms_hint), style = MaterialTheme.typography.bodySmall)
+        Labeled(stringResource(R.string.settings_erg_max)) {
+            Stepper(stringResource(R.string.unit_w, ui.settings.ergMaxW), { vm.stepErgMax(false) }, { vm.stepErgMax(true) })
+        }
+        Text(stringResource(R.string.settings_erg_max_hint), style = MaterialTheme.typography.bodySmall)
         OutlinedButton(onClick = { scope.launch { context.shareFile(vm.exportLog(), "text/plain") } }) {
             Text(stringResource(R.string.settings_export_log))
         }
