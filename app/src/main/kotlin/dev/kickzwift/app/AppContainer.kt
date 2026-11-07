@@ -13,6 +13,7 @@ import dev.kickzwift.app.data.MemoryStore
 import dev.kickzwift.app.data.SettingsStore
 import dev.kickzwift.app.data.TrustedDevices
 import dev.kickzwift.app.data.backfillCurves
+import dev.kickzwift.app.data.deleteFit
 import dev.kickzwift.app.log.FileLog
 import dev.kickzwift.app.phone.AndroidPhoneActions
 import dev.kickzwift.app.phone.MediaMonitor
@@ -100,7 +101,13 @@ class AppContainer(
         if (toCoros) activities.activity(id).first()?.let { coros.comment(it.startedAtMs, text) }
     }
 
-    fun deleteActivity(id: Long) = writeActivity("activité non supprimée") { activities.delete(id) }
+    /** Le FIT de l'activité part avec elle ; il ne sert qu'au bilan, déjà refermé à ce stade. */
+    fun deleteActivity(id: Long) =
+        writeActivity("activité non supprimée") {
+            val started = activities.activity(id).first()?.startedAtMs
+            activities.delete(id)
+            started?.let { deleteFit(exportsDir, it, log::log) }
+        }
 
     private fun writeActivity(
         failure: String,
@@ -110,6 +117,8 @@ class AppContainer(
             try {
                 block()
             } catch (e: SQLiteException) {
+                log.log("$failure : $e")
+            } catch (e: IOException) {
                 log.log("$failure : $e")
             }
         }

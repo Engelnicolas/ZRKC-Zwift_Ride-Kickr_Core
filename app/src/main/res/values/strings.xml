@@ -183,7 +183,7 @@
     <string name="activity_comment_save">Save the comment</string>
     <string name="activity_delete">Delete</string>
     <string name="activity_delete_title">Delete this activity?</string>
-    <string name="activity_delete_text">It will be removed from the history, along with its comment. This cannot be undone.</string>
+    <string name="activity_delete_text">It will be removed from the history, along with its comment and its FIT file on this phone. This cannot be undone.</string>
 
     <!-- Écran Réglages -->
     <string name="settings_title">Settings</string>

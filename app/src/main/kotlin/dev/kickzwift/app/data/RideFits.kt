@@ -11,13 +11,20 @@ import kotlin.math.abs
 /** Écart maximal entre le départ d'une activité et la première mesure de son FIT. */
 private const val MATCH_MS = 60_000L
 
+private fun sameRide(
+    firstSampleMs: Long,
+    startedAtMs: Long,
+) = abs(firstSampleMs - startedAtMs) <= MATCH_MS
+
+private fun File.fits() = listFiles { f -> f.extension == "fit" }.orEmpty().asList()
+
 /** Courbe de l'activité d'après le FIT parti en même temps qu'elle ; vide s'il n'y en a pas. */
 internal fun curveFor(
     startedAtMs: Long,
     rides: List<List<FitSample>>,
 ): RideCurve =
     rides
-        .firstOrNull { abs(it.first().epochMs - startedAtMs) <= MATCH_MS }
+        .firstOrNull { sameRide(it.first().epochMs, startedAtMs) }
         ?.let(RideCurve::of)
         ?: RideCurve.EMPTY
 
@@ -34,8 +41,7 @@ suspend fun ActivityStore.backfillCurves(
     val rides =
         withContext(Dispatchers.IO) {
             fitDir
-                .listFiles { f -> f.extension == "fit" }
-                .orEmpty()
+                .fits()
                 .map { FitDecoder.samples(it.readBytes()) }
                 .filter { it.isNotEmpty() }
         }
@@ -46,4 +52,18 @@ suspend fun ActivityStore.backfillCurves(
         setCurve(a.id, curve)
     }
     log("courbes reprises des FIT : $found sur ${missing.size}")
+}
+
+/** Supprime le FIT parti en même temps que l'activité [startedAtMs]. Sans activité, il n'a plus d'usage. */
+suspend fun deleteFit(
+    fitDir: File,
+    startedAtMs: Long,
+    log: (String) -> Unit,
+) {
+    withContext(Dispatchers.IO) {
+        fitDir
+            .fits()
+            .filter { f -> FitDecoder.samples(f.readBytes()).firstOrNull()?.let { sameRide(it.epochMs, startedAtMs) } == true }
+            .forEach { if (!it.delete()) log("FIT non supprimé : ${it.name}") }
+    }
 }
